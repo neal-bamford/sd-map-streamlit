@@ -2,10 +2,14 @@ import streamlit as st
 import time
 import numpy as np
 import os
+import socket   
 
+hostname=socket.gethostname()   
+IPAddr=socket.gethostbyname(hostname) 
 
 # Take some secrets and display them to see how it works
 st.write(os.environ["str_greeting"])
+st.write(IPAddr)
 
 progress_bar = st.sidebar.progress(0)
 status_text = st.sidebar.empty()
