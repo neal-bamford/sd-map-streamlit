@@ -7,7 +7,7 @@ import os
 import urllib.request
 
 # Add our lib directory
-sys.path.append("./lib")
+sys.path.append("lib")
 
 import masters_data_analytics_lib as mlib
 
