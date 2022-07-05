@@ -2,14 +2,13 @@ import streamlit as st
 import time
 import numpy as np
 import os
-import socket   
+import urllib.request
 
-hostname=socket.gethostname()   
-IPAddr=socket.gethostbyname(hostname) 
+external_ip = urllib.request.urlopen('https://ident.me').read().decode('utf8')
 
 # Take some secrets and display them to see how it works
 st.write(os.environ["str_greeting"])
-st.write(IPAddr)
+st.write(external_ip)
 
 progress_bar = st.sidebar.progress(0)
 status_text = st.sidebar.empty()
