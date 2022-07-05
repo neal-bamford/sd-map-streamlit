@@ -34,6 +34,16 @@ chart.add_rows(new_rows)
 progress_bar.progress(i)
 last_rows = new_rows
 
+
+#Load the populatoin data file
+bh_pop_data_file = "./data/bh_population.csv"
+
+bh_pop_df = mlib.csv_to_dataframe(bh_pop_data_file)
+
+stats_table = bh_pop_df.agg({"AreaHectares": ["sum","mean","std","skew","kurt"]}).round(2)
+
+st.dataframe(stats_table)
+
 time.sleep(0.05)
 
 progress_bar.empty()
