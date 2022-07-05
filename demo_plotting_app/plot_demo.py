@@ -1,8 +1,15 @@
+
 import streamlit as st
 import time
 import numpy as np
+import sys
 import os
 import urllib.request
+
+# Add our lib directory
+sys.path.append("./lib")
+
+import masters_data_analytics_lib as mlib
 
 external_ip = urllib.request.urlopen('https://ident.me').read().decode('utf8')
 
