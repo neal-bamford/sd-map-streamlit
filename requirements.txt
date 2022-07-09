@@ -3,3 +3,4 @@ streamlit==1.10.0
 dataframe-image==0.1.1
 fpdf==1.7.2
 docx-mailmerge==0.5.0
+python-docx==0.8.11
