@@ -109,7 +109,7 @@ def json_template_processor(template_file_str, session_id, template_option, merg
             print("We will now remove the following table cell{} {} before going to the second stage.".format("s" if len(table_cell_to_remove) >1 else "", \
                                                                                                           table_cell_to_remove))
     except Exception as e: 
-        print("An error occurred trying to include images into table cells" + str(e))
+        print("An error occurred trying to include images into template {}. {}".format(st01_input_template, str(e)))
 
     #
     ##
@@ -191,7 +191,7 @@ def json_template_processor(template_file_str, session_id, template_option, merg
                 print("Field {} with value {} will not be merged with template".format(merge_field, merge_field_value))
             
     except Exception as e: 
-        print("An error occurred trying to include images into table cells" + str(e))    
+        print("An error occurred trying to include merge fields into template {}. {} ".format(st01_input_template, str(e)))    
     
     return st02_output_document_web_name, "DOCUMENT_CONTENTS" 
 
