@@ -54,7 +54,7 @@
         "template_options":[
           {"option_number":0,
            "option_description":"<<default_option>>",
-           "option_images":[
+           "option_fields":[
            					{"merge_field":"A", "include_merge_field":true},
            					{"merge_field":"B", "include_merge_field":false},
            					{"merge_field":"C", "include_merge_field":true},
@@ -63,7 +63,7 @@
           },
           {"option_number":1,
            "option_description":"<<default_option>>",
-           "option_images":[
+           "option_fields":[
            					{"merge_field":"A", "include_merge_field":false},
            					{"merge_field":"B", "include_merge_field":true},
            					{"merge_field":"C", "include_merge_field":false},
@@ -72,7 +72,7 @@
           },
           {"option_number":2,
            "option_description":"<<default_option>>",
-           "option_images":[
+           "option_fields":[
            					{"merge_field":"A", "include_merge_field":true},
            					{"merge_field":"B", "include_merge_field":true},
            					{"merge_field":"C", "include_merge_field":true},
@@ -81,7 +81,7 @@
           },
           {"option_number":3,
            "option_description":"<<default_option>>",
-           "option_images":[
+           "option_fields":[
            					{"merge_field":"A", "include_merge_field":false},
            					{"merge_field":"B", "include_merge_field":true},
            					{"merge_field":"C", "include_merge_field":false},
