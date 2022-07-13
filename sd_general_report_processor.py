@@ -1,15 +1,26 @@
+from __future__ import print_function
+
+import base64
+from datetime import date
 import os
+import shutil
 import sys
 import time
 import uuid
 
+from docx import Document
+from docx.shared import Inches
 import folium
+from fpdf import FPDF
+from mailmerge import MailMerge
 from selenium import webdriver
 from selenium.webdriver.firefox.options import Options
 
 from lib import masters_data_analytics_lib as mlib
 import numpy as np
 import pandas as pd
+import streamlit as st
+
 
 def stats(df, borough, ward_name, oacode, column):
     """
@@ -44,7 +55,7 @@ def ranking(df, borough, column, limit=5):
 
     return ranking_df_stats_borough.head(limit), ranking_df_stats_borough.loc[ranking_df_stats_borough["borough"] == borough], ranking_df_stats_borough.tail(limit)
 
-def post_code_fmt(post_codes):
+def series_format(post_codes):
     """
     Comma separate a list of post codes
     """
@@ -53,6 +64,12 @@ def post_code_fmt(post_codes):
         ret_str += post_code + ", "
         
     ret_str = ret_str[0:len(ret_str)-2] 
+    
+    replacement = " and "
+    reverse_replacement = replacement[::-1]
+    
+    ret_str = ret_str[::-1].replace(" ,", reverse_replacement, 1)[::-1]
+
     return ret_str
 
 
@@ -64,7 +81,7 @@ city = "london"
 ## Sutton            : E5 8ES
 ## City of London    : E1 6AN
 ## Greenwich         : SE18 4AF
-post_code_search = "SE18 4AF"
+post_code_search = "E5 8ES"
 
 
 ##
@@ -94,20 +111,30 @@ sd_london_qualification_oa_df   = mlib.csv_to_dataframe(sd_london_qualification_
 ## Generate a session id - this will come from Streamlit and will segment users
 session_id = str(uuid.uuid4())[:8]
 
-OAcode = sd_london_postcodes_df.loc[sd_london_postcodes_df["Post_Code"] == post_code_search]["OAcode"].values[0]
+try:
+    OAcode = sd_london_postcodes_df.loc[sd_london_postcodes_df["Post_Code"] == post_code_search]["OAcode"].values[0]
+except:
+    raise Exception("Unable to find post code {}".format(post_code_search))
+
 other_post_codes = sd_london_postcodes_df.loc[sd_london_postcodes_df["OAcode"] == OAcode]["Post_Code"].to_numpy()
-other_post_codes = np.delete(other_post_codes , np.where(other_post_codes == post_code_search))
+other_post_codes = np.delete(other_post_codes, np.where(other_post_codes == post_code_search))
 number_of_boroughs = len(sd_london_postcodes_df["borough"].unique())
+
 
 ## Obtain the ward_name from the OACode
 ward_name = sd_london_postcodes_df.loc[sd_london_postcodes_df["OAcode"] == OAcode]["WARD_NAME"].values[0]
 borough   = sd_london_postcodes_df.loc[sd_london_postcodes_df['OAcode'] == OAcode]["borough"].values[0]
 
+other_wards = sd_london_postcodes_df.loc[sd_london_postcodes_df["borough"] == borough]["WARD_NAME"]
+other_wards = other_wards.unique()
+# print(type(other_wards))
+# other_wards = other_wards.to_numpy()
+other_wards = np.delete(other_wards, np.where(other_wards == borough))
 
 ###
 ### FOLIUM MAP
 ###
-if 1==2:
+if 1==1:
     post_code_search_longitude = sd_london_postcodes_df.loc[sd_london_postcodes_df["Post_Code"] == post_code_search]["longitude"].to_numpy()
     post_code_search_latitude = sd_london_postcodes_df.loc[sd_london_postcodes_df["Post_Code"] == post_code_search]["latitude"].to_numpy()
     
@@ -192,8 +219,8 @@ if 1==2:
     time.sleep(3)
     
     ## Save the map graphic
-    png_file = file + ".png"
-    browser.save_screenshot(png_file)
+    location_png_file = file + ".png"
+    browser.save_screenshot(location_png_file)
     browser.quit()
     
 ###
@@ -214,10 +241,10 @@ if 1==1:
     print("----------------")
     print("\n")
     
-    combined_str1 = "The post code {} belongs to the ward {} and borough {} within the city of {}. There are {} other post code{} which the following data is part of. These being {}".format(\
-              post_code_search, ward_name, borough, city, len(other_post_codes), ("s" if len(other_post_codes) > 1 else ""), post_code_fmt(other_post_codes))
+    location_field_01 = "The post code {} belongs to the ward {} and borough {} within the city of {}. There are {} other post code{} which the following data is part of. These being {}. There are {} other ward{} in the borough which are {}".format(\
+              post_code_search, ward_name, borough, city.capitalize(), len(other_post_codes), ("s" if len(other_post_codes) > 1 else ""), series_format(other_post_codes), len(other_wards), ("s" if len(other_wards) > 1 else ""), series_format(other_wards))
     
-    print(combined_str1)
+    print(location_field_01)
     # print("\n")
     # print("\n")
 
@@ -286,22 +313,29 @@ if 1==1:
     top, this, bottom = ranking(sd_london_population_oa_df, borough, "DensityPPH", limit)
 
     print("Population Density Ranking")
-    print("=====================")
+    print("==========================")
 
     ### Stats for the searched for borough    
-    print("The population density of {} is {:g}/{} at {:.2f}" \
-         .format(borough, this["rank"].values[0], number_of_boroughs, round(this["total"].values[0], 2)))
+    population_field_01 = "The population density of {} is ranked {:g} of {} at {:.2f}" \
+         .format(borough, this["rank"].values[0], number_of_boroughs, round(this["total"].values[0], 2))
+    print(population_field_01)
     
-    print("Which is {} the average borough population density of {:.2f}".format("above" if round(this["total"].values[0], 2) > pop_pph_city_mean else "below", pop_pph_city_mean))
+    
+    population_field_02 = "Which is {} the average borough population density of {:.2f}".format("above" if round(this["total"].values[0], 2) > pop_pph_city_mean else "below", pop_pph_city_mean)
+    print(population_field_02)
     
     ### If it's not the first then display the first
+    population_field_03 = ""
     if this["rank"].values[0] != 1:
-        print("{} has the highest population density at {:.2f}" \
-             .format(top.iloc[0]["borough"], round(top.iloc[0]["total"]), 2))
+        population_field_03 = "{} has the highest population density at {:.2f}" \
+             .format(top.iloc[0]["borough"], round(top.iloc[0]["total"]), 2)
+        print(population_field_03)
     
+    population_field_04 = ""
     if this["rank"].values[0] != number_of_boroughs:
-        print("{} has the lowest population density at {:.2f}" \
-             .format(bottom.iloc[-1]["borough"], round(bottom.iloc[-1]["total"]), 2))
+        population_field_04 ="{} has the lowest population density at {:.2f}" \
+             .format(bottom.iloc[-1]["borough"], round(bottom.iloc[-1]["total"]), 2)
+        print(population_field_04)
         
     ### Male female ratio
     pop_male_female_borough_total = pop_male_borough + pop_female_borough
@@ -324,19 +358,25 @@ if 1==1:
     def hls_str(r1, r2):
         return "higher than" if r1 > r2 else "lower than" if r1 < r2 else "the same as"
     
+    population_field_05 = ""
     ### What to print
     if pop_male_ratio > pop_female_ratio:
-        print("Males account for {:g}% of the borough population, which is {} the average of {:g}% at borough level. Females account for {:g}% which is {} the average of {:g}% at borough level."\
+        population_field_05 = "Males account for {:g}% of the borough population, which is {} the average of {:g}% at borough level. Females account for {:g}% which is {} the average of {:g}% at borough level."\
              .format(pop_male_ratio, hls_str(pop_male_ratio, pop_male_city_ratio), \
-                     pop_male_city_ratio, pop_female_ratio, hls_str(pop_female_ratio, pop_female_city_ratio), pop_female_city_ratio))
+                     pop_male_city_ratio, pop_female_ratio, hls_str(pop_female_ratio, pop_female_city_ratio), pop_female_city_ratio)
+             
     elif pop_male_ratio < pop_female_ratio:
-        print("Females account for {:g}% of the borough population, which is {} the average of {:g}% at borough level. Males account for {:g}% which is {} the average of {:g}% at borough level."\
+        population_field_05 = "Females account for {:g}% of the borough population, which is {} the average of {:g}% at borough level. Males account for {:g}% which is {} the average of {:g}% at borough level."\
              .format(pop_female_ratio, hls_str(pop_female_ratio, pop_female_city_ratio),\
-                     pop_female_city_ratio, pop_male_ratio, hls_str(pop_male_ratio, pop_male_city_ratio), pop_male_city_ratio))
+                     pop_female_city_ratio, pop_male_ratio, hls_str(pop_male_ratio, pop_male_city_ratio), pop_male_city_ratio)
     else:
-        print("Males and females are equal for the borough. The borough level average is males {:g}% and females {:g}%."\
-             .format(pop_male_city_ratio, pop_female_city_ratio))
+        population_field_05 ="Males and females are equal for the borough. The borough level average is males {:g}% and females {:g}%."\
+             .format(pop_male_city_ratio, pop_female_city_ratio)
         
+    print(population_field_05)
+    
+    ### Combine for the report
+    population_field_01 = population_field_01 + " " + population_field_02 + " " + population_field_03 + " " + population_field_04 + " " + population_field_05        
     # print("\n")
     # print("\n")
 
@@ -436,14 +476,24 @@ if 1==1:
     
     print("Residential dwellings at the OAcode level are ranked")
     print("====================================================")
+    house_hold = []
     for i in range(0, 4):
-        print("{} - {} - OAcode:{} - ward:{} - borough:{} - borough avg:{}".format(i + 1, \
+        str = "{} - {} - OAcode:{} - ward:{} - borough:{} - borough avg:{}".format(i + 1, \
                                                                                    household_type_pretty[household_location_d_stats_df.iloc[i]["household_type"]], \
                                                                                    household_location_d_stats_df.iloc[i]["oacode_total"], \
                                                                                    household_location_d_stats_df.iloc[i]["ward_total"],   \
                                                                                    household_location_d_stats_df.iloc[i]["borough_total"],   \
                                                                                    household_location_d_stats_df.iloc[i]["city_borough_mean"],   \
-                                                                                  ))
+                                                                                  )
+        
+        str2 = "{} - OAcode:{} - ward:{} - borough:{} - borough avg:{}".format(household_type_pretty[household_location_d_stats_df.iloc[i]["household_type"]], \
+                                                                               household_location_d_stats_df.iloc[i]["oacode_total"], \
+                                                                               household_location_d_stats_df.iloc[i]["ward_total"],   \
+                                                                               household_location_d_stats_df.iloc[i]["borough_total"],   \
+                                                                               household_location_d_stats_df.iloc[i]["city_borough_mean"],   \
+                                                                               )
+        print(str)
+        house_hold.append(str2)
         
 ###
 ### Education
@@ -557,13 +607,68 @@ if 1==1:
     
     print("Qualifications at the OAcode level are ranked")
     print("=============================================")
+    education = []
     for i in range(0, 6):
-        print("{} - {} - OAcode:{} - ward:{} - borough:{} - borough avg:{}".format(i + 1, \
+        str = "{} - {} - OAcode:{} - ward:{} - borough:{} - borough avg:{}".format(i + 1, \
                                                                                    qualification_type_pretty[qualification_location_stats_df.iloc[i]["qualification_type"]], \
                                                                                    qualification_location_stats_df.iloc[i]["oacode_total"], \
                                                                                    qualification_location_stats_df.iloc[i]["ward_total"],   \
                                                                                    qualification_location_stats_df.iloc[i]["borough_total"],   \
                                                                                    qualification_location_stats_df.iloc[i]["city_borough_mean"],   \
-                                                                                  ))
+                                                                                  )
+        str2 = "{} - OAcode:{} - ward:{} - borough:{} - borough avg:{}".format(qualification_type_pretty[qualification_location_stats_df.iloc[i]["qualification_type"]], \
+                                                                               qualification_location_stats_df.iloc[i]["oacode_total"], \
+                                                                               qualification_location_stats_df.iloc[i]["ward_total"],   \
+                                                                               qualification_location_stats_df.iloc[i]["borough_total"],   \
+                                                                               qualification_location_stats_df.iloc[i]["city_borough_mean"],   \
+                                                                               )
+        print(str)
+        education.append(str2)
        
         
+if 1==1:        
+    ## Start creating the report for the template
+    template_name = "sd_general_report_processor_template.docx"
+    stage_01_template = "./templates/{}".format(template_name);
+    
+    ## Take original templage and add all images
+    # Pre-process to add images
+    doc = Document(stage_01_template)
+    
+    # Reference the tables. This is where we will add our images
+    tables = doc.tables
+    p = tables[0].rows[0].cells[0].add_paragraph()
+    r = p.add_run()
+    # r.add_picture("../docx_generation/images/plot-example.jpg",width=Inches(4.0), height=Inches(.7))
+    r.add_picture(location_png_file,width=Inches(6.0))
+    
+    #
+    # ## Save the template and reference it for the merge to happen in the next part
+    stage_02_template = "./docx_generation/templates/{}_stage_02_template_{}".format(session_id, template_name)
+    doc.save(stage_02_template)
+    
+    
+    # Merge text
+    document = MailMerge(stage_02_template)
+    
+    document.merge(
+        post_code_search    = post_code_search,
+        borough             = borough,
+        city                = city.capitalize(),
+        location_field_01   = location_field_01,
+        population_field_01 = population_field_01,
+        house_hold_01       = house_hold[0],
+        house_hold_02       = house_hold[1],
+        house_hold_03       = house_hold[2],
+        house_hold_04       = house_hold[3],
+        education_01        = education[0],
+        education_02        = education[1],
+        education_03        = education[2],
+        education_04        = education[3],
+        education_05        = education[4],
+        education_06        = education[5],
+    )
+    
+    ## Save the template
+    stage_03_docx = "./docx_generation/{}_{}".format(session_id, template_name)
+    document.write(stage_03_docx)

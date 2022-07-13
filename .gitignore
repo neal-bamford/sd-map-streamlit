@@ -1,3 +1,6 @@
 .streamlit
 .project
 .pydevproject
+docx_generation/
+map/
+*.log
