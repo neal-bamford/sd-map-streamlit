@@ -1,0 +1,24 @@
+1657704662589	geckodriver	INFO	Listening on 127.0.0.1:56023
+1657704665762	mozrunner::runner	INFO	Running command: "C:\\Program Files\\Mozilla Firefox\\firefox.exe" "--marionette" "-headless" "--remote-debugging-port" "56024" "--remote-allow-hosts" "localhost" "-no-remote" "-profile" "C:\\Users\\nbamford\\AppData\\Local\\Temp\\rust_mozprofileU1RQKr"
+*** You are running in headless mode.
+1657704667264	Marionette	INFO	Marionette enabled
+1657704667278	Marionette	INFO	Listening on port 56035
+WebDriver BiDi listening on ws://localhost:56024
+Read port: 56035
+1657704667571	RemoteAgent	WARN	TLS certificate errors will be ignored for this session
+[GFX1-]: RenderCompositorSWGL failed mapping default framebuffer, no dt
+console.warn: SearchSettings: "get: No settings file exists, new profile?" (new NotFoundError("Could not open the file at C:\\Users\\nbamford\\AppData\\Local\\Temp\\rust_mozprofileU1RQKr\\search.json.mozlz4", (void 0)))
+DevTools listening on ws://localhost:56024/devtools/browser/36a59006-7222-48aa-b905-6c750d144e06
+1657704675526	Marionette	INFO	Stopped listening on port 56035
+1657709887782	geckodriver	INFO	Listening on 127.0.0.1:52473
+1657709891182	mozrunner::runner	INFO	Running command: "C:\\Program Files\\Mozilla Firefox\\firefox.exe" "--marionette" "-headless" "--remote-debugging-port" "52474" "--remote-allow-hosts" "localhost" "-no-remote" "-profile" "C:\\Users\\nbamford\\AppData\\Local\\Temp\\rust_mozprofilen4XNKX"
+*** You are running in headless mode.
+1657709892639	Marionette	INFO	Marionette enabled
+1657709892652	Marionette	INFO	Listening on port 52484
+WebDriver BiDi listening on ws://localhost:52474
+Read port: 52484
+1657709893046	RemoteAgent	WARN	TLS certificate errors will be ignored for this session
+[GFX1-]: RenderCompositorSWGL failed mapping default framebuffer, no dt
+console.warn: SearchSettings: "get: No settings file exists, new profile?" (new NotFoundError("Could not open the file at C:\\Users\\nbamford\\AppData\\Local\\Temp\\rust_mozprofilen4XNKX\\search.json.mozlz4", (void 0)))
+DevTools listening on ws://localhost:52474/devtools/browser/3a9b3051-7009-4bac-a420-9a868a70d356
+1657709900682	Marionette	INFO	Stopped listening on port 52484
