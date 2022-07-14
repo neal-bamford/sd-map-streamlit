@@ -1,12 +1,5 @@
 from __future__ import print_function
-from datetime import date
-from docx import Document
-from docx.shared import Inches
-from fpdf import FPDF
-from mailmerge import MailMerge
-from selenium import webdriver
-from selenium.webdriver.firefox.options import Options
-from lib import masters_data_analytics_lib as mlib
+
 import docx
 import base64
 import os
@@ -18,6 +11,16 @@ import numpy as np
 import pandas as pd
 import streamlit as st
 import folium
+
+from datetime import date
+from docx import Document
+from docx.shared import Inches
+from fpdf import FPDF
+from mailmerge import MailMerge
+from selenium import webdriver
+from selenium.webdriver.firefox.options import Options
+from lib import masters_data_analytics_lib as mlib
+
 
 
 def stats(df, borough, ward_name, oacode, column):
