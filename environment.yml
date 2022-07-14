@@ -5,7 +5,7 @@ dependencies:
   - python>=3.8
   - geckodriver
   - anaconda
-  - firefox-esr
+  - firefox
   - pip
   - pip:
     - dataframe_image==0.1.1
