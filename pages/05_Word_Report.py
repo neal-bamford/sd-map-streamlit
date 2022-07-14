@@ -1,12 +1,11 @@
 from __future__ import print_function
-from fpdf import FPDF
-from mailmerge import MailMerge
 from datetime import date
 from docx import Document
 from docx.shared import Inches
-import streamlit as st
 import base64
 import shutil
+import streamlit as st
+from mailmerge import MailMerge
 
 st.markdown("# Word Report Page")
 st.sidebar.markdown("# Word Report Page")

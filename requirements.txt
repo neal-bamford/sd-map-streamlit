@@ -8,4 +8,3 @@ docx-mailmerge==0.5.0
 python_docx==0.8.11
 selenium==4.3.0
 streamlit==1.10.0
-MailMerge==2.2.1

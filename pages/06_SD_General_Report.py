@@ -1,26 +1,26 @@
 from __future__ import print_function
 
-import docx
 import base64
+from datetime import date
 import os
 import shutil
 import sys
 import time
 import uuid
+import mailmerge as mm
+
+from docx import Document
+import docx
+from docx.shared import Inches
+import folium
+from fpdf import FPDF
+from selenium import webdriver
+from selenium.webdriver.firefox.options import Options
+
+from lib import masters_data_analytics_lib as mlib
 import numpy as np
 import pandas as pd
 import streamlit as st
-import folium
-
-from datetime import date
-from docx import Document
-from docx.shared import Inches
-from fpdf import FPDF
-from mailmerge import MailMerge
-from selenium import webdriver
-from selenium.webdriver.firefox.options import Options
-from lib import masters_data_analytics_lib as mlib
-
 
 
 def stats(df, borough, ward_name, oacode, column):
@@ -514,7 +514,7 @@ if generate_report_link:
     
     
     # Merge text
-    document = MailMerge(stage_02_template)
+    document = mm.MailMerge(stage_02_template)
     
     document.merge(
         post_code_search    = post_code_search,
