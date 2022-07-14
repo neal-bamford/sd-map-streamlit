@@ -1,3 +1,5 @@
 # sd-map-streamlit
 
-use pip freeze > _requirements.txt to generate a requirements list
+to list all package dependecies of a python project, use
+
+pipreqs 
