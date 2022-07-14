@@ -254,22 +254,25 @@ if generate_report_link:
         m.save(html_file)
         
         ## Load it
-        # options = Options()
-        # options.headless = True
+        options = Options()
+        options.headless = True
         ## Set the location of FireFox
-        # options.binary_location = st.secrets.firefox.binary_location
-        # browser = webdriver.Firefox(options=options
-        #                             ## Set the location of Geckodriver
-        #                           , executable_path=st.secrets.gecko.binary_location)
+        options.binary_location = st.secrets.firefox.binary_location
+        browser = webdriver.Firefox(options=options
+                                    ## Set the location of Geckodriver
+                                , executable_path=st.secrets.gecko.binary_location)
         
         
-        firefoxOptions = Options()
-        firefoxOptions.add_argument("--headless")
-        service = Service(GeckoDriverManager().install())
-        browser = webdriver.Firefox(
-            options=firefoxOptions,
-            service=service
-        )
+        # firefox_binary = FirefoxBinary('/usr/bin/firefox/')
+        # driver = webdriver.Firefox(firefox_binary=firefox_binary)
+        #
+        # firefoxOptions = Options()
+        # firefoxOptions.add_argument("--headless")
+        # service = Service(GeckoDriverManager().install())
+        # browser = webdriver.Firefox(
+        #     options=firefoxOptions,
+        #     service=service
+        # )
                 
         ## Read in the file we created previously
         browser.get("file:///" + os.path.abspath(html_file))
