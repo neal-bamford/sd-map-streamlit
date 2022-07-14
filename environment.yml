@@ -2,9 +2,7 @@ name: sd_maps_reports
 channels:
   - conda-forge
 dependencies:
-  - python>=3.10
   - geckodriver
-  - anaconda
   - firefox
   - pip
   - pip:
