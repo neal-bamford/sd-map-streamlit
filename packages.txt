@@ -1,1 +1,1 @@
-geckodriver
+conda install -c conda-forge geckodriver
