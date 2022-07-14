@@ -2,4 +2,4 @@ name: sd_maps_reports
 channels:
   - conda-forge
 dependencies:
-  - gecko  
+  - geckodriver  
