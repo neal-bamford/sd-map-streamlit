@@ -1,6 +1,7 @@
 .streamlit
 .project
 .pydevproject
+secrets.toml
 docx_generation/
 map/
 *.log

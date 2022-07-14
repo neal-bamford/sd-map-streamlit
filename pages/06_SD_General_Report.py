@@ -169,9 +169,13 @@ if generate_report_link:
         ### Set path to Geckodriver.exe for local development
         ###
         
-        app_path = os.path.join("C:/DISTRIBUTIONS/gecko")
-        os.environ["PATH"] += os.pathsep + app_path
-        
+        ## check for local gecko driver
+        try: 
+            app_path = os.path.join(st.secrets.gecko_driver.gecko_driver_path)
+            os.environ["PATH"] += os.pathsep + app_path
+        except Exception:
+            pass
+
         post_code_search_longitude = sd_london_postcodes_df.loc[sd_london_postcodes_df["Post_Code"] == post_code_search]["longitude"].to_numpy()
         post_code_search_latitude = sd_london_postcodes_df.loc[sd_london_postcodes_df["Post_Code"] == post_code_search]["latitude"].to_numpy()
         
