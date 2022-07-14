@@ -1,5 +1,5 @@
 name: sd_maps_reports
-channles:
+channels:
   - conda-forge
 dependencies:
   - gecko
