@@ -143,7 +143,7 @@ if generate_report_link:
     print("+++++++++++++++")
     print("+++++++++++++++")
     print("+++++++++++++++")
-    print(post_code_search)
+    print(os. listdir(post_code_search))
     print("+++++++++++++++")
     print("+++++++++++++++")
     print("+++++++++++++++")
