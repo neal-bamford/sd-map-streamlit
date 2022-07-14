@@ -2,4 +2,15 @@ name: sd_maps_reports
 channels:
   - conda-forge
 dependencies:
-  - geckodriver  
+  - geckodriver
+  - dataframe_image==0.1.1
+  - docx==0.2.4
+  - docx_mailmerge==0.5.0
+  - folium==0.12.1.post1
+  - fpdf==1.7.2
+  - mailmerge==2.2.1
+  - numpy==1.22.2
+  - pandas==1.4.1
+  - python_docx==0.8.11
+  - selenium==4.3.0
+  - streamlit==1.10.0
