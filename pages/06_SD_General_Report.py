@@ -144,17 +144,17 @@ if generate_report_link:
     print("+++++++++++++++")
     print("+++++++++++++++")
     
-    # try:
-    #     print(os. listdir(post_code_search))
-    # except Exception:
-    #     pass
+    try:
+        print(os. listdir(post_code_search))
+        st.write(os. listdir(post_code_search))
+    except Exception:
+        pass
     
     print("+++++++++++++++")
     print("+++++++++++++++")
     print("+++++++++++++++")
     print("+++++++++++++++")
     print("+++++++++++++++")
-    st.write(os. listdir(post_code_search))
 
     ##
     ## START THE STATS
