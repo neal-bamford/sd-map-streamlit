@@ -3,7 +3,6 @@ docx==0.2.4
 docx_mailmerge==0.5.0
 folium==0.12.1.post1
 fpdf==1.7.2
-mailmerge==2.2.1
 numpy==1.22.2
 pandas==1.4.1
 python_docx==0.8.11
