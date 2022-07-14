@@ -254,12 +254,17 @@ if generate_report_link:
         ## Load it
         options = Options()
         options.headless = True
+        ## Set the location of FireFox
+        options.binary_location = st.secrets.firefox.binary_location
         browser = webdriver.Firefox(options=options
-                                  , executable_path=st.secrets.gecko_driver.gecko_driver_path)
+                                    ## Set the location of Geckodriver
+                                  , executable_path=st.secrets.gecko.binary_location)
+        
+        ## Read in the file we created previously
         browser.get("file:///" + os.path.abspath(html_file))
         
-        ## TODO parameterise this
-        time.sleep(3)
+        ## Wait for the browser to complete
+        time.sleep(st.secrets.selenium.browser_pause_s)
         
         ## Save the map graphic
         location_png_file = file + ".png"
