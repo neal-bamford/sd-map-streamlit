@@ -16,3 +16,4 @@ dependencies:
     - python_docx==0.8.11
     - selenium==4.3.0
     - streamlit==1.10.0
+    - pandas==1.4.1
