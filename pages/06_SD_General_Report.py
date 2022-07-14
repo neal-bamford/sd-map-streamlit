@@ -143,7 +143,12 @@ if generate_report_link:
     print("+++++++++++++++")
     print("+++++++++++++++")
     print("+++++++++++++++")
-    print(os. listdir(post_code_search))
+    
+    try:
+        print(os. listdir(post_code_search))
+    except Exception:
+        pass
+    
     print("+++++++++++++++")
     print("+++++++++++++++")
     print("+++++++++++++++")
