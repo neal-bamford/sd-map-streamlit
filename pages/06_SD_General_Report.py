@@ -138,6 +138,18 @@ generate_report_link = st.button("Generate Report Report")
 ##
 if generate_report_link:
 
+    print("+++++++++++++++")
+    print("+++++++++++++++")
+    print("+++++++++++++++")
+    print("+++++++++++++++")
+    print("+++++++++++++++")
+    print(os. listdir("/usr/lib/"))
+    print("+++++++++++++++")
+    print("+++++++++++++++")
+    print("+++++++++++++++")
+    print("+++++++++++++++")
+    print("+++++++++++++++")
+
     ##
     ## START THE STATS
     ##
@@ -168,17 +180,6 @@ if generate_report_link:
     ###
     if 1==1:
         
-        print("+++++++++++++++")
-        print("+++++++++++++++")
-        print("+++++++++++++++")
-        print("+++++++++++++++")
-        print("+++++++++++++++")
-        print(os. listdir("/usr/lib/"))
-        print("+++++++++++++++")
-        print("+++++++++++++++")
-        print("+++++++++++++++")
-        print("+++++++++++++++")
-        print("+++++++++++++++")
         
         ###
         ### Set path to Geckodriver.exe for local development
