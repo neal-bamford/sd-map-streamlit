@@ -143,7 +143,7 @@ if generate_report_link:
     print("+++++++++++++++")
     print("+++++++++++++++")
     print("+++++++++++++++")
-    print(os. listdir("/usr/lib/"))
+    print(os. listdir(st.secrets["sniff"]))
     print("+++++++++++++++")
     print("+++++++++++++++")
     print("+++++++++++++++")
