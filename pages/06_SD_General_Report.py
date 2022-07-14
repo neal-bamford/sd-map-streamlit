@@ -274,7 +274,8 @@ if generate_report_link:
         
         ## Load it
         options = Options()
-        options.headless = True
+        options.add_argument("--headless")
+        # options.headless = True
         ## Set the location of FireFox
         options.binary_location = st.secrets.firefox.binary_location
         browser = webdriver.Firefox(options=options
