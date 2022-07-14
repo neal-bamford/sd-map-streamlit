@@ -171,11 +171,11 @@ if generate_report_link:
         ###
         
         ## check for local gecko driver
-        try: 
-            app_path = os.path.join(st.secrets.gecko_driver.gecko_driver_path)
-            os.environ["PATH"] += os.pathsep + app_path
-        except Exception:
-            pass
+        # try: 
+        #     app_path = os.path.join(st.secrets.gecko_driver.gecko_driver_path)
+        #     os.environ["PATH"] += os.pathsep + app_path
+        # except Exception:
+        #     pass
 
         post_code_search_longitude = sd_london_postcodes_df.loc[sd_london_postcodes_df["Post_Code"] == post_code_search]["longitude"].to_numpy()
         post_code_search_latitude = sd_london_postcodes_df.loc[sd_london_postcodes_df["Post_Code"] == post_code_search]["latitude"].to_numpy()
@@ -254,7 +254,8 @@ if generate_report_link:
         ## Load it
         options = Options()
         options.headless = True
-        browser = webdriver.Firefox(options=options)
+        browser = webdriver.Firefox(options=options
+                                  , executable_path=st.secrets.gecko_driver.gecko_driver_path)
         browser.get("file:///" + os.path.abspath(html_file))
         
         ## TODO parameterise this
