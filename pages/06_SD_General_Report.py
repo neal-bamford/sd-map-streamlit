@@ -7,6 +7,7 @@ from mailmerge import MailMerge
 from selenium import webdriver
 from selenium.webdriver.firefox.options import Options
 from lib import masters_data_analytics_lib as mlib
+import docx
 import base64
 import os
 import shutil
@@ -17,9 +18,6 @@ import numpy as np
 import pandas as pd
 import streamlit as st
 import folium
-
-
-
 
 
 def stats(df, borough, ward_name, oacode, column):
