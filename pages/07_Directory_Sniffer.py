@@ -44,13 +44,6 @@ sniff_file_directory = st.button("SNIFF")
 
 from chromedriver_binary.utils import print_chromedriver_path
 
-print(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
-print(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
-print(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
-print_chromedriver_path()
-print(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
-print(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
-print(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
 
 ##
 ## Generate Link
@@ -75,6 +68,16 @@ if sniff_file_directory:
 download_file = st.button("DOWNLOAD")   
 
 if download_file:     
+        
+    print(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
+    print(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
+    print(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
+    print_chromedriver_path()
+    print(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
+    print(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
+    print(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
+        
+        
         
     for file in [directory_file]:
             with open(file, "rb") as remote_file:
