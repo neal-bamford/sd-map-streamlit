@@ -139,28 +139,6 @@ generate_report_link = st.button("Generate Report Report")
 ## Generate Link
 ##
 if generate_report_link:
-
-    print("+++++++++++++++")
-    print("+++++++++++++++")
-    print("+++++++++++++++")
-    print("+++++++++++++++")
-    print("+++++++++++++++")
-    
-    try:
-        st.write(os. listdir(post_code_search))
-    except Exception:
-        pass
-    
-    print("+++++++++++++++")
-    print("+++++++++++++++")
-    print("+++++++++++++++")
-    print("+++++++++++++++")
-    print("+++++++++++++++")
-
-    try:
-        st.write(os.readlink(post_code_search))
-    except Exception:
-        pass
     ##
     ## START THE STATS
     ##
