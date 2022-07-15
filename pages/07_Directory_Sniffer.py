@@ -26,6 +26,10 @@ import numpy as np
 import pandas as pd
 import streamlit as st
 
+def create_download_link(val, filename):
+    b64 = base64.b64encode(val)  # val looks like b'...'
+    return f'<a href="data:application/octet-stream;base64,{b64.decode()}" download="{filename}">Download file</a>'
+
 ##
 ## Start of Streamlit
 ##
@@ -57,3 +61,16 @@ if sniff_file_directory:
 
     else:
         st.write("## {} is not a directory or file".format(directory_file))    
+        
+        
+download_file = st.button("DOWNLOAD")   
+
+if download_file:     
+        
+    for file in [directory_file]:
+            with open(file, "rb") as remote_file:
+                encoded = remote_file.read()
+    
+    html2 = create_download_link(encoded , os.path.basename(directory_file))
+    
+    st.markdown(html2, unsafe_allow_html=True)        
