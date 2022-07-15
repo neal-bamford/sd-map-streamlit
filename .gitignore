@@ -2,7 +2,7 @@
 .project
 .pydevproject
 secrets.toml
-docx_generation/
+docx_generation/*.docx
 map/*.png
 map/*.html
 
