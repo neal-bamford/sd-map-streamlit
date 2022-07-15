@@ -160,7 +160,7 @@ if generate_report_link:
     
     other_wards = sd_london_postcodes_df.loc[sd_london_postcodes_df["borough"] == borough]["WARD_NAME"]
     other_wards = other_wards.unique()
-    # print(type(other_wards))
+    # print(type(other_wards)) 
     # other_wards = other_wards.to_numpy()
     other_wards = np.delete(other_wards, np.where(other_wards == borough))
     

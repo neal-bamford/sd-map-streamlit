@@ -3,5 +3,7 @@
 .pydevproject
 secrets.toml
 docx_generation/
-map/*
+map/*.png
+map/*.html
+
 *.log
