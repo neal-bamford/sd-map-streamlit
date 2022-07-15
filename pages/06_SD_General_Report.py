@@ -327,7 +327,8 @@ if generate_report_link:
         chrome_options.add_argument("-no-sandbox")
         chrome_options.add_argument("--disable-dev-shm-usage")
 
-        chrome_service = ChromeService(executable_path = st.secrets.chrome.binary_location)
+        chrome_service = ChromeService()
+        #executable_path = st.secrets.chrome.binary_location)
         browser = webdriver.Chrome(service=chrome_service,
                                    options = chrome_options) 
                 
