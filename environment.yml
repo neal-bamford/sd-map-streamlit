@@ -4,6 +4,7 @@ channels:
 dependencies:
   - python>=3.8
   - python-chromedriver-binary
+  - libglib2.0
   - pip
   - pip:
     - dataframe_image==0.1.1
