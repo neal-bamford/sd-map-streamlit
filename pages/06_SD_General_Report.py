@@ -15,9 +15,11 @@ from docx.shared import Inches
 import folium
 from fpdf import FPDF
 from selenium import webdriver
-from selenium.webdriver.firefox.options import Options
-from selenium.webdriver.firefox.service import Service
-from webdriver_manager.firefox import GeckoDriverManager
+# from selenium.webdriver.chrome.options import Options
+# from selenium.webdriver.chrome.service import Service
+# from webdriver_manager.firefox import GeckoDriverManager
+
+from selenium.webdriver.chrome.service import Service as ChromeService
 
 from lib import masters_data_analytics_lib as mlib
 import numpy as np
@@ -272,15 +274,32 @@ if generate_report_link:
         html_file = file + ".html"
         m.save(html_file)
         
-        ## Load it
-        options = Options()
+        
+        
+
+        options = webdriver.ChromeOptions()
+        options.set_capability("loggingPrefs", {'performance': 'ALL'})
         options.add_argument("--headless")
+        options.add_argument("-no-sandbox")
+        options.add_argument("--disable-dev-shm-usage")
+
+        service = ChromeService(executable_path = st.secrets.firefox.binary_location)
+        # open it, go to a website, and get results
+        browser = webdriver.Chrome(service=service
+                                  ,options=options
+                                  ,executable_path=st.secrets.gecko.binary_location)
+        # wd.get("https://www.website.com")
+        
+        
+        ## Load it
+        # options = Options()
+        # options.add_argument("--headless")
         # options.headless = True
         ## Set the location of FireFox
-        options.binary_location = st.secrets.firefox.binary_location
-        browser = webdriver.Firefox(options=options
-                                    ## Set the location of Geckodriver
-                                , executable_path=st.secrets.gecko.binary_location)
+        # options.binary_location = st.secrets.firefox.binary_location
+        # browser = webdriver.Firefox(options=options
+        #                             ## Set the location of Geckodriver
+        #                         , executable_path=st.secrets.gecko.binary_location)
         
         
         # firefox_binary = FirefoxBinary('/usr/bin/firefox/')
