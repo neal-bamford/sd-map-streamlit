@@ -277,17 +277,17 @@ if generate_report_link:
         
         
 
-        options = webdriver.ChromeOptions()
-        options.set_capability("loggingPrefs", {'performance': 'ALL'})
-        options.add_argument("--headless")
-        options.add_argument("-no-sandbox")
-        options.add_argument("--disable-dev-shm-usage")
-
-        service = ChromeService(executable_path = st.secrets.firefox.binary_location)
-        # open it, go to a website, and get results
-        browser = webdriver.Chrome(service=service
-                                  ,options=options
-                                  ,executable_path=st.secrets.gecko.binary_location)
+        # options = webdriver.ChromeOptions()
+        # options.set_capability("loggingPrefs", {'performance': 'ALL'})
+        # options.add_argument("--headless")
+        # options.add_argument("-no-sandbox")
+        # options.add_argument("--disable-dev-shm-usage")
+        #
+        # service = ChromeService(executable_path = st.secrets.firefox.binary_location)
+        # # open it, go to a website, and get results
+        # browser = webdriver.Chrome(service=service
+        #                           ,options=options
+        #                           ,executable_path=st.secrets.gecko.binary_location)
         # wd.get("https://www.website.com")
         
         
@@ -312,6 +312,21 @@ if generate_report_link:
         #     options=firefoxOptions,
         #     service=service
         # )
+        
+        
+        from selenium.webdriver.chrome.options import Options as ChromiumOptions
+        from selenium.webdriver.chrome.service import Service as ChromeService
+        
+        chrome_options = ChromiumOptions()
+        chrome_options.headless = True
+        
+        chrome_options.add_argument("--headless")
+        chrome_options.add_argument("-no-sandbox")
+        chrome_options.add_argument("--disable-dev-shm-usage")
+
+        chrome_service = ChromeService(executable_path = st.secrets.chrome.binary_location)
+        browser = webdriver.Chrome(service=chrome_service,
+                                   options = chrome_options) 
                 
         ## Read in the file we created previously
         browser.get("file:///" + os.path.abspath(html_file))

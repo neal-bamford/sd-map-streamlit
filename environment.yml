@@ -3,8 +3,7 @@ channels:
   - conda-forge
 dependencies:
   - python>=3.8
-  - geckodriver
-  - firefox
+  - python-chromedriver-binary
   - pip
   - pip:
     - dataframe_image==0.1.1
