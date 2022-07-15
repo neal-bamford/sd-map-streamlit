@@ -42,6 +42,15 @@ directory_file = st.text_input("directory/file")
 ## Capture the input and run generate_report
 sniff_file_directory = st.button("SNIFF")
 
+from chromedriver_binary.utils import print_chromedriver_path
+
+print(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
+print(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
+print(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
+print_chromedriver_path()
+print(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
+print(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
+print(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
 
 ##
 ## Generate Link
