@@ -89,7 +89,7 @@ if generate_report_link:
                                            , post_code_search_latitude = post_code_search_latitude
                                            , pc_longitudes = pc_longitudes
                                            , pc_latitudes = pc_latitudes
-                                           , chrome_binary_location = "C:/DISTRIBUTIONS/ChromeDriver/chromedriver.exe"
+                                           , chrome_binary_location = st.secrets.chrome.binary_location
                                            , browser_pause_s = 3)
     
     ## Assemble the report from template and various outher data...
