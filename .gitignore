@@ -4,5 +4,7 @@
 secrets.toml
 map/*.png
 map/*.html
+reports/generation/documents/*.docx
+reports/generation/documents/*.pdf
 
 *.log

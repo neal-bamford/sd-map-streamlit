@@ -16,6 +16,7 @@ UNDERLINE = "\033[4m"
 
 # Will turn a csv file that exists into a Pandas Dataframe. Although we're just wrapping Pandas functionality
 # it might be better as we can alter its functionality, for instance making sure the file exists
+
 def csv_to_dataframe(filename, sep=","):
     """
     Call with just the name of the csv file or the name and separator type sep which defaults to ","
