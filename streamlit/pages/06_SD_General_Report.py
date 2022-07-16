@@ -15,13 +15,13 @@ from docx.shared import Inches
 import folium
 from fpdf import FPDF
 from selenium import webdriver
-# from selenium.webdriver.chrome.options import Options
-# from selenium.webdriver.chrome.service import Service
-# from webdriver_manager.firefox import GeckoDriverManager
+
 
 from selenium.webdriver.chrome.service import Service as ChromeService
 
 from lib import masters_data_analytics_lib as mlib
+from tools import file_tools as ft
+
 import numpy as np
 import pandas as pd
 import streamlit as st
@@ -82,10 +82,10 @@ city = "london"
 
 
 ## Data Files Locations
-sd_london_postcodes_file = "./data/streamlit_{}_postcodes_oa.csv".format(city)
-sd_london_population_oa_file = "./data/streamlit_{}_population_oa.csv".format(city)
-sd_london_household_oa_file = "./data/streamlit_{}_household_population_oa.csv".format(city)
-sd_london_qualification_oa_file = "./data/streamlit_{}_qualifictation_population_oa.csv".format(city)
+sd_london_postcodes_file = "../data/streamlit_{}_postcodes_oa.csv".format(city)
+sd_london_population_oa_file = "../data/streamlit_{}_population_oa.csv".format(city)
+sd_london_household_oa_file = "../data/streamlit_{}_household_population_oa.csv".format(city)
+sd_london_qualification_oa_file = "../data/streamlit_{}_qualifictation_population_oa.csv".format(city)
 
 ###
 ### This method loads the data required for this page's functionality. Maybe it should be moved somehwere
@@ -115,7 +115,7 @@ def load_data(sd_london_postcodes_file, sd_london_population_oa_file, sd_london_
 ##
 def create_download_link(val, filename):
     b64 = base64.b64encode(val)  # val looks like b'...'
-    return f'<a href="data:application/octet-stream;base64,{b64.decode()}" download="{filename}.docx">Download file</a>'
+    return f'<a href="data:application/octet-stream;base64,{b64.decode()}" download="{filename}">Download file</a>'
     
     
 ## This should load the data then the return cached so it won't do it again until ilvalidated on purpouse.
@@ -132,7 +132,7 @@ st.sidebar.markdown("# SD General Report")
 post_code_search = st.text_input("Post Code")
  
 ## Capture the input and run generate_report
-generate_report_link = st.button("Generate Report Report")
+generate_report_link = st.button("Generate General Report")
 
 
 ##
@@ -248,7 +248,7 @@ if generate_report_link:
                             class_name="mapText")).add_to(m)
         
         ## Name the html file to be created with a {path}/{session_id}_map_{city}_{borough}_{ward_name}_{post_code_search}
-        file = "./{}/{}_map_{}_{}_{}_{}".format("map", session_id, city, borough, ward_name, post_code_search)
+        file = "../reports/generation/images/{}_map_{}_{}_{}_{}".format(session_id, city, borough, ward_name, post_code_search)
         file = file.replace(" ", "_").lower()
         
         ## Save the HTML file
@@ -549,7 +549,7 @@ if generate_report_link:
             
     ## Start creating the report for the template
     template_name = "sd_general_report_processor_template.docx"
-    stage_01_template = "./templates/{}".format(template_name);
+    stage_01_template = "../reports/templates/{}".format(template_name);
     
     ## Take original templage and add all images
     # Pre-process to add images
@@ -564,7 +564,7 @@ if generate_report_link:
     
     #
     # ## Save the template and reference it for the merge to happen in the next part
-    stage_02_template = "./docx_generation/templates/{}_stage_02_template_{}".format(session_id, template_name)
+    stage_02_template = "../reports/generation/documents/{}_stage_02_template_{}".format(session_id, template_name)
     doc.save(stage_02_template)
     
     
@@ -590,7 +590,7 @@ if generate_report_link:
     )
     
     ## Save the template
-    stage_03_docx = "./docx_generation/{}_{}".format(session_id, template_name)
+    stage_03_docx = "../reports/generation/documents/{}_{}".format(session_id, template_name)
     document.write(stage_03_docx)
     
     ### 

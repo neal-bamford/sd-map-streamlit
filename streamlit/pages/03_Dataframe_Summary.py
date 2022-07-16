@@ -23,7 +23,7 @@ st.write(external_ip)
 
 time.sleep(0.05)
 
-bh_pop_data_file = "./data/bh_population.csv"
+bh_pop_data_file = "../data/streamlit_london_population_oa.csv"
 
 bh_pop_df = mlib.csv_to_dataframe(bh_pop_data_file)
 
