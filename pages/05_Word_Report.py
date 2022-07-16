@@ -3,7 +3,7 @@ from datetime import date
 from docx import Document
 from docx.shared import Inches
 from mailmerge import MailMerge
-from tools import file_tools as ft
+from lib import file_tools as ft
 
 import base64
 import shutil
@@ -25,7 +25,7 @@ def create_download_link(val, filename):
 
 if export_as_word:
 
-    template = "../reports/templates/Practical-Business-Python-image.docx"
+    template = "./reports/templates/Practical-Business-Python-image.docx"
     
     ## Take original templage and add all images
     # Pre-process to add images
@@ -39,11 +39,11 @@ if export_as_word:
     
     r = p.add_run()
     # r.add_picture("../docx_generation/images/plot-example.jpg",width=Inches(4.0), height=Inches(.7))
-    r.add_picture("../reports/images/plot-example.jpg",width=Inches(3.0))
+    r.add_picture("./reports/images/plot-example.jpg",width=Inches(3.0))
     
     
     ## Save the template and reference it for the merge to happen in the next part
-    stage_02_template = "../reports/generation/documents/Practical-Business-Python-image-template.docx"
+    stage_02_template = "./reports/generation/documents/Practical-Business-Python-image-template.docx"
     doc.save(stage_02_template)
     
     
@@ -67,7 +67,7 @@ if export_as_word:
     
     
     ## Save the template
-    output_docx = "../reports/generation/documents/test-output.docx"
+    output_docx = "./reports/generation/documents/test-output.docx"
     document.write(output_docx)
     
     ## Cleanup

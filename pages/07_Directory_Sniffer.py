@@ -49,14 +49,7 @@ from chromedriver_binary.utils import print_chromedriver_path
 ## Generate Link
 ##
 if sniff_file_directory:
-    print(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
-    print(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
-    print(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
-    print_chromedriver_path()
-    print(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
-    print(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
-    print(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
-    
+
     if(os.path.isdir(directory_file)):
         st.write("## {} is A DIRECTORY".format(directory_file))    
         st.write(os.listdir(directory_file))

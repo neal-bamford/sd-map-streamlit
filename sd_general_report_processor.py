@@ -37,8 +37,13 @@ def stats(df, borough, ward_name, oacode, column):
     
     city_lvl_sum    = df.groupby("borough").agg({column: ["sum"]}).sum().round(0).values[0].astype(int)
 
-    return oacode_lvl_sum, ward_lvl_sum, borough_lvl_sum, city_lvl_mean, city_lvl_sum
-
+    {
+     "oacode_sum" : oacode_lvl_sum,
+       "ward_sum" : ward_lvl_sum,
+    "borough_sum" : borough_lvl_sum,
+   "borough_mean" : city_lvl_mean,
+       "city_sum" : city_lvl_sum
+   }
 
 def ranking(df, borough, column, limit=5):
     """
@@ -286,50 +291,50 @@ if 1==2:
         print("\n")
         print("\n")
         
-        pop_all_oa, pop_all_ward, pop_all_borough, pop_all_city_mean, pop_all_city_sum = stats(sd_london_population_oa_df, borough, ward_name, OAcode, "All")
-        pop_male_oa, pop_male_ward, pop_male_borough, pop_male_city_mean, pop_male_city_sum = stats(sd_london_population_oa_df, borough, ward_name, OAcode, "Males")
-        pop_female_oa, pop_female_ward, pop_female_borough, pop_female_city_mean, pop_female_city_sum = stats(sd_london_population_oa_df, borough, ward_name, OAcode, "Females")
-        pop_pph_oa, pop_pph_ward, pop_pph_borough, pop_pph_city_mean, pop_pph_city_sum = stats(sd_london_population_oa_df, borough, ward_name, OAcode, "DensityPPH")
+        pop_all_stats     = stats(sd_london_population_oa_df, borough, ward_name, OAcode, "All")
+        pop_male_stats    = stats(sd_london_population_oa_df, borough, ward_name, OAcode, "Males")
+        pop_female_stats  = stats(sd_london_population_oa_df, borough, ward_name, OAcode, "Females")
+        pop_density_state =stats(sd_london_population_oa_df, borough, ward_name, OAcode, "DensityPPH")
         
         if 1==2:
             ### All
             print("Population")
             print("=====================")
-            print("oacode total      :{}".format(pop_all_oa))
-            print("ward total        :{}".format(pop_all_ward))
-            print("borough total     :{}".format(pop_all_borough))
-            print("city borough mean :{}".format(pop_all_city_mean))
-            print("city total        :{}".format(pop_all_city_sum))
+            print("oacode total      :{}".format(pop_all_stats["oacode_sum"]))
+            print("ward total        :{}".format(pop_all_stats["ward_sum"]))
+            print("borough total     :{}".format(pop_all_stats["borough_sum"]))
+            print("city borough mean :{}".format(pop_all_stats["borough_mean"]))
+            print("city total        :{}".format(pop_all_stats["city_sum"]))
             print("----------------")
-            
+
             ### Males
             print("Male Population")
             print("=====================")
-            print("oacode total      :{}".format(pop_male_oa))
-            print("ward total        :{}".format(pop_male_ward))
-            print("borough total     :{}".format(pop_male_borough))
-            print("city borough mean :{}".format(pop_male_city_mean))
-            print("city total        :{}".format(pop_male_city_sum))
+            print("oacode total      :{}".format(pop_male_stats["oacode_sum"]))
+            print("ward total        :{}".format(pop_male_stats["ward_sum"]))
+            print("borough total     :{}".format(pop_male_stats["borough_sum"]))
+            print("city borough mean :{}".format(pop_male_stats["borough_mean"]))
+            print("city total        :{}".format(pop_male_stats["city_sum"]))
             print("----------------")
             
             ### Females
             print("Female Population")
             print("=====================")
-            print("oacode total      :{}".format(pop_female_oa))
-            print("ward total        :{}".format(pop_female_ward))
-            print("borough total     :{}".format(pop_female_borough))
-            print("city borough mean :{}".format(pop_female_city_mean))
-            print("city total        :{}".format(pop_female_city_sum))
+            print("oacode total      :{}".format(pop_female_stats["oacode_sum"]))
+            print("ward total        :{}".format(pop_female_stats["ward_sum"]))
+            print("borough total     :{}".format(pop_female_stats["borough_sum"]))
+            print("city borough mean :{}".format(pop_female_stats["borough_mean"]))
+            print("city total        :{}".format(pop_female_stats["city_sum"]))
             print("----------------")
             
             ### Population Density
             print("Population Density")
             print("=====================")
-            print("oacode total      :{}".format(pop_pph_oa))
-            print("ward total        :{}".format(pop_pph_ward))
-            print("borough total     :{}".format(pop_pph_borough))
-            print("city borough mean :{}".format(pop_pph_city_mean))
-            print("city total        :{}".format(pop_pph_city_sum))
+            print("oacode total      :{}".format(pop_density_state["oacode_sum"]))
+            print("ward total        :{}".format(pop_density_state["ward_sum"]))
+            print("borough total     :{}".format(pop_density_state["borough_sum"]))
+            print("city borough mean :{}".format(pop_density_state["borough_mean"]))
+            print("city total        :{}".format(pop_density_state["city_sum"]))
             print("----------------")
             
             print("\n")
@@ -348,7 +353,7 @@ if 1==2:
         print(population_field_01)
         
         
-        population_field_02 = "Which is {} the average borough population density of {:.2f}".format("above" if round(this["total"].values[0], 2) > pop_pph_city_mean else "below", pop_pph_city_mean)
+        population_field_02 = "Which is {} the average borough population density of {:.2f}".format("above" if round(this["total"].values[0], 2) > pop_density_state["borough_mean"] else "below", pop_density_state["borough_mean"])
         print(population_field_02)
         
         ### If it's not the first then display the first
@@ -365,13 +370,13 @@ if 1==2:
             print(population_field_04)
             
         ### Male female ratio
-        pop_male_female_borough_total = pop_male_borough + pop_female_borough
-        pop_male_ratio = round(pop_male_borough/pop_male_female_borough_total * 100,0)
-        pop_female_ratio = round(pop_female_borough/pop_male_female_borough_total * 100,0)
+        pop_male_female_borough_total = pop_male_stats["borough_sum"] + pop_female_stats["borough_sum"]
+        pop_male_ratio = round(pop_male_stats["borough_sum"]/pop_male_female_borough_total * 100,0)
+        pop_female_ratio = round(pop_female_stats["borough_sum"]/pop_male_female_borough_total * 100,0)
         
-        pop_male_female_city_borough_total = pop_male_city_sum + pop_female_city_sum
-        pop_male_city_ratio = round(pop_male_city_sum/pop_male_female_city_borough_total * 100,0)
-        pop_female_city_ratio = round(pop_female_city_sum/pop_male_female_city_borough_total * 100,0)
+        pop_male_female_city_borough_total = pop_male_stats["city_sum"] + pop_female_stats["city_sum"]
+        pop_male_city_ratio = round(pop_male_stats["city_sum"]/pop_male_female_city_borough_total * 100,0)
+        pop_female_city_ratio = round(pop_female_stats["city_sum"]/pop_male_female_city_borough_total * 100,0)
         
         ### Testing Data for below
         # pop_male_ratio = 51
@@ -419,11 +424,11 @@ if 1==2:
         print("\n")
         print("\n")
         
-        hh_cb_oa, hh_cb_ward, hh_cb_borough, hh_cb_city_mean, hh_cb_city_sum = stats(sd_london_household_oa_df, borough, ward_name, OAcode, "CommercialBuilding")
-        hh_det_oa, hh_det_ward, hh_det_borough, hh_det_city_mean, hh_det_city_sum = stats(sd_london_household_oa_df, borough, ward_name, OAcode, "Detached")
-        hh_flt_oa, hh_flt_ward, hh_flt_borough, hh_flt_city_mean, hh_flt_city_sum = stats(sd_london_household_oa_df, borough, ward_name, OAcode, "Flat")
-        hh_sem_oa, hh_sem_ward, hh_sem_borough, hh_sem_city_mean, hh_sem_city_sum = stats(sd_london_household_oa_df, borough, ward_name, OAcode, "Semi_detached")
-        hh_ter_oa, hh_ter_ward, hh_ter_borough, hh_ter_city_mean, hh_ter_city_sum = stats(sd_london_household_oa_df, borough, ward_name, OAcode, "Terraced")
+        hous_commerical_stats = stats(sd_london_household_oa_df, borough, ward_name, OAcode, "CommercialBuilding")
+        hous_detatched_stats  = stats(sd_london_household_oa_df, borough, ward_name, OAcode, "Detached")
+        hous_flat_stats       = stats(sd_london_household_oa_df, borough, ward_name, OAcode, "Flat")
+        hous_semi_stats       = stats(sd_london_household_oa_df, borough, ward_name, OAcode, "Semi_detached")
+        hous_terraced_stats   = stats(sd_london_household_oa_df, borough, ward_name, OAcode, "Terraced")
         
         if 1==2:
             ####
@@ -432,11 +437,11 @@ if 1==2:
             #### Commercial Buildings
             print("Commercial building")
             print("=====================")
-            print("oacode total      :{}".format(hh_cb_oa))
-            print("ward total        :{}".format(hh_cb_ward))
-            print("borough total     :{}".format(hh_cb_borough))
-            print("city borough mean :{}".format(hh_cb_city_mean))
-            print("city total        :{}".format(hh_cb_city_sum))
+            print("oacode total      :{}".format(hous_commerical_stats["oacode_sum"]))
+            print("ward total        :{}".format(hous_commerical_stats["ward_sum"]))
+            print("borough total     :{}".format(hous_commerical_stats["borough_sum"]))
+            print("city borough mean :{}".format(hous_commerical_stats["borough_mean"]))
+            print("city total        :{}".format(hous_commerical_stats["city_sum"]))
             print("----------------")
             
             ####
@@ -445,52 +450,57 @@ if 1==2:
             #### Detached
             print("Detached")
             print("=====================")
-            print("oacode total      :{}".format(hh_det_oa))
-            print("ward total        :{}".format(hh_det_ward))
-            print("borough total     :{}".format(hh_det_borough))
-            print("city borough mean :{}".format(hh_det_city_mean))
-            print("city total        :{}".format(hh_det_city_sum))
+            print("oacode total      :{}".format(hous_detatched_stats["oacode_sum"]))
+            print("ward total        :{}".format(hous_detatched_stats["ward_sum"]))
+            print("borough total     :{}".format(hous_detatched_stats["borough_sum"]))
+            print("city borough mean :{}".format(hous_detatched_stats["borough_mean"]))
+            print("city total        :{}".format(hous_detatched_stats["city_sum"]))
             print("----------------")
             
             #### Flat
             print("Flat")
             print("=====================")
-            print("oacode total :{}".format(hh_flt_oa))
-            print("ward total   :{}".format(hh_flt_ward))
-            print("borough total:{}".format(hh_flt_borough))
-            print("city borough mean :{}".format(hh_flt_city_mean))
-            print("city total        :{}".format(hh_flt_city_sum))
+            print("oacode total      :{}".format(hous_flat_stats["oacode_sum"]))
+            print("ward total        :{}".format(hous_flat_stats["ward_sum"]))
+            print("borough total     :{}".format(hous_flat_stats["borough_sum"]))
+            print("city borough mean :{}".format(hous_flat_stats["borough_mean"]))
+            print("city total        :{}".format(hous_flat_stats["city_sum"]))
             print("----------------")
             
             #### Semi-Detached
             print("Semi-detached")
             print("=====================")
-            print("oacode total      :{}".format(hh_sem_oa))
-            print("ward total        :{}".format(hh_sem_ward))
-            print("borough total     :{}".format(hh_sem_borough))
-            print("city borough mean :{}".format(hh_sem_city_mean))
-            print("city total        :{}".format(hh_sem_city_sum))
+            print("oacode total      :{}".format(hous_semi_stats["oacode_sum"]))
+            print("ward total        :{}".format(hous_semi_stats["ward_sum"]))
+            print("borough total     :{}".format(hous_semi_stats["borough_sum"]))
+            print("city borough mean :{}".format(hous_semi_stats["borough_mean"]))
+            print("city total        :{}".format(hous_semi_stats["city_sum"]))
             print("----------------")
     
             #### Terraced
             print("Terraced")
             print("=====================")
-            print("oacode total      :{}".format(hh_ter_oa))
-            print("ward total        :{}".format(hh_ter_ward))
-            print("borough total     :{}".format(hh_ter_borough))
-            print("city borough mean :{}".format(hh_ter_city_mean))
-            print("city total        :{}".format(hh_ter_city_sum))
+            print("oacode total      :{}".format(hous_terraced_stats["oacode_sum"]))
+            print("ward total        :{}".format(hous_terraced_stats["ward_sum"]))
+            print("borough total     :{}".format(hous_terraced_stats["borough_sum"]))
+            print("city borough mean :{}".format(hous_terraced_stats["borough_mean"]))
+            print("city total        :{}".format(hous_terraced_stats["city_sum"]))
             print("---------------------")
             print("\n")
             print("\n")
             
         ## Create a data frame of the findings
-        household_location_stats_columns = ["household_type", "d_nd", "oacode_total", "ward_total", "borough_total", "city_borough_mean", "city_total" ]
-        household_location_stats_data    = [["commercial", "nd", hh_cb_oa, hh_cb_ward, hh_cb_borough, hh_cb_city_mean, hh_cb_city_sum],
-                                            ["detached", "d", hh_det_oa, hh_det_ward, hh_det_borough, hh_det_city_mean, hh_det_city_sum],
-                                            ["flat", "d", hh_flt_oa, hh_flt_ward, hh_flt_borough, hh_flt_city_mean, hh_flt_city_sum],
-                                            ["semi-detached", "d", hh_sem_oa, hh_sem_ward, hh_sem_borough, hh_sem_city_mean, hh_sem_city_sum],
-                                            ["terraced", "d", hh_ter_oa, hh_ter_ward, hh_ter_borough, hh_ter_city_mean, hh_ter_city_sum]]
+        household_location_stats_columns = ["household_type", "d_nd", "oacode_sum", "ward_sum", "borough_sum", "city_borough_mean", "city_sum" ]
+        household_location_stats_data    = [
+                                            [   "commercial", "nd", hous_commerical_stats["oacode_sum"], hous_commerical_stats["ward_sum"], hous_commerical_stats["borough_sum"], hous_commerical_stats["borough_mean"], hous_commerical_stats["city_sum"]],
+                                            [     "detached",  "d",  hous_detatched_stats["oacode_sum"],  hous_detatched_stats["ward_sum"],  hous_detatched_stats["borough_sum"],  hous_detatched_stats["borough_mean"],  hous_detatched_stats["city_sum"]],
+                                            [         "flat",  "d",       hous_flat_stats["oacode_sum"],       hous_flat_stats["ward_sum"],       hous_flat_stats["borough_sum"],       hous_flat_stats["borough_mean"],       hous_flat_stats["city_sum"]],
+                                            ["semi-detached",  "d",       hous_semi_stats["oacode_sum"],       hous_semi_stats["ward_sum"],       hous_semi_stats["borough_sum"],       hous_semi_stats["borough_mean"],       hous_semi_stats["city_sum"]],
+                                            [     "terraced",  "d",   hous_terraced_stats["oacode_sum"],   hous_terraced_stats["ward_sum"],   hous_terraced_stats["borough_sum"],   hous_terraced_stats["borough_mean"],   hous_terraced_stats["city_sum"]]
+                                           ]
+        
+        
+        
         
         household_location_stats_df = pd.DataFrame(household_location_stats_data, columns=household_location_stats_columns)
         
@@ -507,18 +517,18 @@ if 1==2:
         for i in range(0, 4):
             str = "{} - {} - OAcode:{} - ward:{} - borough:{} - borough avg:{}".format(i + 1, \
                                                                                        household_type_pretty[household_location_d_stats_df.iloc[i]["household_type"]], \
-                                                                                       household_location_d_stats_df.iloc[i]["oacode_total"], \
-                                                                                       household_location_d_stats_df.iloc[i]["ward_total"],   \
-                                                                                       household_location_d_stats_df.iloc[i]["borough_total"],   \
+                                                                                       household_location_d_stats_df.iloc[i]["oacode_sum"], \
+                                                                                       household_location_d_stats_df.iloc[i]["ward_sum"],   \
+                                                                                       household_location_d_stats_df.iloc[i]["borough_sum"],   \
                                                                                        household_location_d_stats_df.iloc[i]["city_borough_mean"],   \
                                                                                       )
             
             str2 = "{} - OAcode:{} - ward:{} - borough:{} - borough avg:{}".format(household_type_pretty[household_location_d_stats_df.iloc[i]["household_type"]], \
-                                                                                   household_location_d_stats_df.iloc[i]["oacode_total"], \
-                                                                                   household_location_d_stats_df.iloc[i]["ward_total"],   \
-                                                                                   household_location_d_stats_df.iloc[i]["borough_total"],   \
+                                                                                   household_location_d_stats_df.iloc[i]["oacode_sum"], \
+                                                                                   household_location_d_stats_df.iloc[i]["ward_sum"],   \
+                                                                                   household_location_d_stats_df.iloc[i]["borough_sum"],   \
                                                                                    household_location_d_stats_df.iloc[i]["city_borough_mean"],   \
-                                                                                   )
+                                                                                  )
             print(str)
             house_hold.append(str2)
             
@@ -534,97 +544,98 @@ if 1==2:
         print("\n")
         print("\n")
         
-        ed_uk_oa, ed_uk_ward, ed_uk_borough, ed_uk_city_mean, ed_uk_city_sum = stats(sd_london_qualification_oa_df, borough, ward_name, OAcode, "UnkownQualification")
-        ed_nk_oa, ed_nk_ward, ed_nk_borough, ed_nk_city_mean, ed_nk_city_sum = stats(sd_london_qualification_oa_df, borough, ward_name, OAcode, "NoQualification")
-        ed_l1_oa, ed_l1_ward, ed_l1_borough, ed_l1_city_mean, ed_l1_city_sum = stats(sd_london_qualification_oa_df, borough, ward_name, OAcode, "Level1")
-        ed_l2_oa, ed_l2_ward, ed_l2_borough, ed_l2_city_mean, ed_l2_city_sum = stats(sd_london_qualification_oa_df, borough, ward_name, OAcode, "Level2")
-        ed_l3_oa, ed_l3_ward, ed_l3_borough, ed_l3_city_mean, ed_l3_city_sum = stats(sd_london_qualification_oa_df, borough, ward_name, OAcode, "Level3")
-        ed_l4_oa, ed_l4_ward, ed_l4_borough, ed_l4_city_mean, ed_l4_city_sum = stats(sd_london_qualification_oa_df, borough, ward_name, OAcode, "Level4")
-        ed_oq_oa, ed_oq_ward, ed_oq_borough, ed_oq_city_mean, ed_oq_city_sum = stats(sd_london_qualification_oa_df, borough, ward_name, OAcode, "OtherQualifications")
+        edu_unknown_stats = stats(sd_london_qualification_oa_df, borough, ward_name, OAcode, "UnkownQualification")
+        edu_none_stats    = stats(sd_london_qualification_oa_df, borough, ward_name, OAcode, "NoQualification")
+        edu_level1_stats  = stats(sd_london_qualification_oa_df, borough, ward_name, OAcode, "Level1")
+        edu_level2_stats  = stats(sd_london_qualification_oa_df, borough, ward_name, OAcode, "Level2")
+        edu_level3_stats  = stats(sd_london_qualification_oa_df, borough, ward_name, OAcode, "Level3")
+        edu_level4_stats  = stats(sd_london_qualification_oa_df, borough, ward_name, OAcode, "Level4")
+        edu_other_stats   = stats(sd_london_qualification_oa_df, borough, ward_name, OAcode, "OtherQualifications")
         
         if 1==2:
             ### Unknown Qualification
             print("UnkownQualification")
             print("=====================")
-            print("oacode total      :{}".format(ed_uk_oa))
-            print("ward total        :{}".format(ed_uk_ward))
-            print("borough total     :{}".format(ed_uk_borough))
-            print("city borough mean :{}".format(ed_uk_city_mean))
-            print("city total        :{}".format(ed_uk_city_sum))
+            print("oacode total      :{}".format(edu_unknown_stats["oacode_sum"]))
+            print("ward total        :{}".format(edu_unknown_stats["ward_sum"]))
+            print("borough total     :{}".format(edu_unknown_stats["borough_sum"]))
+            print("city borough mean :{}".format(edu_unknown_stats["borough_mean"]))
+            print("city total        :{}".format(edu_unknown_stats["city_sum"]))
             print("----------------")
                
             ### No Qualification
             print("NoQualification")
             print("=====================")
-            print("oacode total      :{}".format(ed_nk_oa))
-            print("ward total        :{}".format(ed_nk_ward))
-            print("borough total     :{}".format(ed_nk_borough))
-            print("city borough mean :{}".format(ed_nk_city_mean))
-            print("city total        :{}".format(ed_nk_city_sum))
+            print("oacode total      :{}".format(edu_none_stats["oacode_sum"]))
+            print("ward total        :{}".format(edu_none_stats["ward_sum"]))
+            print("borough total     :{}".format(edu_none_stats["borough_sum"]))
+            print("city borough mean :{}".format(edu_none_stats["borough_mean"]))
+            print("city total        :{}".format(edu_none_stats["city_sum"]))
             print("----------------")
                
             ### Level 1
             print("Level1")
             print("=====================")
-            print("oacode total      :{}".format(ed_l1_oa))
-            print("ward total        :{}".format(ed_l1_ward))
-            print("borough total     :{}".format(ed_l1_borough))
-            print("city borough mean :{}".format(ed_l1_city_mean))
-            print("city total        :{}".format(ed_l1_city_sum))
+            print("oacode total      :{}".format(edu_level1_stats["oacode_sum"]))
+            print("ward total        :{}".format(edu_level1_stats["ward_sum"]))
+            print("borough total     :{}".format(edu_level1_stats["borough_sum"]))
+            print("city borough mean :{}".format(edu_level1_stats["borough_mean"]))
+            print("city total        :{}".format(edu_level1_stats["city_sum"]))
             print("----------------")
                
             ### Level 2
             print("Level2")
             print("=====================")
-            print("oacode total      :{}".format(ed_l2_oa))
-            print("ward total        :{}".format(ed_l2_ward))
-            print("borough total     :{}".format(ed_l2_borough))
-            print("city borough mean :{}".format(ed_l2_city_mean))
-            print("city total        :{}".format(ed_l2_city_sum))
+            print("oacode total      :{}".format(edu_level2_stats["oacode_sum"]))
+            print("ward total        :{}".format(edu_level2_stats["ward_sum"]))
+            print("borough total     :{}".format(edu_level2_stats["borough_sum"]))
+            print("city borough mean :{}".format(edu_level2_stats["borough_mean"]))
+            print("city total        :{}".format(edu_level2_stats["city_sum"]))
             print("----------------")
                
             ### Level 3
             print("Level3")
             print("=====================")
-            print("oacode total      :{}".format(ed_l3_oa))
-            print("ward total        :{}".format(ed_l3_ward))
-            print("borough total     :{}".format(ed_l3_borough))
-            print("city borough mean :{}".format(ed_l3_city_mean))
-            print("city total        :{}".format(ed_l3_city_sum))
+            print("oacode total      :{}".format(edu_level3_stats["oacode_sum"]))
+            print("ward total        :{}".format(edu_level3_stats["ward_sum"]))
+            print("borough total     :{}".format(edu_level3_stats["borough_sum"]))
+            print("city borough mean :{}".format(edu_level3_stats["borough_mean"]))
+            print("city total        :{}".format(edu_level3_stats["city_sum"]))
             print("----------------")
                
             ### Level 4
             print("Level4")
             print("=====================")
-            print("oacode total      :{}".format(ed_l4_oa))
-            print("ward total        :{}".format(ed_l4_ward))
-            print("borough total     :{}".format(ed_l4_borough))
-            print("city borough mean :{}".format(ed_l4_city_mean))
-            print("city total        :{}".format(ed_l4_city_sum))
+            print("oacode total      :{}".format(edu_level4_stats["oacode_sum"]))
+            print("ward total        :{}".format(edu_level4_stats["ward_sum"]))
+            print("borough total     :{}".format(edu_level4_stats["borough_sum"]))
+            print("city borough mean :{}".format(edu_level4_stats["borough_mean"]))
+            print("city total        :{}".format(edu_level4_stats["city_sum"]))
             print("----------------")
                
             ### Other Qualifications
             print("OtherQualifications")
             print("=====================")
-            print("oacode total      :{}".format(ed_oq_oa))
-            print("ward total        :{}".format(ed_oq_ward))
-            print("borough total     :{}".format(ed_oq_borough))
-            print("city borough mean :{}".format(ed_oq_city_mean))
-            print("city total        :{}".format(ed_oq_city_sum))
+            print("oacode total      :{}".format(edu_other_stats["oacode_sum"]))
+            print("ward total        :{}".format(edu_other_stats["ward_sum"]))
+            print("borough total     :{}".format(edu_other_stats["borough_sum"]))
+            print("city borough mean :{}".format(edu_other_stats["borough_mean"]))
+            print("city total        :{}".format(edu_other_stats["city_sum"]))
             print("----------------")
             print("\n")
             print("\n")
     
         ## Create a data frame of the findings
-        qualification_location_stats_columns = ["qualification_type", "oacode_total", "ward_total", "borough_total", "city_borough_mean", "city_total" ]
-        qualification_location_stats_data    = [["no_qualification"    , ed_nk_oa, ed_nk_ward, ed_nk_borough, ed_nk_city_mean, ed_nk_city_sum],
-                                                ["level1"              , ed_l1_oa, ed_l1_ward, ed_l1_borough, ed_l1_city_mean, ed_l1_city_sum],
-                                                ["level2"              , ed_l2_oa, ed_l2_ward, ed_l2_borough, ed_l2_city_mean, ed_l2_city_sum],
-                                                ["level3"              , ed_l3_oa, ed_l3_ward, ed_l3_borough, ed_l3_city_mean, ed_l3_city_sum],
-                                                ["level4"              , ed_l4_oa, ed_l4_ward, ed_l4_borough, ed_l4_city_mean, ed_l4_city_sum],
-                                                ["other_qualifications", ed_oq_oa, ed_oq_ward, ed_oq_borough, ed_oq_city_mean, ed_oq_city_sum]
+        qualification_location_stats_columns = ["qualification_type", "oacode_sum", "ward_sum", "borough_sum", "city_borough_mean", "city_sum" ]
+        qualification_location_stats_data    = [
+                                                [    "no_qualification",           edu_none_stats["oacode_sum"],   edu_none_stats["ward_sum"],   edu_none_stats["borough_sum"],   edu_none_stats["borough_mean"],   edu_none_stats["city_sum"]],
+                                                [              "level1",         edu_level1_stats["oacode_sum"], edu_level1_stats["ward_sum"], edu_level1_stats["borough_sum"], edu_level1_stats["borough_mean"], edu_level1_stats["city_sum"]],
+                                                [              "level2",         edu_level2_stats["oacode_sum"], edu_level2_stats["ward_sum"], edu_level2_stats["borough_sum"], edu_level2_stats["borough_mean"], edu_level2_stats["city_sum"]],
+                                                [              "level3",         edu_level3_stats["oacode_sum"], edu_level3_stats["ward_sum"], edu_level3_stats["borough_sum"], edu_level3_stats["borough_mean"], edu_level3_stats["city_sum"]],
+                                                [              "level4",         edu_level4_stats["oacode_sum"], edu_level4_stats["ward_sum"], edu_level4_stats["borough_sum"], edu_level4_stats["borough_mean"], edu_level4_stats["city_sum"]],
+                                                ["other_qualifications",          edu_other_stats["oacode_sum"],  edu_other_stats["ward_sum"],  edu_other_stats["borough_sum"],  edu_other_stats["borough_mean"],  edu_other_stats["city_sum"]]
                                                ]
-        
+
         qualification_location_stats_df = pd.DataFrame(qualification_location_stats_data, columns=qualification_location_stats_columns)
         
         ## Sort descending
@@ -637,17 +648,18 @@ if 1==2:
         education = []
         for i in range(0, 6):
             str = "{} - {} - OAcode:{} - ward:{} - borough:{} - borough avg:{}".format(i + 1, \
-                                                                                       qualification_type_pretty[qualification_location_stats_df.iloc[i]["qualification_type"]], \
-                                                                                       qualification_location_stats_df.iloc[i]["oacode_total"], \
-                                                                                       qualification_location_stats_df.iloc[i]["ward_total"],   \
-                                                                                       qualification_location_stats_df.iloc[i]["borough_total"],   \
-                                                                                       qualification_location_stats_df.iloc[i]["city_borough_mean"],   \
+                                                                                       qualification_type_pretty[household_location_d_stats_df.iloc[i]["qualification_type"]], \
+                                                                                       qualification_type_pretty.iloc[i]["oacode_sum"], \
+                                                                                       qualification_type_pretty.iloc[i]["ward_sum"],   \
+                                                                                       qualification_type_pretty.iloc[i]["borough_sum"],   \
+                                                                                       qualification_type_pretty.iloc[i]["city_borough_mean"]
                                                                                       )
-            str2 = "{} - OAcode:{} - ward:{} - borough:{} - borough avg:{}".format(qualification_type_pretty[qualification_location_stats_df.iloc[i]["qualification_type"]], \
-                                                                                   qualification_location_stats_df.iloc[i]["oacode_total"], \
-                                                                                   qualification_location_stats_df.iloc[i]["ward_total"],   \
-                                                                                   qualification_location_stats_df.iloc[i]["borough_total"],   \
-                                                                                   qualification_location_stats_df.iloc[i]["city_borough_mean"],   \
+            
+            str2 = "{} - OAcode:{} - ward:{} - borough:{} - borough avg:{}".format(qualification_type_pretty[household_location_d_stats_df.iloc[i]["qualification_type"]], \
+                                                                                   qualification_type_pretty.iloc[i]["oacode_sum"], \
+                                                                                   qualification_type_pretty.iloc[i]["ward_sum"],   \
+                                                                                   qualification_type_pretty.iloc[i]["borough_sum"],   \
+                                                                                   qualification_type_pretty.iloc[i]["city_borough_mean"]
                                                                                    )
             print(str)
             education.append(str2)

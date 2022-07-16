@@ -6,10 +6,7 @@ import sys
 import os
 import urllib.request
 
-# Add our lib directory
-sys.path.append("lib")
-
-import masters_data_analytics_lib as mlib
+from lib import masters_data_analytics_lib as mlib
 
 st.markdown("# Plot Page")
 st.sidebar.markdown("# Plot Page")

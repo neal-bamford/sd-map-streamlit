@@ -8,7 +8,6 @@ def remove_temp_file(file_name, override=None):
     
    
     if override != None:
-        print(override)
         remove_file = override
     
     if remove_file:
