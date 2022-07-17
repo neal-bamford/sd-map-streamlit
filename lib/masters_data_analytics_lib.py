@@ -222,13 +222,20 @@ def save_plot(plot, path, name, save_artefacts=False):
     Default is not to save, override by passing save_artefacts=True
     """
     if save_artefacts:
-        # Create any directory needed
+    # Create any directory needed
         if os.path.isdir(path) == False:
             os.makedirs(path)
-        
-        # Create out file path and name
-        file_path_name = "{}/{}".format(path, name)
-        
+    
+    # Create out file path and name
+    file_path_name = "{}/{}".format(path, name)
+
+    save_plot(plot = plot, filename=file_path_name, save_artefacts=save_artefacts)
+    
+def save_plot(plot, filename, save_artefact=False):
+    """
+    Saves a plot to a file, assumes path to file already exists
+    """
+    if save_artefacts:
         # Remove it if it's already there
         if os.path.isfile(file_path_name):
            os.remove(file_path_name)
