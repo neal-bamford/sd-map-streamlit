@@ -6,7 +6,7 @@ dependencies:
   - python-chromedriver-binary=103
   - pip
   - pip:
-    - statsmodel==0.13.2
+    - statsmodels==0.13.2
     - dataframe_image==0.1.1
     - python-docx==0.8.11
     - docx_mailmerge==0.5.0
