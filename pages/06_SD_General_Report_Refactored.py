@@ -110,7 +110,7 @@ if generate_report_link:
             with open(file, "rb") as report:
                 encoded = report.read()
     
-    gernerated_report_download = "sd_general_report_{}_{}_{}_{}.docx".format(city, borough, ward_name, post_code_search)
+    gernerated_report_download = "sd_general_report_{}_{}_{}_{}.docx".format(city, borough, ward_name, post_code_search).replace(" ", "_")
     
     
     html_link = mlib.create_download_link(encoded , gernerated_report_download)

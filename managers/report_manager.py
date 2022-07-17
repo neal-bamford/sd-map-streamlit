@@ -30,7 +30,7 @@ def generate_report(session_id, template_name, location_png_file, report_merge_d
     paragraph2 = image_tables[1].rows[0].cells[0].add_paragraph()
     paragraph_run2 = paragraph2.add_run()
     paragraph2.alignment = 1
-    paragraph_run2.add_picture(mekko_image_location, width=Inches(3.0))
+    paragraph_run2.add_picture(mekko_image_location, width=Inches(5.0))
 
     #
     # ## Save the template and reference it for the merge to happen in the next part

@@ -92,7 +92,7 @@ def generate_report_data(city		 # passed in, here to accommodate even though onl
 	population_field_01_part_03 = ""
 	
 	if this["rank"].values[0] != 1:
-		population_field_01_part_03 = "{} has the highest population density at {:.2f}" \
+		population_field_01_part_03 = "{} has the highest population density at {:.2f}." \
 			 .format(top.iloc[0]["borough"], round(top.iloc[0]["total"]), 2)
 	
 	population_field_01_part_04 = ""
@@ -102,42 +102,69 @@ def generate_report_data(city		 # passed in, here to accommodate even though onl
 			 .format(bottom.iloc[-1]["borough"], round(bottom.iloc[-1]["total"]), 2)
 		
 	### Male female ratio
-	pop_male_female_borough_total = pop_male_stats["borough_sum"] + pop_female_stats["borough_sum"]
-	pop_male_ratio = round(pop_male_stats["borough_sum"]/pop_male_female_borough_total * 100,0)
-	pop_female_ratio = round(pop_female_stats["borough_sum"]/pop_male_female_borough_total * 100,0)
+	## OA
+	pop_male_female_oa_total =pop_male_stats["oacode_sum"] + pop_female_stats["oacode_sum"]
+	pop_male_oa_ratio = round(pop_male_stats["oacode_sum"]/pop_male_female_oa_total * 100,0)
+	pop_female_oa_ratio = round(pop_female_stats["oacode_sum"]/pop_male_female_oa_total * 100,0)
 	
+	## Ward
+	pop_male_female_ward_total =pop_male_stats["ward_sum"] + pop_female_stats["ward_sum"]
+	pop_male_ward_ratio = round(pop_male_stats["ward_sum"]/pop_male_female_ward_total * 100,0)
+	pop_female_ward_ratio = round(pop_female_stats["ward_sum"]/pop_male_female_ward_total * 100,0)
+	
+	## Borough
+	pop_male_female_borough_total = pop_male_stats["borough_sum"] + pop_female_stats["borough_sum"]
+	pop_male_borough_ratio = round(pop_male_stats["borough_sum"]/pop_male_female_borough_total * 100,0)
+	pop_female_borough_ratio = round(pop_female_stats["borough_sum"]/pop_male_female_borough_total * 100,0)
+	
+	## Borough Average
 	pop_male_female_city_borough_total = pop_male_stats["city_sum"] + pop_female_stats["city_sum"]
 	pop_male_city_ratio = round(pop_male_stats["city_sum"]/pop_male_female_city_borough_total * 100,0)
 	pop_female_city_ratio = round(pop_female_stats["city_sum"]/pop_male_female_city_borough_total * 100,0)
 
 	###
-	### Create a Mekko Chart of the ratios at borough and average borough level for population gender ratio
-	###
-	from lib import plot_tools as plt_tool
-	data = [pop_male_ratio, pop_male_city_ratio, pop_female_ratio, pop_female_city_ratio]
-	names = ["borough", "borough average"]
-	categories = ["male", "female"]
-	title = "Gender Population - Borough and Borough Average"
-	mekko_gender_borough_plot_file = "./reports/generation/images/{}_mekko_gender_borough_{}_{}_{}.png".format(session_id, city, borough, ward_name)
-	mekko_chart_file = plttool.mekko_chart(data=data, names=names, categories=categories, title=title) 
-	mlib.save_plot_filename(plot=mekko_chart_file, filename=mekko_gender_borough_plot_file, save_artefacts=True)
-	
-	###
 	### Create text for population
 	### 
+	### OA Level
 	population_field_01_part_05 = ""
 	### What to print
-	if pop_male_ratio > pop_female_ratio:
-		population_field_01_part_05 = "Males account for {:g}% of the borough population, which is {} the average of {:g}% at borough level. Females account for {:g}% which is {} the average of {:g}% at borough level."\
-			 .format(pop_male_ratio, hls_str(pop_male_ratio, pop_male_city_ratio), \
-					 pop_male_city_ratio, pop_female_ratio, hls_str(pop_female_ratio, pop_female_city_ratio), pop_female_city_ratio)
+	if pop_male_oa_ratio > pop_female_oa_ratio:
+		population_field_01_part_05 = "Males account for {:g}% of the OA population. Females account for {:g}%."\
+			 .format(pop_male_oa_ratio, pop_female_oa_ratio)
 			 
-	elif pop_male_ratio < pop_female_ratio:
-		population_field_01_part_05 = "Females account for {:g}% of the borough population, which is {} the average of {:g}% at borough level. Males account for {:g}% which is {} the average of {:g}% at borough level."\
-			 .format(pop_female_ratio, hls_str(pop_female_ratio, pop_female_city_ratio),\
-					 pop_female_city_ratio, pop_male_ratio, hls_str(pop_male_ratio, pop_male_city_ratio), pop_male_city_ratio)
+	elif pop_male_oa_ratio < pop_female_oa_ratio:
+		population_field_01_part_05 = "Females account for {:g}% of the OA population. Males account for {:g}%."\
+			 .format(pop_female_oa_ratio, pop_male_oa_ratio)
 	else:
-		population_field_01_part_05 ="Males and females are equal for the borough. The borough level average is males {:g}% and females {:g}%."\
+		population_field_01_part_05 = "Males and females are equal at the OA level."
+	
+	### Ward Level
+	population_field_01_part_06 = ""
+	### What to print
+	if pop_male_ward_ratio > pop_female_ward_ratio:
+		population_field_01_part_06 = "Males account for {:g}% of the ward population. Females account for {:g}%."\
+			 .format(pop_male_ward_ratio, pop_female_ward_ratio)
+			 
+	elif pop_male_ward_ratio < pop_female_ward_ratio:
+		population_field_01_part_06 = "Females account for {:g}% of the ward population. Males account for {:g}%."\
+			 .format(pop_female_ward_ratio, pop_male_ward_ratio)
+	else:
+		population_field_01_part_06 = "Males and females are equal at the ward level."
+	
+	### Borough Level
+	population_field_01_part_07 = ""
+	### What to print
+	if pop_male_borough_ratio > pop_female_borough_ratio:
+		population_field_01_part_07 = "Males account for {:g}% of the borough population, which is {} the average of {:g}% at borough level. Females account for {:g}% which is {} the average of {:g}% at borough level."\
+			 .format(pop_male_borough_ratio, hls_str(pop_male_borough_ratio, pop_male_city_ratio), \
+					 pop_male_city_ratio, pop_female_borough_ratio, hls_str(pop_female_borough_ratio, pop_female_city_ratio), pop_female_city_ratio)
+			 
+	elif pop_male_borough_ratio < pop_female_borough_ratio:
+		population_field_01_part_07 = "Females account for {:g}% of the borough population, which is {} the average of {:g}% at borough level. Males account for {:g}% which is {} the average of {:g}% at borough level."\
+			 .format(pop_female_borough_ratio, hls_str(pop_female_borough_ratio, pop_female_city_ratio),\
+					 pop_female_city_ratio, pop_male_borough_ratio, hls_str(pop_male_borough_ratio, pop_male_city_ratio), pop_male_city_ratio)
+	else:
+		population_field_01_part_07 ="Males and females are equal for the borough. The borough level average is males {:g}% and females {:g}%."\
 			 .format(pop_male_city_ratio, pop_female_city_ratio)
 
 	### Combine for the report
@@ -145,7 +172,34 @@ def generate_report_data(city		 # passed in, here to accommodate even though onl
 						  population_field_01_part_02 + " " +  \
 						  population_field_01_part_03 + " " +  \
 						  population_field_01_part_04 + " " +  \
-						  population_field_01_part_05		
+						  population_field_01_part_05 + " " +  \
+						  population_field_01_part_06 + " " +  \
+						  population_field_01_part_07		
+						  
+	###
+	### Create a Mekko Chart of the ratios at borough and average borough level for population gender ratio
+	###
+	from lib import plot_tools as plt_tool
+
+	data = [pop_male_oa_ratio
+	      , pop_female_oa_ratio
+	      , pop_male_ward_ratio
+	      , pop_female_ward_ratio
+	      , pop_male_borough_ratio
+	      , pop_female_borough_ratio
+	      , pop_male_city_ratio
+	      , pop_female_city_ratio
+	]
+
+	names = ["OA", "ward", "borough", "borough average"]
+	options = ["male", "female"]
+	title = "Gender Population - OA, Ward, Borough & Borough Average"
+	props = lambda key: {"color": "orange" if "male" in key else "deepskyblue"}
+	
+	mekko_gender_borough_plot_file = "./reports/generation/images/{}_mekko_gender_borough_{}_{}_{}.png".format(session_id, city, borough, ward_name)
+	mekko_chart_file = plt_tool.mekko_chart(data=data, names=names, options=options, title=title, props=props) 
+	mlib.save_plot_filename(plot=mekko_chart_file, filename=mekko_gender_borough_plot_file, save_artefacts=True)
+						  
 
 	###
 	### Household

@@ -1,3 +1,3 @@
-import controllers.sd_general_report_controller
+import controllers.sd_general_report_controller as sd_general_report_controller
 
 sd_general_report_controller
