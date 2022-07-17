@@ -229,22 +229,22 @@ def save_plot(plot, path, name, save_artefacts=False):
     # Create out file path and name
     file_path_name = "{}/{}".format(path, name)
 
-    save_plot(plot = plot, filename=file_path_name, save_artefacts=save_artefacts)
+    save_plot_filename(plot = plot, filename=file_path_name, save_artefacts=save_artefacts)
     
-def save_plot(plot, filename, save_artefact=False):
+def save_plot_filename(plot, filename, save_artefacts=False):
     """
     Saves a plot to a file, assumes path to file already exists
     """
     if save_artefacts:
         # Remove it if it's already there
-        if os.path.isfile(file_path_name):
-           os.remove(file_path_name)
+        if os.path.isfile(filename):
+           os.remove(filename)
         
         # Save it
         try:
-            plot.get_figure().savefig(file_path_name, dpi=100, bbox_inches = 'tight')
+            plot.get_figure().savefig(filename, dpi=100, bbox_inches = 'tight')
         except:
-            plot.savefig(file_path_name, dpi=100, bbox_inches = 'tight')
+            plot.savefig(filename, dpi=100, bbox_inches = 'tight')
 
 def save_df(df, path, name, save_artefacts=False, max_rows=None):
     """

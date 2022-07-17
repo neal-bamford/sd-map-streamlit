@@ -23,9 +23,15 @@ def generate_report(session_id, template_name, location_png_file, report_merge_d
     
     # r.add_picture("../docx_generation/images/plot-example.jpg",width=Inches(4.0), height=Inches(.7))
     paragraph_run.add_picture(location_png_file, width=Inches(6.0))
+
+    mekko_image_location = report_merge_data["plots"]["mekko_gender_borough_plot_file"]
+    # mekko_image_location = "C:/DEVELOPMENT/MASTERS/semester-03/sd-map-streamlit/reports/generation/images/a8d31cf1_mekko_gender_borough_london_Hackney_Hackney Downs.png"
     
-    
-    
+    paragraph2 = image_tables[1].rows[0].cells[0].add_paragraph()
+    paragraph_run2 = paragraph2.add_run()
+    paragraph2.alignment = 1
+    paragraph_run2.add_picture(mekko_image_location, width=Inches(3.0))
+
     #
     # ## Save the template and reference it for the merge to happen in the next part
     stage_02_template = "./reports/generation/documents/{}_stage_02_template_{}".format(session_id, template_name)
@@ -46,5 +52,6 @@ def generate_report(session_id, template_name, location_png_file, report_merge_d
     ## These may move to a list then be called at the end as a cleanup process    
     ft.remove_temp_file(location_png_file, remove_temp_files)
     ft.remove_temp_file(stage_02_template, remove_temp_files)
+    ft.remove_temp_file(mekko_image_location, remove_temp_files)
     
     return stage_03_docx

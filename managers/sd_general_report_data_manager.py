@@ -1,5 +1,7 @@
 from lib import stats as stats
 from lib import formatting as fmt
+from lib import plot_tools as plttool
+from lib import masters_data_analytics_lib as mlib
 
 import numpy as np
 import pandas as pd
@@ -116,9 +118,9 @@ def generate_report_data(city		 # passed in, here to accommodate even though onl
 	names = ["borough", "borough average"]
 	categories = ["male", "female"]
 	title = "Gender Population - Borough and Borough Average"
-	mekko_gender_borough_plot_file = "./reports/generation/images/{}_mekko_gender_borough_{}_{}_{}_{}".format(session_id, city, borough, ward_name, post_code_search)
-	mekko_chart = mekko_chart(data=data, names=names, categories=categories, title=title) 
-	mlib.save_plot(plot=mekko_chart, filename=mekko_gender_borough_plot_file, save_artefacts=True)
+	mekko_gender_borough_plot_file = "./reports/generation/images/{}_mekko_gender_borough_{}_{}_{}.png".format(session_id, city, borough, ward_name)
+	mekko_chart_file = plttool.mekko_chart(data=data, names=names, categories=categories, title=title) 
+	mlib.save_plot_filename(plot=mekko_chart_file, filename=mekko_gender_borough_plot_file, save_artefacts=True)
 	
 	###
 	### Create text for population
@@ -240,6 +242,7 @@ def generate_report_data(city		 # passed in, here to accommodate even though onl
 	    "education_04"        : education[3],
 	    "education_05"        : education[4],
 	    "education_06"        : education[5],
+	  	"plots" :{"mekko_gender_borough_plot_file":mekko_gender_borough_plot_file}
 	    }
 	
 	

@@ -1,3 +1,3 @@
-import controllers.sd_general_report_data_manager
+import controllers.sd_general_report_controller
 
-sd_general_report_processor
+sd_general_report_controller
