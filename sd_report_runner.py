@@ -1,4 +1,3 @@
-from controllers import sd_general_report_processor
-# import controllers.sd_general_report_processor as sd_general_report_processor
+import controllers.sd_general_report_data_manager
 
 sd_general_report_processor
