@@ -1,3 +1,3 @@
-import scratch.sd_general_report_processor as sd_general_report_processor
+import controllers.sd_general_report_controller
 
-sd_general_report_processor
+sd_general_report_controller

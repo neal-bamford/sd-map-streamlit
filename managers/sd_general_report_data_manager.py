@@ -1,5 +1,7 @@
 from lib import stats as stats
 from lib import formatting as fmt
+from lib import plot_tools as plttool
+from lib import masters_data_analytics_lib as mlib
 
 import numpy as np
 import pandas as pd
@@ -107,7 +109,22 @@ def generate_report_data(city		 # passed in, here to accommodate even though onl
 	pop_male_female_city_borough_total = pop_male_stats["city_sum"] + pop_female_stats["city_sum"]
 	pop_male_city_ratio = round(pop_male_stats["city_sum"]/pop_male_female_city_borough_total * 100,0)
 	pop_female_city_ratio = round(pop_female_stats["city_sum"]/pop_male_female_city_borough_total * 100,0)
-	 
+
+	###
+	### Create a Mekko Chart of the ratios at borough and average borough level for population gender ratio
+	###
+	from lib import plot_tools as plt_tool
+	data = [pop_male_ratio, pop_male_city_ratio, pop_female_ratio, pop_female_city_ratio]
+	names = ["borough", "borough average"]
+	categories = ["male", "female"]
+	title = "Gender Population - Borough and Borough Average"
+	mekko_gender_borough_plot_file = "./reports/generation/images/{}_mekko_gender_borough_{}_{}_{}.png".format(session_id, city, borough, ward_name)
+	mekko_chart_file = plttool.mekko_chart(data=data, names=names, categories=categories, title=title) 
+	mlib.save_plot_filename(plot=mekko_chart_file, filename=mekko_gender_borough_plot_file, save_artefacts=True)
+	
+	###
+	### Create text for population
+	### 
 	population_field_01_part_05 = ""
 	### What to print
 	if pop_male_ratio > pop_female_ratio:
@@ -225,6 +242,7 @@ def generate_report_data(city		 # passed in, here to accommodate even though onl
 	    "education_04"        : education[3],
 	    "education_05"        : education[4],
 	    "education_06"        : education[5],
+	  	"plots" :{"mekko_gender_borough_plot_file":mekko_gender_borough_plot_file}
 	    }
 	
 	
