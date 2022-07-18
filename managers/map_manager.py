@@ -17,12 +17,13 @@ def generate_map(file, **kwargs):
     ward_name = kwargs["ward_name"]
     post_code_search_longitude = kwargs["post_code_search_longitude"]
     post_code_search_latitude  = kwargs["post_code_search_latitude"]
-    
     pc_longitudes = kwargs["pc_longitudes"]
     pc_latitudes = kwargs["pc_latitudes"]
-    
-    chrome_binary_location = kwargs["chrome_binary_location"]
-    browser_pause_s = kwargs["browser_pause_s"]
+    properties = kwargs["properties"]
+
+    remove_temp_files =  properties["reports_generation"]["clean_temp_files"]
+    chrome_binary_location = properties["chrome"]["binary_location"]
+    browser_pause_s = properties["selenium"]["browser_pause_s"]
     
     ## Calculated
     pc_longitudes_max = pc_longitudes.max()
@@ -100,6 +101,6 @@ def generate_map(file, **kwargs):
     browser.save_screenshot(location_png_file)
     browser.quit()   
     
-    ft.remove_temp_file(html_file)
+    ft.remove_temp_file(html_file, remove_temp_files)
     
     return location_png_file
