@@ -22,6 +22,8 @@ db_database = st.secrets[db_flavour]["database"]
 db_username = st.secrets[db_flavour]["username"]
 db_password = st.secrets[db_flavour]["password"]
 
+import pyodbc
+print(pyodbc.drivers())
 
 
 try:                      
