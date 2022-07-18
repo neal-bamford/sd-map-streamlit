@@ -2,12 +2,15 @@ from __future__ import print_function
 
 import streamlit as st
 import pyodbc 
+import urllib.request
 
 ##
 ## Start of Streamlit
 ##
 st.markdown("# Config")
 st.sidebar.markdown("# Config")
+
+external_ip = urllib.request.urlopen('https://ident.me').read().decode('utf8')
 
 db_flavour = st.secrets["database"]["flavour"]
 
@@ -27,7 +30,8 @@ try:
                    database=f"{db_database}",
                    uid=(f"{db_username}"),
                    pwd=f"{db_password}")
-    st.write("DATABASE CONNECTIVITY") 
-except Exception:
-    st.write("NO DATABASE CONNECTIVITY") 
+    st.write(f"DATABASE CONNECTIVITY from {external_ip}") 
+except Exception as e:
+    st.write(f"NO DATABASE CONNECTIVITY from {external_ip}") 
+    print(e)
 
