@@ -23,7 +23,7 @@ db_username = st.secrets[db_flavour]["username"]
 db_password = st.secrets[db_flavour]["password"]
 
 import pyodbc
-print(pyodbc.drivers())
+s = pyodbc.drivers()
 
 
 try:                      
@@ -35,5 +35,6 @@ try:
     st.write(f"DATABASE CONNECTIVITY from {external_ip}") 
 except Exception as e:
     st.write(f"NO DATABASE CONNECTIVITY from {external_ip}") 
+    st.error(s)
     st.error(e)
 
