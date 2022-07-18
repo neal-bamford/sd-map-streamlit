@@ -33,5 +33,5 @@ try:
     st.write(f"DATABASE CONNECTIVITY from {external_ip}") 
 except Exception as e:
     st.write(f"NO DATABASE CONNECTIVITY from {external_ip}") 
-    print(e)
+    st.error(e)
 
