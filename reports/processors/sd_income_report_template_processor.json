@@ -1,0 +1,7 @@
+{ 
+	"report_template":"./reports/templates/sd_income_report_template.docx",
+	"report_generation_folder":"./reports/generation/documents/",
+	"images":[
+			  {"table_cell":0, "image_ref":"location_png_file", "display_align":1, "image_width_inch":6.0, "include":true}
+			 ]
+}

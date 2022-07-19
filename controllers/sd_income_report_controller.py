@@ -1,6 +1,6 @@
 import uuid
 
-from managers import sd_general_report_manager as sd_gen_repo_man
+from managers import sd_income_report_manager as sd_income_repo_man
 from lib import masters_data_analytics_lib as mlib
 
 ## Session ID - Fake here
@@ -28,8 +28,8 @@ post_code = ""
 city = "London"
 borough = "City of London"
 ward = "Lime Street"
-# post_code = "IG11 7FD"
-post_code = "SW20 8ED"
+post_code = "IG11 7FD"
+# post_code = ""
 
 ## Parameter to pass
 search_term = {"city"      : city
@@ -45,6 +45,6 @@ properties = {"selenium":{"browser_pause_s":3},
               "reports_generation":{"clean_temp_files":True},
               "chrome":{"binary_location":"C:/DISTRIBUTIONS/ChromeDriver/chromedriver.exe"}}
 
-generated_report = sd_gen_repo_man.generate_report(session_id=session_id, search_term=search_term, report_context=report_context, lib=mlib, properties=properties)
+generated_report = sd_income_repo_man.generate_report(session_id=session_id, search_term=search_term, report_context=report_context, lib=mlib, properties=properties)
 
 print(generated_report)

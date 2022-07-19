@@ -1,4 +1,5 @@
 from docx import Document
+from pathlib import Path
 import mailmerge as mm
 import docx
 import os
@@ -37,14 +38,22 @@ def generate_report(session_id
     # Reference the tables. This is where we will add our images
     image_tables = image_document.tables
     
+    image_files_to_remove = []
     ## Loop through the json
     for image in template_processor["images"]:
         include = image["include"]
+        image_file_name = report_context[image["image_ref"]]
+
+        ## If the image file exists add it to the files to remove
+        ## regardless of the include flag        
+        if Path(image_file_name).is_file:
+            image_files_to_remove.append(image_file_name)
+        
         if include:
             paragraph = image_tables[image["table_cell"]].rows[0].cells[0].add_paragraph()
             paragraph_run = paragraph.add_run()
             paragraph.alignment = image["display_align"]
-            paragraph_run.add_picture(report_context[image["image_ref"]], width=Inches(image["image_width_inch"]))
+            paragraph_run.add_picture(image_file_name, width=Inches(image["image_width_inch"]))
 
     #
     # ## Save the template and reference it for the merge to happen in the next part
@@ -64,8 +73,12 @@ def generate_report(session_id
     merge_document.close()
     
     ## These may move to a list then be called at the end as a cleanup process    
-    ft.remove_temp_file(report_context["location_png_file"], remove_temp_files)
-    ft.remove_temp_file(report_context["population_mekko_plot_gender"], remove_temp_files)
+    ## remove files generated here
     ft.remove_temp_file(stage_02_template, remove_temp_files)
+    
+    ## remove image files we referenced
+    if remove_temp_files:
+        for image_file_name in image_files_to_remove:
+            ft.remove_temp_file(image_file_name, remove_temp_files)
     
     return stage_03_docx

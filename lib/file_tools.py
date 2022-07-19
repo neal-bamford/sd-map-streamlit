@@ -11,5 +11,9 @@ def remove_temp_file(file_name, override=None):
         remove_file = override
     
     if remove_file:
-        os.remove(file_name)
+        try:
+            os.remove(file_name)
+        except Exception as e:
+            pass
+            
     

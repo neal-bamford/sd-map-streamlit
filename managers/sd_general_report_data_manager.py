@@ -315,8 +315,8 @@ def generate_report_data(session_id
 	report_context["ward_name"] = ward_name
 	report_context["borough"] = borough
 	report_context["post_code"] = post_code
-
 	report_context["post_code_or_ward_name"] = post_code if post_code != "" else ward_name
+
 	report_context["population_field_01"] = population_field_01
 	report_context["population_mekko_plot_gender"] = mekko_gender_borough_plot_file
 	report_context["location_field_01"] = location_field_01

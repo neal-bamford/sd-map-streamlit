@@ -4,11 +4,11 @@ import os
 from lib import file_tools as ft
 from lib import masters_data_analytics_lib as mlib
 from managers import map_manager as map_manager
-from managers import sd_general_report_data_manager as data_manager
+from managers import sd_health_report_data_manager as data_manager
 from managers import report_manager as report_manager
 
 ### This is the process for this report
-template_processor_file_name = "./reports/processors/sd_general_report_template_processor.json"
+template_processor_file_name = "./reports/processors/sd_health_report_template_processor.json"
 
 def load_data(search_term, lib):
     ##
@@ -53,6 +53,7 @@ def generate_report(session_id
                                     , sd_london_population_oa_df    = sd_london_population_oa_df
                                     , sd_london_household_oa_df     = sd_london_household_oa_df
                                     , sd_london_qualification_oa_df = sd_london_qualification_oa_df)
+    report_context["general_information"] = "THIS IS PLACEHOLDER DATA"
 
     
     ##

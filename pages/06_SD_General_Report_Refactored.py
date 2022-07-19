@@ -3,7 +3,11 @@ from __future__ import print_function
 
 from lib import streamlit_wrapper as mlib
 from lib import file_tools as ft
-from managers import sd_general_report_manager as sd_gen_repo_man
+
+from managers import sd_crime_report_manager as sd_crime_repo_man
+from managers import sd_general_report_manager as sd_general_repo_man
+from managers import sd_health_report_manager as sd_health_repo_man
+from managers import sd_income_report_manager as sd_income_repo_man
 
 import uuid
 import streamlit as st
@@ -43,8 +47,11 @@ search_post_code = st.text_input("Post Code", key="search_post_code")
 ## Clear input text
 st.button("Clear", on_click=clear_text)
 
+report_type = st.selectbox("Select Report Type", ("Crime", "General", "Health", "Income"))
+
+
 ## Capture the input and run generate_report
-generate_report_link = st.button("Generate General Report")
+generate_report_link = st.button("Generate Report")
 
 ##
 ## Generate Link
@@ -67,7 +74,20 @@ if generate_report_link:
     properties = st.secrets
     
     try:
-        generated_report = sd_gen_repo_man.generate_report(session_id=session_id, search_term=search_term, report_context=report_context, lib=mlib, properties=properties)    
+        print(f"report_type:{report_type}")
+        
+        
+        rep_man = None
+        if report_type == "Crime":
+            rep_man = sd_crime_repo_man
+        elif report_type == "General":
+            rep_man = sd_general_repo_man
+        elif report_type == "Health":
+            rep_man = sd_health_repo_man
+        elif report_type == "Income":
+            rep_man = sd_income_repo_man
+
+        generated_report = rep_man.generate_report(session_id=session_id, search_term=search_term, report_context=report_context, lib=mlib, properties=properties)    
 
         ### 
         ### Read in the document to send out on the link
@@ -81,7 +101,7 @@ if generate_report_link:
         ward_name = report_context["ward_name"]
         post_code = report_context["post_code"]
         
-        gernerated_report_download = "sd_general_report_{}_{}_{}{}{}.docx".format(city, borough, ward_name, ("_" if post_code != "" else ""), post_code).replace(" ", "_")
+        gernerated_report_download = "sd_{}_report_{}_{}_{}{}{}.docx".format(report_type.lower(), city, borough, ward_name, ("_" if post_code != "" else ""), post_code).replace(" ", "_")
         
         
         html_link = mlib.create_download_link(encoded , gernerated_report_download)

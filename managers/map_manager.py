@@ -55,17 +55,10 @@ def generate_map(file, **kwargs):
         post_code_level    = True
         post_code_d        = map_args["post_code"]
         post_code_long_lat = post_code_d["lat_long"]
-        #51.53561    0.080307
 
         post_code_lat      = post_code_long_lat[:, 0]
         post_code_long     = post_code_long_lat[:, 1]
-        
-        print(post_code_lat)
-        print(post_code_long)
-        
-        # post_code_long      = 51.53561
-        # post_code_lat     = 0.080307
-        
+
         post_code          = post_code_d["label"]
     
     ward_mid_lat  = (ward_min_lat + ward_max_lat)/2
