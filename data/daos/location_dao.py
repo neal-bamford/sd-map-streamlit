@@ -69,7 +69,8 @@ def location_search(search_term, data):
             ## Non Unique match, shouldn't happen
             if len(ward_name_borough_results) > 1:
                 multiple_match = ward_name_borough_results[["WARD_NAME", "borough"]].drop_duplicates()
-                raise Exception(f"Non unique ward name match for ward name {search_ward_name} returned {multiple_match}. Add a borough to search.")
+                multiple_match_list = multiple_match["borough"].tolist()
+                raise Exception(f"Non unique ward name match for ward name {search_ward_name}. Add a borough from {multiple_match_list} to the search.")
             
             validated_ward_name = ward_name_borough_results["WARD_NAME"].values[0]
             validated_borough = ward_name_borough_results["borough"].values[0]

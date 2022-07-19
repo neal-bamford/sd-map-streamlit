@@ -57,9 +57,6 @@ def generate_report_data(session_id
 	
 	if post_code != "":
 		post_code_combined = loc_dao.list_lat_long_postcode(validated_search_term, sd_london_postcodes_df)
-		# post_code_latitudes  = sd_london_postcodes_df.loc[sd_london_postcodes_df["Post_Code"] == post_code]["latitude"].to_numpy()
-		# post_code_longitudes = sd_london_postcodes_df.loc[sd_london_postcodes_df["Post_Code"] == post_code]["longitude"].to_numpy()
-		# post_code_combined   = np.column_stack((post_code_latitudes, post_code_longitudes))
 		map_args["post_code"] = {"label":post_code, "lat_long":post_code_combined}
 	
 	ward_name_combined = loc_dao.list_lat_long_ward_name(validated_search_term, sd_london_postcodes_df)

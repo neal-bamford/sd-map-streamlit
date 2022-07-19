@@ -45,18 +45,6 @@ def generate_report(session_id
             paragraph_run = paragraph.add_run()
             paragraph.alignment = image["display_align"]
             paragraph_run.add_picture(report_context[image["image_ref"]], width=Inches(image["image_width_inch"]))
-        
-    
-    if 1==2:
-        paragraph = image_tables[0].rows[0].cells[0].add_paragraph()
-        paragraph_run = paragraph.add_run()
-        paragraph.alignment = 1
-        paragraph_run.add_picture(report_context["location_png_file"], width=Inches(6.0))
-    
-        paragraph2 = image_tables[1].rows[0].cells[0].add_paragraph()
-        paragraph_run2 = paragraph2.add_run()
-        paragraph2.alignment = 1
-        paragraph_run2.add_picture(report_context["population_mekko_plot_gender"], width=Inches(5.0))
 
     #
     # ## Save the template and reference it for the merge to happen in the next part

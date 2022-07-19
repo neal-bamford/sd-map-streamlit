@@ -17,10 +17,10 @@ def load_data(search_term, lib):
     ## London Post Codes
     city = search_term["city"]
     
-    sd_london_postcodes_file        = "./data/streamlit_{}_postcodes_oa.csv".format(city)
-    sd_london_population_oa_file    = "./data/streamlit_{}_population_oa.csv".format(city)
-    sd_london_household_oa_file     = "./data/streamlit_{}_household_population_oa.csv".format(city)
-    sd_london_qualification_oa_file = "./data/streamlit_{}_qualifictation_population_oa.csv".format(city)
+    sd_london_postcodes_file        = "./data/streamlit_{}_postcodes_oa.csv".format(city.lower())
+    sd_london_population_oa_file    = "./data/streamlit_{}_population_oa.csv".format(city.lower())
+    sd_london_household_oa_file     = "./data/streamlit_{}_household_population_oa.csv".format(city.lower())
+    sd_london_qualification_oa_file = "./data/streamlit_{}_qualifictation_population_oa.csv".format(city.lower())
     
     sd_london_postcodes_df        = lib.csv_to_dataframe(sd_london_postcodes_file)
     sd_london_population_oa_df    = lib.csv_to_dataframe(sd_london_population_oa_file)
