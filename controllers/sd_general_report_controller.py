@@ -5,6 +5,7 @@ from lib import masters_data_analytics_lib as mlib
 
 ## Session ID - Fake here
 session_id = str(uuid.uuid4())[:8]
+session_id = "XX"
 
 
 
@@ -15,27 +16,35 @@ session_id = str(uuid.uuid4())[:8]
 ## City of London    : E1 6AN
 ## Greenwich         : SE18 4AF
 city = "london"
-ward = ""
-borough = ""
-post_code = "BR1 1AA"
+borough = "Bromley"
+ward = "Bromley Town"
+post_code = ""
+
+city = "london"
+borough = "Merton"
+ward = "Dundonald"
+post_code = ""
+
+city = "London"
+borough = "Barking and Dagenham"
+ward = "Abbey"
+# post_code = "IG11 7FD"
+post_code = ""
 
 ## Parameter to pass
 search_term = {"city"      : city
-             , "ward"      : ward
+             , "ward_name" : ward
              , "borough"   : borough
              , "post_code" : post_code}
 
-
 ## Generate a context to place items in which is used when generating the report in the final step
 report_context = {}
-report_context["template_processor_file_name"] = "./reports/processors/sd_general_report_data_manager.json"
 
 ## This comes from Streamlit so fake here
 properties = {"selenium":{"browser_pause_s":3},
-              "reports_generation":{"clean_temp_files":True},
+              "reports_generation":{"clean_temp_files":False},
               "chrome":{"binary_location":"C:/DISTRIBUTIONS/ChromeDriver/chromedriver.exe"}}
 
 generated_report = sd_gen_repo_man.generate_report(session_id=session_id, search_term=search_term, report_context=report_context, lib=mlib, properties=properties)
 
-print(report_context)
 print(generated_report)

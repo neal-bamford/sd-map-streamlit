@@ -4,7 +4,9 @@ def generate_stats(df, borough, ward_name, oacode, column):
     """
     Generate stats from a standardised data frame
     """
-    oacode_lvl_sum  = df.loc[df["OAcode"] == oacode][column].values[0]
+    oacode_lvl_sum = 0
+    if oacode != "":
+        oacode_lvl_sum  = df.loc[df["OAcode"] == oacode][column].values[0]
     
     ward_lvl_sum    = df.loc[(df["WARD_NAME"] == ward_name) \
                            & (df["borough"] == borough)].agg({column: ["sum"]}).values[0][0]

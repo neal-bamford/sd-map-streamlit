@@ -12,37 +12,84 @@ def generate_map(file, **kwargs):
     html file, render it then take a snapshot of the page, save it as a .png then return its 
     location to the caller.
     """
-    
-    post_code_search = kwargs["post_code_search"]
-    ward_name = kwargs["ward_name"]
-    post_code_search_longitude = kwargs["post_code_search_longitude"]
-    post_code_search_latitude  = kwargs["post_code_search_latitude"]
-    pc_longitudes = kwargs["pc_longitudes"]
-    pc_latitudes = kwargs["pc_latitudes"]
     properties = kwargs["properties"]
+    map_args   = kwargs["map_args"]
 
     remove_temp_files =  properties["reports_generation"]["clean_temp_files"]
     chrome_binary_location = properties["chrome"]["binary_location"]
     browser_pause_s = properties["selenium"]["browser_pause_s"]
     
-    ## Calculated
-    pc_longitudes_max = pc_longitudes.max()
-    pc_longitudes_min = pc_longitudes.min()
+    ## We'll retrieve borough data but not use it for now        
+    borough_d        = map_args["borough"]
+    borough_long_lat = borough_d["lat_long"]
+    borough_min_lat  = borough_long_lat[:, 0].min() 
+    borough_max_lat  = borough_long_lat[:, 0].max() 
+    borough_min_long = borough_long_lat[:, 1].min()
+    borough_max_long = borough_long_lat[:, 1].max()
     
-    pc_latitudes_max = pc_latitudes.max()
-    pc_latitudes_min = pc_latitudes.min()
-    
-    pc_longitudes_mid = (pc_longitudes_max + pc_longitudes_min)/2
-    pc_latitudes_mid  = (pc_latitudes_max + pc_latitudes_min)/2
-    
-    combined = np.column_stack((pc_latitudes, pc_longitudes))
+    borough_mid_lat  = (borough_min_lat + borough_max_lat)/2
+    borough_mid_long = (borough_min_long + borough_max_long)/2
+    borough_name = borough_d["label"]
 
     ## Create the map and add borough overlay = centre on centre of map 
-    m = folium.Map(location=[pc_latitudes_mid, pc_longitudes_mid], zoom_start=12)
+    m = folium.Map(location=[borough_mid_lat, borough_mid_long], zoom_start=12)
+    m.fit_bounds([[borough_min_lat, borough_min_long], [borough_max_lat, borough_max_long]])
+
+    ###
+    ### Ward level seems best 
+    ###
+    ward_name_d   = map_args["ward_name"]
+    ward_long_lat = ward_name_d["lat_long"]
+    ward_min_lat  = ward_long_lat[:, 0].min() 
+    ward_max_lat  = ward_long_lat[:, 0].max() 
+    ward_min_long = ward_long_lat[:, 1].min()
+    ward_max_long = ward_long_lat[:, 1].max()
+    ward_name     = ward_name_d["label"]
+    
+    ward_mid_lat  = (ward_min_lat + ward_max_lat)/2
+    ward_mid_long = (ward_min_long + ward_max_long)/2
+    
+    ### Post Code
+    post_code_level = False
+    if "post_code" in map_args:
+        post_code_level    = True
+        post_code_d        = map_args["post_code"]
+        post_code_long_lat = post_code_d["lat_long"]
+        #51.53561    0.080307
+
+        post_code_lat      = post_code_long_lat[:, 0]
+        post_code_long     = post_code_long_lat[:, 1]
         
-    m.fit_bounds([[pc_latitudes_min, pc_longitudes_min], [pc_latitudes_max, pc_longitudes_max]])
+        print(post_code_lat)
+        print(post_code_long)
         
-    m.get_root().html.add_child(folium.Element("""
+        # post_code_long      = 51.53561
+        # post_code_lat     = 0.080307
+        
+        post_code          = post_code_d["label"]
+    
+    ward_mid_lat  = (ward_min_lat + ward_max_lat)/2
+    ward_mid_long = (ward_min_long + ward_max_long)/2
+    
+    map_bounds = [[ward_min_lat, ward_min_long], [ward_max_lat, ward_max_long]]
+    # map_bounds = [[borough_min_lat, borough_min_long], [borough_max_lat, borough_max_long]]
+    
+    rectangle_bounds = [[ward_min_lat, ward_min_long], [ward_max_lat, ward_max_long]]
+    # rectangle_bounds = [[borough_min_lat, borough_min_long], [borough_max_lat, borough_max_long]]
+
+    ## Create the map and add borough overlay = centre on centre of map 
+    map = folium.Map(location=[(borough_min_lat + borough_max_lat)/2, (borough_min_long + borough_max_long)/2], zoom_start=12)
+    map.fit_bounds(map_bounds)
+
+    folium.Rectangle(rectangle_bounds,
+                     color = "pink", 
+                     weight = 2,
+                     fill = True,
+                     fill_color = "pink",
+                     fill_opacity=0.2).add_to(map)
+
+    ## Add a style for the text on the map
+    map.get_root().html.add_child(folium.Element("""
     <style>
     .mapText {
         white-space: nowrap;
@@ -52,26 +99,24 @@ def generate_map(file, **kwargs):
     }
     </style>"""))
         
-    ## Add Ward Name Name                     
-    folium.Marker([pc_latitudes_mid, pc_longitudes_mid],
-                        icon=folium.DivIcon(html="" + ward_name + "",
-                        class_name="mapText")).add_to(m)
+    #
+    # Add the ward name                     
+    #
+    folium.Marker([ward_max_lat, ward_mid_long]
+                 ,icon=folium.DivIcon(html = f"{ward_name}"
+                 ,class_name = "mapText")).add_to(map)
                                                            
-    folium.Rectangle(combined, color="green", 
-                        weight=2,
-                        fill=True,
-                        fill_color="pink",
-                        fill_opacity=0.2).add_to(m)
-    
-    ## Search Post_Code
-    tooltip = post_code_search
-    folium.Marker([post_code_search_latitude, post_code_search_longitude], 
-                        icon=folium.DivIcon(html="" + post_code_search + "",
-                        class_name="mapText")).add_to(m)
+    #
+    # Add post code
+    #
+    if post_code_level:
+        folium.Marker([post_code_lat, post_code_long]
+                    , icon=folium.DivIcon(html = f"{post_code}"
+                    , class_name = "mapText")).add_to(map)
     
     ## Save the HTML file
     html_file = file + ".html"
-    m.save(html_file)
+    map.save(html_file)
         
     ## Load it
     from selenium.webdriver.chrome.options import Options as ChromiumOptions

@@ -2,6 +2,7 @@ from docx import Document
 import mailmerge as mm
 import docx
 import os
+import json
 from docx.shared import Inches
 from fpdf import FPDF
 from lib import file_tools as ft
@@ -10,7 +11,11 @@ def generate_report(session_id
                   , report_context
                   , properties):
     
-    template_processor = report_context["template_processor"]
+    ### LOAD THE TEMPLATE PROCESSOR
+    template_processor_file_name = report_context["template_processor_file_name"]
+    with open(template_processor_file_name) as template_processor_file:
+        template_processor = json.load(template_processor_file)
+
 
     template_absolute_path = template_processor["report_template"]
     template_name = os.path.basename(template_absolute_path)

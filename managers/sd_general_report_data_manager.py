@@ -2,6 +2,7 @@ from lib import stats as stats
 from lib import formatting as fmt
 from lib import plot_tools as plttool
 from lib import masters_data_analytics_lib as mlib
+from data.daos import location_dao as loc_dao
 
 import numpy as np
 import pandas as pd
@@ -25,57 +26,79 @@ def generate_report_data(session_id
 	sd_london_population_oa_df     = kwargs["sd_london_population_oa_df"]
 	sd_london_household_oa_df      = kwargs["sd_london_household_oa_df"]
 	sd_london_qualification_oa_df  = kwargs["sd_london_qualification_oa_df"] 
-	
-	## Search via the post_code, start from post_code
-	
-	city = search_term["city"]
-	
-	post_code= search_term["post_code"]
-	
-	try:
-		oacode = sd_london_postcodes_df.loc[sd_london_postcodes_df["Post_Code"] == post_code]["OAcode"].values[0]
-	except:
-		raise Exception("Unable to find post code {}".format(post_code))
-	
-	other_post_codes = sd_london_postcodes_df.loc[sd_london_postcodes_df["OAcode"] == oacode]["Post_Code"].to_numpy()
-	other_post_codes = np.delete(other_post_codes, np.where(other_post_codes == post_code))
-	number_of_boroughs = len(sd_london_postcodes_df["borough"].unique())
-	
-	
-	## Obtain the ward_name from the OACode
-	ward_name = sd_london_postcodes_df.loc[sd_london_postcodes_df["OAcode"] == oacode]["WARD_NAME"].values[0]
-	borough   = sd_london_postcodes_df.loc[sd_london_postcodes_df["OAcode"] == oacode]["borough"].values[0]
-	
-	other_wards = sd_london_postcodes_df.loc[sd_london_postcodes_df["borough"] == borough]["WARD_NAME"]
-	other_wards = other_wards.unique()
-	other_wards = np.delete(other_wards, np.where(other_wards == borough))
-	
-	post_code_search_longitude = sd_london_postcodes_df.loc[sd_london_postcodes_df["Post_Code"] == post_code]["longitude"].to_numpy()
-	post_code_search_latitude = sd_london_postcodes_df.loc[sd_london_postcodes_df["Post_Code"] == post_code]["latitude"].to_numpy()
 
-	pc_longitudes = sd_london_postcodes_df.loc[sd_london_postcodes_df["borough"] == borough]["longitude"].to_numpy()
-	pc_latitudes  = sd_london_postcodes_df.loc[sd_london_postcodes_df["borough"] == borough]["latitude"].to_numpy()
+	## Validae the search term	
+	validated_result = loc_dao.location_search(search_term, sd_london_postcodes_df)
+	
+	city      = validated_result["city"]
+	borough   = validated_result["borough"]
+	ward_name = validated_result["ward_name"]
+	oacode    = validated_result["oacode"]
+	post_code = validated_result["post_code"]
+	
+	validated_search_term = {"city"      : city
+                           , "borough"   : borough
+                           , "ward_name" : ward_name
+                           , "post_code" : post_code}
 
+	
+	## These need to be behind DAOs
+	all_ward_post_codes = loc_dao.list_post_codes_for_borough_ward_name(borough, ward_name, sd_london_postcodes_df)
+	all_borough_wards   = loc_dao.list_wards_for_borough(borough, sd_london_postcodes_df)
+	
+	other_post_codes = all_ward_post_codes
+	if post_code != "":
+		other_post_codes = np.delete(all_ward_post_codes, np.where(all_ward_post_codes == post_code))
+	
+	other_wards = np.delete(all_borough_wards, np.where(all_borough_wards == ward_name))
+	number_of_boroughs = len(loc_dao.list_boroughs_for_city(city, sd_london_postcodes_df))
+
+	map_args = {}
+	
+	if post_code != "":
+		post_code_combined = loc_dao.list_lat_long_postcode(validated_search_term, sd_london_postcodes_df)
+		# post_code_latitudes  = sd_london_postcodes_df.loc[sd_london_postcodes_df["Post_Code"] == post_code]["latitude"].to_numpy()
+		# post_code_longitudes = sd_london_postcodes_df.loc[sd_london_postcodes_df["Post_Code"] == post_code]["longitude"].to_numpy()
+		# post_code_combined   = np.column_stack((post_code_latitudes, post_code_longitudes))
+		map_args["post_code"] = {"label":post_code, "lat_long":post_code_combined}
+	
+	ward_name_combined = loc_dao.list_lat_long_ward_name(validated_search_term, sd_london_postcodes_df)
+	map_args["ward_name"] = {"label":ward_name, "lat_long":ward_name_combined}
+
+	borough_combined = loc_dao.list_lat_long_borough(validated_search_term, sd_london_postcodes_df)
+	map_args["borough"] = {"label":borough, "lat_long":borough_combined}
 
 	###
-	### Location
+	### LOCATION
 	###
-	location_field_01 = "The post code {} belongs to the ward {} and borough {} within the city of {}. There {} {} other post code{} which the following data is part of. {} being {}. There are {} other ward{} in the borough which are {}" \
-                       .format(post_code
-							 , ward_name
-							 , borough
-							 , city.capitalize()
-							 , ("are" if len(other_post_codes)>1 else "is")
-							 , len(other_post_codes)
-							 , ("s" if len(other_post_codes) > 1 else "")
-							 , ("These" if len(other_post_codes)>1 else "This")
-							 , fmt.series_format(other_post_codes)
-							 , len(other_wards)
-							 , ("s" if len(other_wards) > 1 else "")
-							 , fmt.series_format(other_wards))
+	### We have a post code
+	if post_code != "":
+		location_field_01 = "The post code {} belongs to the ward {} and borough {} within the city of {}. There {} {} other post code{} which the following data is part of. {} being {}. There are {} other ward{} in the borough which are {}" \
+	                       .format(post_code
+								 , ward_name
+								 , borough
+								 , city.capitalize()
+								 , ("are" if len(all_ward_post_codes)>1 else "is")
+								 , len(other_post_codes)
+								 , ("s" if len(other_post_codes) > 1 else "")
+								 , ("These" if len(other_post_codes)>1 else "This")
+								 , fmt.series_format(other_post_codes)
+								 , len(other_wards)
+								 , ("s" if len(other_wards) > 1 else "")
+								 , fmt.series_format(other_wards))
+	### We have ward
+	else:
+		location_field_01 = "The ward {} belongs to the borough {} within the city of {}. There are {} other ward{} in the borough which are {}" \
+	                       .format(ward_name
+								 , borough
+								 , city.capitalize()
+								 , len(other_wards)
+								 , ("s" if len(other_wards) > 1 else "")
+								 , fmt.series_format(other_wards))
+    	
 	
 	###
-	### Population
+	### POPULATION DATA
 	###
 	pop_all_stats	  = stats.generate_stats(sd_london_population_oa_df, borough, ward_name, oacode, "All")
 	pop_male_stats	  = stats.generate_stats(sd_london_population_oa_df, borough, ward_name, oacode, "Males")
@@ -121,9 +144,10 @@ def generate_report_data(session_id
 	pop_male_city_ratio = round(pop_male_stats["city_sum"]/pop_male_female_city_borough_total * 100,0)
 	pop_female_city_ratio = round(pop_female_stats["city_sum"]/pop_male_female_city_borough_total * 100,0)
 
-	###
-	### Create text for population
-	### 
+	####
+	#### POPULATION TEXT
+	#### 
+	
 	### Ward Level
 	population_field_01_part_06 = ""
 	### What to print
@@ -184,9 +208,15 @@ def generate_report_data(session_id
 	mekko_chart_file = plt_tool.mekko_chart(data=data, names=names, options=options, title=title, props=props) 
 	mlib.save_plot_filename(plot=mekko_chart_file, filename=mekko_gender_borough_plot_file, save_artefacts=True)
 						  
+	## Choose the column to rank by	
+	if post_code != "":
+		ranking_column = "oacode_sum"
+	else: 
+		ranking_column = "ward_sum"
+
 
 	###
-	### Household
+	### HOUSEHOLD
 	###
 	hous_commerical_stats = stats.generate_stats(sd_london_household_oa_df, borough, ward_name, oacode, "CommercialBuilding")
 	hous_detatched_stats  = stats.generate_stats(sd_london_household_oa_df, borough, ward_name, oacode, "Detached")
@@ -209,22 +239,32 @@ def generate_report_data(session_id
 	## Remove the non dwelling data i.e. Commercial buildings
 	## And sort descending
 	household_location_d_stats_df = household_location_stats_df.loc[household_location_stats_df["d_nd"] == "d"]
-	household_location_d_stats_df = household_location_d_stats_df.sort_values(by=["oacode_sum"], ascending=False)
+	household_location_d_stats_df = household_location_d_stats_df.sort_values(by=[ranking_column], ascending=False)
 	
 	household_type_pretty = {"detached":"Detached", "flat":"Flat", "semi-detached":"Semi Detached", "terraced":"Terraced"}
 	
 	house_hold = []
 	for i in range(0, 4):
-		str = "{} - oacode:{} - ward:{} - borough:{} - borough avg:{}".format(household_type_pretty[household_location_d_stats_df.iloc[i]["household_type"]], \
+		if post_code != "":
+			str = "{} - post codes:{} - ward:{} - borough:{} - borough avg:{}".format(
+				                                                               household_type_pretty[household_location_d_stats_df.iloc[i]["household_type"]], \
 																			   household_location_d_stats_df.iloc[i]["oacode_sum"], \
 																			   household_location_d_stats_df.iloc[i]["ward_sum"],   \
 																			   household_location_d_stats_df.iloc[i]["borough_sum"],   \
 																			   household_location_d_stats_df.iloc[i]["city_borough_mean"],   \
-																			  )
+																			   )
+		else:
+			str = "{} - ward:{} - borough:{} - borough avg:{}".format(
+				                                               household_type_pretty[household_location_d_stats_df.iloc[i]["household_type"]], \
+															   household_location_d_stats_df.iloc[i]["ward_sum"],   \
+															   household_location_d_stats_df.iloc[i]["borough_sum"],   \
+															   household_location_d_stats_df.iloc[i]["city_borough_mean"],   \
+															   )
+			
 		house_hold.append(str)
 		
 	###
-	### Education
+	### EDUCATION
 	###
 	edu_unknown_stats = stats.generate_stats(sd_london_qualification_oa_df, borough, ward_name, oacode, "UnkownQualification")
 	edu_none_stats	  = stats.generate_stats(sd_london_qualification_oa_df, borough, ward_name, oacode, "NoQualification")
@@ -248,18 +288,27 @@ def generate_report_data(session_id
 	qualification_location_stats_df = pd.DataFrame(qualification_location_stats_data, columns=qualification_location_stats_columns)
 	
 	## Sort descending
-	qualification_location_stats_df = qualification_location_stats_df.sort_values(by=["oacode_sum"], ascending=False)
+	qualification_location_stats_df = qualification_location_stats_df.sort_values(by=[ranking_column], ascending=False)
 	
 	qualification_type_pretty = {"no_qualification":"No qualifications", "level1":"Level 1", "level2":"Level 2", "level3":"Level 3", "level4":"Level 4", "other_qualifications":"Other qualifications"}
 	
 	education = []
 	for i in range(0, 6):
-		str = "{} - oacode:{} - ward:{} - borough:{} - borough avg:{}".format(qualification_type_pretty[qualification_location_stats_df.iloc[i]["qualification_type"]], \
+		if post_code != "":
+			str = "{} - post codes:{} - ward:{} - borough:{} - borough avg:{}".format(
+				                                                               qualification_type_pretty[qualification_location_stats_df.iloc[i]["qualification_type"]], \
 																			   qualification_location_stats_df.iloc[i]["oacode_sum"], \
 																			   qualification_location_stats_df.iloc[i]["ward_sum"],   \
 																			   qualification_location_stats_df.iloc[i]["borough_sum"],   \
 																			   qualification_location_stats_df.iloc[i]["city_borough_mean"]
-																			   )
+																				   )
+		else:
+			str = "{} - ward:{} - borough:{} - borough avg:{}".format(qualification_type_pretty[qualification_location_stats_df.iloc[i]["qualification_type"]], \
+																				   qualification_location_stats_df.iloc[i]["ward_sum"],   \
+																				   qualification_location_stats_df.iloc[i]["borough_sum"],   \
+																				   qualification_location_stats_df.iloc[i]["city_borough_mean"]
+																				   )
+			
 		education.append(str)	
 
 	###
@@ -269,9 +318,10 @@ def generate_report_data(session_id
 	report_context["ward_name"] = ward_name
 	report_context["borough"] = borough
 	report_context["post_code"] = post_code
+
+	report_context["post_code_or_ward_name"] = post_code if post_code != "" else ward_name
 	report_context["population_field_01"] = population_field_01
 	report_context["population_mekko_plot_gender"] = mekko_gender_borough_plot_file
-	
 	report_context["location_field_01"] = location_field_01
 	report_context["house_hold_01"] = house_hold[0]
 	report_context["house_hold_02"] = house_hold[1]
@@ -284,7 +334,4 @@ def generate_report_data(session_id
 	report_context["education_05"] = education[4]
 	report_context["education_06"] = education[5]
 	
-	report_context["post_code_search_longitude"] = post_code_search_longitude
-	report_context["post_code_search_latitude"] = post_code_search_latitude
-	report_context["pc_longitudes"] = pc_longitudes 
-	report_context["pc_latitudes"] = pc_latitudes
+	report_context["map_args"] = map_args
