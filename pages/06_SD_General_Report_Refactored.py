@@ -22,15 +22,42 @@ def clear_text():
     st.session_state["search_post_code"] = ""
     
 
-## City
-search_city = "London"
 
 
 session_id = str(uuid.uuid4())[:8]
 
 
 
+query_params = st.experimental_get_query_params()
+print(query_params)
 
+url_search_city = ""
+url_search_borough = ""
+url_search_ward_name = ""
+url_search_post_code = ""
+url_report_type = ""
+url_report_auto_generate = ""
+
+if "search_city" in  query_params:
+    url_search_city = query_params["search_city"][0]
+    
+if "search_borough" in  query_params:
+    url_search_borough = query_params["search_borough"][0]
+    
+if "search_ward_name" in  query_params:
+    url_search_ward_name = query_params["search_ward_name"][0]
+    
+if "search_post_code" in  query_params:
+    url_search_post_code = query_params["search_post_code"][0]
+    
+if "report_type" in  query_params:
+    url_report_type = query_params["report_type"][0]
+    
+if "report_auto_generate" in  query_params:
+    url_report_auto_generate = query_params["report_auto_generate"][0]
+    
+    
+    
 
 
 ##
@@ -40,18 +67,27 @@ st.markdown("# SD General Report Refactored")
 st.sidebar.markdown("# SD General Report Refactored")
 
 ## Input the post code to search with
-search_borough   = st.text_input("Borough", key="search_borough")
-search_ward_name = st.text_input("Ward Name", key="search_ward_name")
-search_post_code = st.text_input("Post Code", key="search_post_code")
+## City
+search_city = url_search_city if url_search_city != "" else "London"
+search_borough   = st.text_input("Borough", value=url_search_borough, key="search_borough")
+search_ward_name = st.text_input("Ward Name", value=url_search_ward_name, key="search_ward_name")
+search_post_code = st.text_input("Post Code", value=url_search_post_code, key="search_post_code")
 
 ## Clear input text
 st.button("Clear", on_click=clear_text)
+report_type_idx = {"Crime":0, "General":1, "Health":2, "Income":3}
 
-report_type = st.selectbox("Select Report Type", ("Crime", "General", "Health", "Income"))
+# print(f"url_report_type:{url_report_type}")
+# print(report_type_idx[url_report_type])
+
+report_type = st.selectbox("Select Report Type", ("Crime", "General", "Health", "Income"), index=report_type_idx[url_report_type])
 
 
 ## Capture the input and run generate_report
-generate_report_link = st.button("Generate Report")
+if url_report_auto_generate != "" and url_report_auto_generate.lower() == "true":
+    generate_report_link = True
+else:
+    generate_report_link = st.button("Generate Report")
 
 ##
 ## Generate Link
