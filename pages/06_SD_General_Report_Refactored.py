@@ -7,7 +7,7 @@ import uuid
 from lib import file_tools as ft
 from lib import streamlit_wrapper as mlib
 from managers import sd_crime_report_manager as sd_crime_repo_man
-from managers import sd_general_report_manager as sd_general_repo_man
+from managers import sd_report_type_general as sd_rep_typ_general
 from managers import sd_health_report_manager as sd_health_repo_man
 from managers import sd_income_report_manager as sd_income_repo_man
 
@@ -113,7 +113,7 @@ if generate_report_link:
         if report_type == "Crime":
             rep_man = sd_crime_repo_man
         elif report_type == "General":
-            rep_man = sd_general_repo_man
+            rep_man = sd_rep_typ_general
         elif report_type == "Health":
             rep_man = sd_health_repo_man
         elif report_type == "Income":

@@ -40,6 +40,8 @@ def generate_report_data(session_id
                            , "borough"   : borough
                            , "ward_name" : ward_name
                            , "post_code" : post_code}
+	
+	report_context["validated_search_term"] = validated_search_term
 
 	
 	## These need to be behind DAOs
@@ -210,6 +212,8 @@ def generate_report_data(session_id
 		ranking_column = "oacode_sum"
 	else: 
 		ranking_column = "ward_sum"
+		
+	
 
 
 	###
@@ -271,42 +275,50 @@ def generate_report_data(session_id
 	edu_level4_stats  = stats.generate_stats(sd_london_qualification_oa_df, borough, ward_name, oacode, "Level4")
 	edu_other_stats   = stats.generate_stats(sd_london_qualification_oa_df, borough, ward_name, oacode, "OtherQualifications")
 	
-	## Create a data frame of the findings
-	qualification_location_stats_columns = ["qualification_type", "oacode_sum", "ward_sum", "borough_sum", "city_borough_mean", "city_sum" ]
-	qualification_location_stats_data	= [
-											[	"no_qualification",		   edu_none_stats["oacode_sum"],   edu_none_stats["ward_sum"],   edu_none_stats["borough_sum"],   edu_none_stats["borough_mean"],   edu_none_stats["city_sum"]],
-											[			  "level1",		 edu_level1_stats["oacode_sum"], edu_level1_stats["ward_sum"], edu_level1_stats["borough_sum"], edu_level1_stats["borough_mean"], edu_level1_stats["city_sum"]],
-											[			  "level2",		 edu_level2_stats["oacode_sum"], edu_level2_stats["ward_sum"], edu_level2_stats["borough_sum"], edu_level2_stats["borough_mean"], edu_level2_stats["city_sum"]],
-											[			  "level3",		 edu_level3_stats["oacode_sum"], edu_level3_stats["ward_sum"], edu_level3_stats["borough_sum"], edu_level3_stats["borough_mean"], edu_level3_stats["city_sum"]],
-											[			  "level4",		 edu_level4_stats["oacode_sum"], edu_level4_stats["ward_sum"], edu_level4_stats["borough_sum"], edu_level4_stats["borough_mean"], edu_level4_stats["city_sum"]],
-											["other_qualifications",		  edu_other_stats["oacode_sum"],  edu_other_stats["ward_sum"],  edu_other_stats["borough_sum"],  edu_other_stats["borough_mean"],  edu_other_stats["city_sum"]]
-										   ]
+	report_context["edu_unknown_stats"] = edu_unknown_stats
+	report_context["edu_none_stats"] = edu_none_stats
+	report_context["edu_level1_stats"] = edu_level1_stats
+	report_context["edu_level2_stats"] = edu_level2_stats
+	report_context["edu_level3_stats"] = edu_level3_stats
+	report_context["edu_level4_stats"] = edu_level4_stats
+	report_context["edu_other_stats"] = edu_other_stats
 	
-	qualification_location_stats_df = pd.DataFrame(qualification_location_stats_data, columns=qualification_location_stats_columns)
-	
-	## Sort descending
-	qualification_location_stats_df = qualification_location_stats_df.sort_values(by=[ranking_column], ascending=False)
-	
-	qualification_type_pretty = {"no_qualification":"No qualifications", "level1":"Level 1", "level2":"Level 2", "level3":"Level 3", "level4":"Level 4", "other_qualifications":"Other qualifications"}
-	
-	education = []
-	for i in range(0, 6):
-		if post_code != "":
-			str = "{} - post codes:{} - ward:{} - borough:{} - borough avg:{}".format(
-				                                                               qualification_type_pretty[qualification_location_stats_df.iloc[i]["qualification_type"]], \
-																			   qualification_location_stats_df.iloc[i]["oacode_sum"], \
-																			   qualification_location_stats_df.iloc[i]["ward_sum"],   \
-																			   qualification_location_stats_df.iloc[i]["borough_sum"],   \
-																			   qualification_location_stats_df.iloc[i]["city_borough_mean"]
-																				   )
-		else:
-			str = "{} - ward:{} - borough:{} - borough avg:{}".format(qualification_type_pretty[qualification_location_stats_df.iloc[i]["qualification_type"]], \
-																				   qualification_location_stats_df.iloc[i]["ward_sum"],   \
-																				   qualification_location_stats_df.iloc[i]["borough_sum"],   \
-																				   qualification_location_stats_df.iloc[i]["city_borough_mean"]
-																				   )
-			
-		education.append(str)	
+ # ## Create a data frame of the findings
+ # qualification_location_stats_columns = ["qualification_type", "oacode_sum", "ward_sum", "borough_sum", "city_borough_mean", "city_sum" ]
+ # qualification_location_stats_data	= [
+ # 										[	"no_qualification",		   edu_none_stats["oacode_sum"],   edu_none_stats["ward_sum"],   edu_none_stats["borough_sum"],   edu_none_stats["borough_mean"],   edu_none_stats["city_sum"]],
+ # 										[			  "level1",		 edu_level1_stats["oacode_sum"], edu_level1_stats["ward_sum"], edu_level1_stats["borough_sum"], edu_level1_stats["borough_mean"], edu_level1_stats["city_sum"]],
+ # 										[			  "level2",		 edu_level2_stats["oacode_sum"], edu_level2_stats["ward_sum"], edu_level2_stats["borough_sum"], edu_level2_stats["borough_mean"], edu_level2_stats["city_sum"]],
+ # 										[			  "level3",		 edu_level3_stats["oacode_sum"], edu_level3_stats["ward_sum"], edu_level3_stats["borough_sum"], edu_level3_stats["borough_mean"], edu_level3_stats["city_sum"]],
+ # 										[			  "level4",		 edu_level4_stats["oacode_sum"], edu_level4_stats["ward_sum"], edu_level4_stats["borough_sum"], edu_level4_stats["borough_mean"], edu_level4_stats["city_sum"]],
+ # 										["other_qualifications",		  edu_other_stats["oacode_sum"],  edu_other_stats["ward_sum"],  edu_other_stats["borough_sum"],  edu_other_stats["borough_mean"],  edu_other_stats["city_sum"]]
+ # 									   ]
+ #
+ # qualification_location_stats_df = pd.DataFrame(qualification_location_stats_data, columns=qualification_location_stats_columns)
+ #
+ # ## Sort descending
+ # qualification_location_stats_df = qualification_location_stats_df.sort_values(by=[ranking_column], ascending=False)
+ #
+ # qualification_type_pretty = {"no_qualification":"No qualifications", "level1":"Level 1", "level2":"Level 2", "level3":"Level 3", "level4":"Level 4", "other_qualifications":"Other qualifications"}
+ #
+ # education = []
+ # for i in range(0, 6):
+ # 	if post_code != "":
+ # 		str = "{} - post codes:{} - ward:{} - borough:{} - borough avg:{}".format(
+ # 			                                                               qualification_type_pretty[qualification_location_stats_df.iloc[i]["qualification_type"]], \
+ # 																		   qualification_location_stats_df.iloc[i]["oacode_sum"], \
+ # 																		   qualification_location_stats_df.iloc[i]["ward_sum"],   \
+ # 																		   qualification_location_stats_df.iloc[i]["borough_sum"],   \
+ # 																		   qualification_location_stats_df.iloc[i]["city_borough_mean"]
+ # 																			   )
+ # 	else:
+ # 		str = "{} - ward:{} - borough:{} - borough avg:{}".format(qualification_type_pretty[qualification_location_stats_df.iloc[i]["qualification_type"]], \
+ # 																			   qualification_location_stats_df.iloc[i]["ward_sum"],   \
+ # 																			   qualification_location_stats_df.iloc[i]["borough_sum"],   \
+ # 																			   qualification_location_stats_df.iloc[i]["city_borough_mean"]
+ # 																			   )
+ #
+ # 	education.append(str)	
 
 	###
 	### Place any fields in the template into the report_context along with the value
@@ -324,11 +336,11 @@ def generate_report_data(session_id
 	report_context["house_hold_02"] = house_hold[1]
 	report_context["house_hold_03"] = house_hold[2]
 	report_context["house_hold_04"] = house_hold[3]
-	report_context["education_01"] = education[0]
-	report_context["education_02"] = education[1]
-	report_context["education_03"] = education[2]
-	report_context["education_04"] = education[3]
-	report_context["education_05"] = education[4]
-	report_context["education_06"] = education[5]
+ # report_context["education_01"] = education[0]
+ # report_context["education_02"] = education[1]
+ # report_context["education_03"] = education[2]
+ # report_context["education_04"] = education[3]
+ # report_context["education_05"] = education[4]
+ # report_context["education_06"] = education[5]
 	
 	report_context["map_args"] = map_args

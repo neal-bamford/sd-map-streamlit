@@ -4,9 +4,9 @@ import uuid
 
 from lib import file_tools as ft
 from lib import masters_data_analytics_lib as mlib
-from managers import map_manager as map_manager
+from managers import sd_map_manager as map_manager
 from managers import sd_crime_report_data_manager as data_manager
-from managers import report_manager as report_manager
+from managers import sd_report_manager as report_manager
 
 log = logging.getLogger(__name__)
 
