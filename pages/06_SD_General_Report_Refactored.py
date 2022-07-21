@@ -1,4 +1,3 @@
-
 from __future__ import print_function
 
 from lib import streamlit_wrapper as mlib
@@ -35,7 +34,7 @@ url_search_city = ""
 url_search_borough = ""
 url_search_ward_name = ""
 url_search_post_code = ""
-url_report_type = ""
+url_report_type = "General"
 url_report_auto_generate = ""
 
 if "search_city" in  query_params:

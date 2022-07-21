@@ -1,11 +1,14 @@
 import uuid
 import os
+import logging
 
 from lib import file_tools as ft
 from lib import masters_data_analytics_lib as mlib
 from managers import map_manager as map_manager
 from managers import sd_general_report_data_manager as data_manager
 from managers import report_manager as report_manager
+
+log = logging.getLogger(__name__)
 
 ### This is the process for this report
 template_processor_file_name = "./reports/processors/sd_general_report_template_processor.json"
@@ -15,6 +18,7 @@ def load_data(search_term, lib):
     ## LOAD ALL THE DATA FILES
     ##
     ## London Post Codes
+    log.debug("load_data")
     city = search_term["city"]
     
     sd_london_postcodes_file        = "./data/streamlit_{}_postcodes_oa.csv".format(city.lower())
@@ -83,4 +87,5 @@ def generate_report(session_id
                                              , report_context=report_context
                                              , properties=properties)
     
+    log.debug(f"returning generated_report:{generated_report}")
     return generated_report

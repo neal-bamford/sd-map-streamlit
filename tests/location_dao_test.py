@@ -1,5 +1,8 @@
 from data.daos import location_dao as loc_dao
 from lib import masters_data_analytics_lib as lib
+import logging
+
+log = logging.getLogger(__name__)
 
 search_term = {"city"      : "london"
             , "ward_name"  : ""
@@ -14,6 +17,7 @@ data                     = lib.csv_to_dataframe(sd_london_postcodes_file)
 result = loc_dao.location_search(search_term, data)
 
 print(result)
+log.debug(result)
 
 search_city      = "London"
 search_borough   = "Bromley"
