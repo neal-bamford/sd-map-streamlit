@@ -1,16 +1,17 @@
 from __future__ import print_function
 
-from lib import streamlit_wrapper as mlib
-from lib import file_tools as ft
+import logging
+import streamlit as st
+import uuid
 
+from lib import file_tools as ft
+from lib import streamlit_wrapper as mlib
 from managers import sd_crime_report_manager as sd_crime_repo_man
 from managers import sd_general_report_manager as sd_general_repo_man
 from managers import sd_health_report_manager as sd_health_repo_man
 from managers import sd_income_report_manager as sd_income_repo_man
 
-import uuid
-import streamlit as st
-
+log = logging.getLogger(__name__)
 
 # reports_generation_clean_temp_files = st.secrets["reports_generation"]["clean_temp_file"]
 
@@ -28,7 +29,7 @@ session_id = str(uuid.uuid4())[:8]
 
 
 query_params = st.experimental_get_query_params()
-print(query_params)
+log.debug(f"query_params:{query_params}")
 
 url_search_city = ""
 url_search_borough = ""
@@ -54,10 +55,6 @@ if "report_type" in  query_params:
     
 if "report_auto_generate" in  query_params:
     url_report_auto_generate = query_params["report_auto_generate"][0]
-    
-    
-    
-
 
 ##
 ## Start of Streamlit
@@ -109,7 +106,7 @@ if generate_report_link:
     properties = st.secrets
     
     try:
-        print(f"report_type:{report_type}")
+        log.debug(f"report_type:{report_type}")
         
         
         rep_man = None

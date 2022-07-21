@@ -11,6 +11,8 @@ controllers/__pycache__
 managers/__pycache__
 scratch/__pycache__
 lib/__pycache__
+__pycache__/
+*.pyc
 tests/__pycache__
 logs/*.log
 *.log
