@@ -57,7 +57,6 @@ def generate_report_data(session_id
 
 	borough_combined = loc_dao.list_lat_long_borough(validated_search_term, sd_london_postcodes_df)
 	map_args["borough"] = {"label":borough, "lat_long":borough_combined}
-	report_context["map_args"] = map_args
 
 	report_context["map_args"] = map_args
 

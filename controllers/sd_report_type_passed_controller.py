@@ -1,5 +1,4 @@
 from lib import masters_data_analytics_lib as mlib
-from managers import sd_report_type_income as sd_report_man
 
 import logging
 import uuid
@@ -28,11 +27,11 @@ borough = "Merton"
 ward = "Dundonald"
 post_code = ""
 
-city = "London"
-borough = "City of London"
-ward = "Lime Street"
-post_code = "IG11 7FD"
-# post_code = ""
+# city = "London"
+# borough = "City of London"
+# ward = "Lime Street"
+# post_code = "IG11 7FD"
+# # post_code = ""
 
 ## Parameter to pass
 search_term = {"city"      : city
@@ -52,6 +51,6 @@ properties = {"selenium":{"browser_pause_s":3},
 
 log.info(f"properties:{properties}")
 
-generated_report = sd_report_man.generate_report(session_id=session_id, search_term=search_term, report_context=report_context, lib=mlib, properties=properties)
-
-log.info(generated_report)
+def call_controller(sd_report_man):
+  generated_report = sd_report_man.generate_report(session_id=session_id, search_term=search_term, report_context=report_context, lib=mlib, properties=properties)
+  log.info(generated_report)

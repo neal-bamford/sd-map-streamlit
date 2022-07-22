@@ -1,32 +1,25 @@
 from __future__ import print_function
+from lib import file_tools as ft
+from lib import streamlit_wrapper as mlib
 
+import config_logging
+import controllers.sd_report_type_passed_controller as sd_report_controller
 import logging
+import managers.sd_report_type_crime as sd_report_man_crime
+import managers.sd_report_type_general as sd_report_man_general
+import managers.sd_report_type_health as sd_report_man_health
+import managers.sd_report_type_income as sd_report_man_income
 import streamlit as st
 import uuid
 
-from lib import file_tools as ft
-from lib import streamlit_wrapper as mlib
-from managers import sd_crime_report_manager as sd_crime_repo_man
-from managers import sd_report_type_general as sd_rep_typ_general
-from managers import sd_health_report_manager as sd_health_repo_man
-from managers import sd_income_report_manager as sd_income_repo_man
-
 log = logging.getLogger(__name__)
-
-# reports_generation_clean_temp_files = st.secrets["reports_generation"]["clean_temp_file"]
-
 
 def clear_text():
     st.session_state["search_borough"] = ""
     st.session_state["search_ward_name"] = ""
     st.session_state["search_post_code"] = ""
-    
-
-
 
 session_id = str(uuid.uuid4())[:8]
-
-
 
 query_params = st.experimental_get_query_params()
 log.debug(f"query_params:{query_params}")
@@ -111,13 +104,13 @@ if generate_report_link:
         
         rep_man = None
         if report_type == "Crime":
-            rep_man = sd_crime_repo_man
+            rep_man = sd_report_man_crime
         elif report_type == "General":
-            rep_man = sd_rep_typ_general
+            rep_man = sd_report_man_general
         elif report_type == "Health":
-            rep_man = sd_health_repo_man
+            rep_man = sd_report_man_health
         elif report_type == "Income":
-            rep_man = sd_income_repo_man
+            rep_man = sd_report_man_income
 
         generated_report = rep_man.generate_report(session_id=session_id, search_term=search_term, report_context=report_context, lib=mlib, properties=properties)    
 

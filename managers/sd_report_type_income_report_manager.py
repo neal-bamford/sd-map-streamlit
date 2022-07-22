@@ -34,5 +34,5 @@ def generate_report_artefacts(session_id
   report_context["post_code"] = post_code
   report_context["post_code_or_ward_name"] = post_code if post_code != "" else ward_name
 
-  report_context["general_information"] = "Placeholder Text"
+  report_context["general_information"] = "Income Report Placeholder Text"
   

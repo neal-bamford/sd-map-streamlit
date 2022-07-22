@@ -1,11 +1,11 @@
 import logging
-import os
 import uuid
+import os
 
 from lib import file_tools as ft
 from lib import masters_data_analytics_lib as mlib
-from managers import sd_report_type_crime_data_manager as data_manager
 from managers import sd_map_manager as map_manager
+from managers import sd_report_type_crime_data_manager as data_manager
 from managers import sd_report_type_crime_report_manager as report_type_manager
 from managers import sd_report_manager as report_manager
 
@@ -20,7 +20,7 @@ def load_data(search_term, lib):
     ## LOAD ALL THE DATA FILES
     ##
     ## London Post Codes
-    log.info(f"loading_data")
+    log.debug("load_data")
     city = search_term["city"]
     
     sd_london_postcodes_file        = "./data/streamlit_{}_postcodes_oa.csv".format(city.lower())
@@ -40,7 +40,6 @@ def generate_report(session_id
                   , report_context
                   , properties
                   , lib=mlib):
-    log.info(f"generate_report")
     
     ###
     ### LOAD THE RAW DATA
@@ -60,19 +59,20 @@ def generate_report(session_id
                                     , sd_london_population_oa_df    = sd_london_population_oa_df
                                     , sd_london_household_oa_df     = sd_london_household_oa_df
                                     , sd_london_qualification_oa_df = sd_london_qualification_oa_df)
+    report_context["general_information"] = "THIS IS PLACEHOLDER DATA"
 
-    
     ##
     ## GENERATE THE MAP FOR THE REPORT
     ##
     ##
     ### RETRIEVE DATA FROM CONTEXT
     ###
-    city                       = report_context["city"]
-    borough                    = report_context["borough"]
-    ward_name                  = report_context["ward_name"]
-    post_code                  = report_context["post_code"]
-    
+    validated_search_term      = report_context["validated_search_term"]
+    city                       = validated_search_term["city"]
+    borough                    = validated_search_term["borough"]
+    ward_name                  = validated_search_term["ward_name"]
+    post_code                  = validated_search_term["post_code"]
+
     map_file_base = "./reports/generation/images/{}_map_{}_{}_{}_{}".format(session_id, city, borough, ward_name, post_code).replace(" ", "_")
     map_args    = report_context["map_args"]
     location_png_file = map_manager.generate_map(file       = map_file_base
@@ -81,8 +81,6 @@ def generate_report(session_id
     
     report_context["location_png_file"] = location_png_file
 
-    
-    
     ###
     ### CREATE THE PARTS FOR THE REPORT FROM THE DATA
     ###
@@ -90,7 +88,6 @@ def generate_report(session_id
                                                    , report_context = report_context
                                                    , properties     = properties )    
 
-        
     ###
     ### GENERATE THE REPORT
     ###
@@ -99,5 +96,5 @@ def generate_report(session_id
                                              , report_context=report_context
                                              , properties=properties)
     
-    log.debug(f"generated_report:{generated_report}")
+    log.debug(f"returning generated_report:{generated_report}")
     return generated_report

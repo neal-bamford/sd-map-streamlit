@@ -24,7 +24,7 @@ def generate_report_artefacts(session_id
   borough   = validated_search_term["borough"]
   ward_name = validated_search_term["ward_name"]
   post_code = validated_search_term["post_code"]
-
+    
   ###
   ### ALL THE FORMATTED TEXT AND PLOT FILES TO GO INTO THE REPORT GENERATION
   ###
@@ -34,5 +34,5 @@ def generate_report_artefacts(session_id
   report_context["post_code"] = post_code
   report_context["post_code_or_ward_name"] = post_code if post_code != "" else ward_name
 
-  report_context["general_information"] = "Placeholder Text"
+  report_context["general_information"] = "Crime Report Placeholder Text"
   
