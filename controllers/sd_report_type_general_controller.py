@@ -1,18 +1,14 @@
-import uuid
-import logging
-from data.daos import location_dao as loc_dao
-from lib import masters_data_analytics_lib as lib
-
-from managers import sd_general_report_manager as sd_gen_repo_man
 from lib import masters_data_analytics_lib as mlib
+from managers import sd_report_type_general as sd_report_man
+
+import logging
+import uuid
 
 log = logging.getLogger(__name__)
 
 ## Session ID - Fake here
 session_id = str(uuid.uuid4())[:8]
 session_id = "XX"
-
-
 
 ## Search term
 ## Search at the post code level
@@ -33,8 +29,8 @@ post_code = ""
 city = "London"
 borough = "City of London"
 ward = "Lime Street"
-# post_code = "IG11 7FD"
-post_code = "SW20 8ED"
+post_code = "IG11 7FD"
+# post_code = "SW20 8ED"
 
 ## Parameter to pass
 search_term = {"city"      : city
@@ -54,6 +50,6 @@ properties = {"selenium":{"browser_pause_s":3},
 
 log.info(f"properties:{properties}")
 
-generated_report = sd_gen_repo_man.generate_report(session_id=session_id, search_term=search_term, report_context=report_context, lib=mlib, properties=properties)
+generated_report = sd_report_man.generate_report(session_id=session_id, search_term=search_term, report_context=report_context, lib=mlib, properties=properties)
 
-print(generated_report)
+log.info(generated_report)

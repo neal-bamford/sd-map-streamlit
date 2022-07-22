@@ -1,13 +1,12 @@
-import uuid
-import os
 import logging
+import os
+import uuid
 
 from lib import file_tools as ft
 from lib import masters_data_analytics_lib as mlib
 from managers import sd_report_type_general_data_manager as data_manager
 from managers import sd_map_manager as map_manager
-from managers import sd_report_type_general_report_manager as general_report_manager
-
+from managers import sd_report_type_crime_report_manager as report_type_manager
 from managers import sd_report_manager as report_manager
 
 log = logging.getLogger(__name__)
@@ -68,24 +67,26 @@ def generate_report(session_id
     ##
     ### RETRIEVE DATA FROM CONTEXT
     ###
-    city                       = report_context["city"]
-    borough                    = report_context["borough"]
-    ward_name                  = report_context["ward_name"]
-    post_code                  = report_context["post_code"]
-    map_args                   = report_context["map_args"]
+    validated_search_term      = report_context["validated_search_term"]
+    city                       = validated_search_term["city"]
+    borough                    = validated_search_term["borough"]
+    ward_name                  = validated_search_term["ward_name"]
+    post_code                  = validated_search_term["post_code"]
     
     map_file_base = "./reports/generation/images/{}_map_{}_{}_{}_{}".format(session_id, city, borough, ward_name, post_code).replace(" ", "_")
+    map_args      = report_context["map_args"]
     location_png_file = map_manager.generate_map(file       = map_file_base
                                                , map_args   = map_args
                                                , properties = properties)
     
     report_context["location_png_file"] = location_png_file
-
     
-    general_report_manager.generate_report_artefacts(session_id                    = session_id
-                                    # , search_term                   = search_term
-                                    , report_context                = report_context
-                                    , properties                    = properties )    
+    ###
+    ### CREATE THE PARTS FOR THE REPORT FROM THE DATA
+    ###
+    report_type_manager.generate_report_artefacts(session_id     = session_id
+                                                   , report_context = report_context
+                                                   , properties     = properties )    
     
     ###
     ### GENERATE THE REPORT

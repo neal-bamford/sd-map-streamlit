@@ -1,10 +1,10 @@
 import config_logging
-import controllers.sd_general_report_controller as sd_general_report_controller
+# import controllers.sd_report_type_general_controller as sd_report_type_general_controller
 #import controllers.sd_health_report_controller as sd_health_report_controller
-# import controllers.sd_crime_report_controller as sd_crime_report_controller
-# import controllers.sd_income_report_controller as sd_income_report_controller
+# import controllers.sd_report_type_crime_controller as sd_report_type_crime_controller
+import controllers.sd_report_type_income_controller as sd_report_type_income_controller
 
-sd_general_report_controller
+# sd_report_type_general_controller
 # sd_health_report_controller
-# sd_crime_report_controller
-# sd_income_report_controller
+# sd_report_type_crime_controller
+sd_report_type_income_controller
