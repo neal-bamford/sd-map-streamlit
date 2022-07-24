@@ -43,18 +43,21 @@ def generate_report(session_id
     indexes = {}
     for image in template_processor["images"]:
         include = image["include"]
-        image_file_name = report_context[image["image_ref"]]
-
-        ## If the image file exists add it to the files to remove
-        ## regardless of the include flag        
-        if Path(image_file_name).is_file:
-            image_files_to_remove.append(image_file_name)
         
-        if include:
-            paragraph = image_tables[image["table_cell"]].rows[0].cells[0].add_paragraph()
-            paragraph_run = paragraph.add_run()
-            paragraph.alignment = image["display_align"]
-            paragraph_run.add_picture(image_file_name, width=Inches(image["image_width_inch"]))
+        ## Check it's in the report context
+        if image["image_ref"] in report_context:
+          image_file_name = report_context[image["image_ref"]]
+  
+          ## If the image file exists add it to the files to remove
+          ## regardless of the include flag        
+          if Path(image_file_name).is_file:
+              image_files_to_remove.append(image_file_name)
+          
+          if include:
+              paragraph = image_tables[image["table_cell"]].rows[0].cells[0].add_paragraph()
+              paragraph_run = paragraph.add_run()
+              paragraph.alignment = image["display_align"]
+              paragraph_run.add_picture(image_file_name, width=Inches(image["image_width_inch"]))
 
     #
     # ## Save the template and reference it for the merge to happen in the next part

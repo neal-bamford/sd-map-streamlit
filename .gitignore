@@ -7,6 +7,7 @@ map/*.html
 reports/generation/documents/*.docx
 reports/generation/documents/*.pdf
 reports/generation/images/*.png
+reports/generation/images/*.html
 controllers/__pycache__
 managers/__pycache__
 scratch/__pycache__
