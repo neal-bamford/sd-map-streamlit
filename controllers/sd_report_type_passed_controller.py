@@ -61,3 +61,4 @@ log.info(f"properties:{properties}")
 def call_controller(sd_report_man):
   generated_report = sd_report_man.generate_report(session_id=session_id, search_term=search_term, report_context=report_context, lib=mlib, properties=properties)
   log.info(generated_report)
+  log.info(report_context)

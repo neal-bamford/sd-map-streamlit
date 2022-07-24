@@ -80,3 +80,28 @@ def generate_report_artefacts(session_id
   mlib.save_plot_filename(plot=fig, filename=income_plot_file_name, save_artefacts=True)
   
   report_context["income_plot_file_name"] = income_plot_file_name
+  
+  
+  
+  borough_salary_ranking_by_year_df = report_context["borough_salary_ranking_by_year_df"]
+  
+  ### GENERATE THE PLOTS
+  rep_ctx_idx = 1
+  report_context["income_borough_rank_file_name"] = {}
+  for year in borough_salary_ranking_by_year_df["Year"].unique(): 
+    data = borough_salary_ranking_by_year_df.loc[borough_salary_ranking_by_year_df["Year"] == year]
+    # log.debug(data)
+    fig, ax = plt.subplots()
+    sns.barplot(data["total_annual_income_net_gbp_sum"], data["borough"])
+    ax.set_title("Income Rankings by Borough {}".format(year))
+    ax.set_ylabel("Borough")
+    ax.set_xlabel("Income")
+    plt.tight_layout()
+    income_borough_rank_file_name = "./reports/generation/images/{}_bar_income_borough_rank_{}_{}_{}.png".format(session_id, city, borough, year)
+    mlib.save_plot_filename(plot=fig, filename=income_borough_rank_file_name, save_artefacts=True)
+    rep_ctx_idx_str = str(rep_ctx_idx)
+    report_context["income_borough_rank_file_name"].update({rep_ctx_idx_str:income_borough_rank_file_name})
+    rep_ctx_idx += 1
+
+  
+  

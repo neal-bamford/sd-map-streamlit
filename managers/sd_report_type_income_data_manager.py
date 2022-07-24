@@ -107,9 +107,45 @@ def generate_report_data(session_id
 
 	ward_avg_df = pd.read_sql_query(ward_income_avg_sql, db_conn, index_col="Date")
 	
-	db_conn.close()
 	
 	city_ward_min_max_avg_wide_df = pd.concat([city_min_max_avg_df, ward_avg_df], axis=1)
 	city_ward_min_max_avg_wide_df["Year"] = city_ward_min_max_avg_wide_df.index
 	
 	report_context["city_ward_min_max_avg_wide_df"] = city_ward_min_max_avg_wide_df
+	
+	###
+	### Borough Rankings
+	###
+	
+	borough_salary_ranking_by_year_sql = """
+	WITH ranked_income_uk_ons AS (
+	SELECT [INC].[Date]     AS [Date]
+	     , [INC].[LAD]      AS [LAD]
+	     , SUM([INC].[total_annual_income_net_gbp]) AS [total_annual_income_net_gbp_sum]
+	FROM income_uk_ons INC
+	WHERE [INC].[MSOA] IN (SELECT DISTINCT [LPC2].[MSOA] FROM IDX_LONDONPOSTCODES LPC2)
+	GROUP BY [INC].[Date], [INC].[LAD]
+	)
+	SELECT [RINC].[Date]                                                 AS [Date]
+	     , [RINC].[LAD]                                                  AS [LAD] 
+	     , [LB].[borough]                                                AS [borough]
+	     , [RINC].[total_annual_income_net_gbp_sum] 				     AS [total_annual_income_net_gbp_sum]
+	     , ROW_NUMBER() OVER(
+	     				PARTITION BY [Date] 
+	     				ORDER BY [Date] DESC
+	     				       , [total_annual_income_net_gbp_sum] DESC) AS RANK
+	FROM ranked_income_uk_ons RINC
+	CROSS APPLY(
+		SELECT TOP 1 [LPC3].[LAD_NAME] AS [borough]
+		FROM IDX_LONDONPOSTCODES LPC3
+		WHERE [LPC3].[LAD] = [RINC].[LAD]) AS LB
+	WHERE CONVERT(int, [Date]) BETWEEN {} AND {}
+	ORDER BY [Date] DESC, [RANK] ASC"""
+	
+	borough_salary_ranking_by_year_df = pd.read_sql_query(borough_salary_ranking_by_year_sql.format(year_from, year_to), db_conn, index_col="Date")
+	borough_salary_ranking_by_year_df["Year"] = borough_salary_ranking_by_year_df.index
+
+	report_context["borough_salary_ranking_by_year_df"] = borough_salary_ranking_by_year_df
+	
+
+	db_conn.close()
