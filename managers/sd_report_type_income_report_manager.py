@@ -73,6 +73,7 @@ def generate_report_artefacts(session_id
   ax.set_ylabel("Salary")
   ax.legend(title="legend")
   ax.legend(loc="upper right")
+  plt.legend(bbox_to_anchor=(1.05, 1), loc=2, borderaxespad=0.)
   plt.tight_layout()
 
   income_plot_file_name = "./reports/generation/images/{}_line_income_borough_{}_{}_{}.png".format(session_id, city, borough, ward_name)
