@@ -87,7 +87,7 @@ def generate_report_artefacts(session_id
   
   ### GENERATE THE PLOTS
   rep_ctx_idx = 1
-  report_context["income_borough_rank_file_name"] = {}
+  # report_context["income_borough_rank_file_name"] = {}
   for year in borough_salary_ranking_by_year_df["Year"].unique(): 
     data = borough_salary_ranking_by_year_df.loc[borough_salary_ranking_by_year_df["Year"] == year]
     # log.debug(data)
@@ -100,8 +100,12 @@ def generate_report_artefacts(session_id
     income_borough_rank_file_name = "./reports/generation/images/{}_bar_income_borough_rank_{}_{}_{}.png".format(session_id, city, borough, year)
     mlib.save_plot_filename(plot=fig, filename=income_borough_rank_file_name, save_artefacts=True)
     rep_ctx_idx_str = str(rep_ctx_idx)
-    report_context["income_borough_rank_file_name"].update({rep_ctx_idx_str:income_borough_rank_file_name})
+    # report_context["income_borough_rank_file_name"].update({rep_ctx_idx_str:income_borough_rank_file_name})
+    #TODO this needs to go into a loop like structure in the rport_manager
+    report_context["income_borough_rank_file_name_{}".format(rep_ctx_idx_str)] = income_borough_rank_file_name
     rep_ctx_idx += 1
 
+  ## Add to the length to the report context
+  report_context["income_borough_rank_file_name_idx"] = rep_ctx_idx - 1
   
   

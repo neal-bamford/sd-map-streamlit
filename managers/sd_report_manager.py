@@ -40,6 +40,7 @@ def generate_report(session_id
     
     image_files_to_remove = []
     ## Loop through the json
+    indexes = {}
     for image in template_processor["images"]:
         include = image["include"]
         image_file_name = report_context[image["image_ref"]]
