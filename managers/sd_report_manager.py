@@ -43,7 +43,29 @@ def generate_report(session_id
     indexes = {}
     for image in template_processor["images"]:
         include = image["include"]
-        image_file_name = report_context[image["image_ref"]]
+        
+        image_ref = image["image_ref"]
+        
+        ## contains index
+        if "{index}" in image_ref:
+          image_ref_index = 
+          
+        if my_string_dict["index"] not in indexes:
+            indexes[my_string_dict["index"]] = 1
+            log.debug(indexes)
+        
+        idx_val = indexes[my_string_dict["index"]]
+        log.debug(type(idx_val))
+        
+        idx_val_str = "" + str(idx_val)
+        my_string_dict["ref"] = my_string_dict["ref"].replace("{index}", idx_val_str)
+        indexes.update({my_string_dict["index"]:(idx_val + 1)})
+        
+        log.debug(my_string_dict["ref"])
+        
+        
+        ## we get to here either with the image name as is, or altered with an index
+        image_file_name = report_context[image_ref]
 
         ## If the image file exists add it to the files to remove
         ## regardless of the include flag        
