@@ -59,7 +59,6 @@ def generate_report(session_id
                                     , sd_london_population_oa_df    = sd_london_population_oa_df
                                     , sd_london_household_oa_df     = sd_london_household_oa_df
                                     , sd_london_qualification_oa_df = sd_london_qualification_oa_df)
-    report_context["general_information"] = "THIS IS PLACEHOLDER DATA"
 
     ##
     ## GENERATE THE MAP FOR THE REPORT

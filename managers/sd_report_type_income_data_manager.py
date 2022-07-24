@@ -1,7 +1,9 @@
-from lib import stats as stats
+from lib import db_tools as db_tools
 from lib import formatting as fmt
-from lib import plot_tools as plttool
+from lib import general_tools as gen_tools
 from lib import masters_data_analytics_lib as mlib
+from lib import plot_tools as plttool
+from lib import stats as stats
 from data.daos import location_dao as loc_dao
 
 import logging
@@ -13,7 +15,7 @@ log = logging.getLogger(__name__)
 def generate_report_data(session_id
 					   , search_term
 					   , report_context
-				   	   , properties
+				   	 , properties
 					   , **kwargs):  
 	"""
 	Manager to create the formatted String data to include in the sd_general_report_data
@@ -27,13 +29,20 @@ def generate_report_data(session_id
 
 	## Validate the search term	
 	validated_search_term = loc_dao.location_search(search_term, sd_london_postcodes_df)
+	
+	## Merge any non validated values with validated ones for future use	
+	validated_search_term = gen_tools.merge_two_dicts(search_term, validated_search_term)
 	report_context["validated_search_term"] = validated_search_term
+
 	
 	city      = validated_search_term["city"]
 	borough   = validated_search_term["borough"]
 	ward_name = validated_search_term["ward_name"]
 	oacode    = validated_search_term["oacode"]
 	post_code = validated_search_term["post_code"]
+	
+	year_from = validated_search_term["year_from"]
+	year_to   = validated_search_term["year_to"]
 	
 	## These need to be behind DAOs
 	all_ward_post_codes = loc_dao.list_post_codes_for_borough_ward_name(borough, ward_name, sd_london_postcodes_df)
@@ -60,3 +69,47 @@ def generate_report_data(session_id
 
 	report_context["map_args"] = map_args
 
+
+	### Connect to the database and get some income data
+ # year_from = 2012
+ # year_to   = 2018
+
+
+	db_conn = db_tools.get_db_conn(properties[properties["database"]["flavour"]] )
+
+	city_income_min_max_avg_sql ="""
+	SELECT [Date] 						                AS [Date]
+	      , ROUND(AVG([total_annual_income_net_gbp]),0) AS [city_total_annual_income_net_gbp_avg]
+	      , ROUND(MIN([total_annual_income_net_gbp]),0) AS [city_total_annual_income_net_gbp_min]
+	      , ROUND(MAX([total_annual_income_net_gbp]),0) AS [city_total_annual_income_net_gbp_max]
+	FROM income_uk_ons 		 INC
+	WHERE [MSOA] IN (SELECT DISTINCT [LPC].[MSOA] FROM IDX_LONDONPOSTCODES LPC)
+	AND   CONVERT(int, [Date]) BETWEEN {} AND {}
+	GROUP BY [Date]
+	ORDER BY [Date] ASC;
+	""".format(year_from, year_to)
+	
+	city_min_max_avg_df = pd.read_sql_query(city_income_min_max_avg_sql, db_conn, index_col="Date")
+	# log.debug(city_min_max_avg_df.head())
+	
+	ward_income_avg_sql = """
+  SELECT [Date] 						                AS [Date]
+        , ROUND(AVG([total_annual_income_net_gbp]),0) AS [ward_total_annual_income_net_gbp_avg]
+  FROM income_uk_ons 		 INC
+     , IDX_LONDONPOSTCODES LPC
+  WHERE INC.[MSOA] = LPC.[MSOA]
+  AND   INC.[LAD]  = LPC.[LAD]
+  AND   LPC.[LAD_NAME] = '{}'
+  AND   LPC.[WARD_NAME] = '{}'
+  AND   CONVERT(int, [Date]) BETWEEN {} AND {}
+  GROUP BY [Date];
+  """.format(borough, ward_name, year_from, year_to)
+
+	ward_avg_df = pd.read_sql_query(ward_income_avg_sql, db_conn, index_col="Date")
+	
+	db_conn.close()
+	
+	city_ward_min_max_avg_wide_df = pd.concat([city_min_max_avg_df, ward_avg_df], axis=1)
+	city_ward_min_max_avg_wide_df["Year"] = city_ward_min_max_avg_wide_df.index
+	
+	report_context["city_ward_min_max_avg_wide_df"] = city_ward_min_max_avg_wide_df

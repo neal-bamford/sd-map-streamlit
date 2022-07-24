@@ -71,6 +71,9 @@ report_type_idx = {"Crime":0, "General":1, "Health":2, "Income":3}
 
 report_type = st.selectbox("Select Report Type", ("Crime", "General", "Health", "Income"), index=report_type_idx[url_report_type])
 
+log.debug("Here")
+year_from_to = st.slider("Date Range", min_value=2012, max_value=2018, value=[2012,2018], step=2)
+
 
 ## Capture the input and run generate_report
 if url_report_auto_generate != "" and url_report_auto_generate.lower() == "true":
@@ -87,8 +90,9 @@ if generate_report_link:
     search_term = {"city"      : search_city
                  , "borough"   : search_borough
                  , "ward_name" : search_ward_name
-                 , "post_code" : search_post_code}
-    
+                 , "post_code" : search_post_code
+                 , "year_from" : year_from_to[0]
+                 , "year_to"   : year_from_to[1]}
     
 
     ## Generate a context to place items in which is used when generating the report in the final step

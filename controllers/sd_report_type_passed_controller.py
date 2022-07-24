@@ -27,6 +27,9 @@ borough = "Merton"
 ward = "Dundonald"
 post_code = ""
 
+year_from=2012
+year_to=2018
+
 # city = "London"
 # borough = "City of London"
 # ward = "Lime Street"
@@ -37,17 +40,21 @@ post_code = ""
 search_term = {"city"      : city
              , "ward_name" : ward
              , "borough"   : borough
-             , "post_code" : post_code}
+             , "post_code" : post_code
+             , "year_from" : year_from
+             , "year_to"   : year_to}
 
 log.info(f"search_term:{search_term}")
 
 ## Generate a context to place items in which is used when generating the report in the final step
 report_context = {}
 
+import toml
+properties = toml.load("./.streamlit/secrets.toml")
 ## This comes from Streamlit so fake here
-properties = {"selenium":{"browser_pause_s":3},
-              "reports_generation":{"clean_temp_files":True},
-              "chrome":{"binary_location":"C:/DISTRIBUTIONS/ChromeDriver/chromedriver.exe"}}
+# properties = {"selenium":{"browser_pause_s":3},
+#               "reports_generation":{"clean_temp_files":True},
+#               "chrome":{"binary_location":"C:/DISTRIBUTIONS/ChromeDriver/chromedriver.exe"}}
 
 log.info(f"properties:{properties}")
 
