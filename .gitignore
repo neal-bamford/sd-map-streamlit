@@ -2,6 +2,7 @@
 .project
 .pydevproject
 secrets.toml
+data/original/crime/staging_04_200101_202205.csv
 map/*.png
 map/*.html
 reports/generation/documents/*.docx
