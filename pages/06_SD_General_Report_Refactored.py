@@ -1,6 +1,7 @@
 from __future__ import print_function
 from lib import file_tools as ft
 from lib import streamlit_wrapper as mlib
+from data.daos import dao_facade_streamlit as dao_fac
 
 import config_logging
 import controllers.sd_report_type_passed_controller as sd_report_controller
@@ -10,6 +11,7 @@ import managers.sd_report_type_general as sd_report_man_general
 import managers.sd_report_type_health as sd_report_man_health
 import managers.sd_report_type_income as sd_report_man_income
 import streamlit as st
+
 import uuid
 
 log = logging.getLogger(__name__)
@@ -72,7 +74,7 @@ report_type_idx = {"Crime":0, "General":1, "Health":2, "Income":3}
 report_type = st.selectbox("Select Report Type", ("Crime", "General", "Health", "Income"), index=report_type_idx[url_report_type])
 
 log.debug("Here")
-year_from_to = st.slider("Date Range", min_value=2012, max_value=2018, value=[2012,2018], step=2)
+year_from_to = st.slider("Date Range", min_value=2001, max_value=2022, value=[2001,2022], step=1)
 
 
 ## Capture the input and run generate_report
@@ -116,7 +118,7 @@ if generate_report_link:
         elif report_type == "Income":
             rep_man = sd_report_man_income
 
-        generated_report = rep_man.generate_report(session_id=session_id, search_term=search_term, report_context=report_context, lib=mlib, properties=properties)    
+        generated_report = rep_man.generate_report(session_id=session_id, search_term=search_term, report_context=report_context, properties=properties, lib=mlib, dao_fac=dao_fac)    
 
         ### 
         ### Read in the document to send out on the link

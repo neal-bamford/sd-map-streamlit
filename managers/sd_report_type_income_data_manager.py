@@ -104,6 +104,25 @@ def generate_report_data(session_id
   AND   CONVERT(int, [Date]) BETWEEN {} AND {}
   GROUP BY [Date];
   """.format(borough, ward_name, year_from, year_to)
+  
+  
+	ward_income_avg_sql = """
+  SELECT [Date] 						                       AS [Date]
+     , ROUND(AVG([total_annual_income_net_gbp]),0) AS [ward_total_annual_income_net_gbp_avg]
+    FROM income_uk_ons 		   INC
+       , IDX_LONDONPOSTCODES LPC
+    WHERE EXISTS (
+        SELECT 1/0
+        FROM IDX_LONDONPOSTCODES LPC
+        WHERE [LPC].[MSOA] = INC.[MSOA]
+        )
+    AND   INC.[LAD]  = LPC.[LAD]
+    AND   LPC.[LAD_NAME] = '{}'
+    AND   LPC.[WARD_NAME] = '{}'
+    AND   CONVERT(int, [Date]) BETWEEN {} AND {}
+    GROUP BY [Date]
+    ORDER BY [Date] DESC
+    """.format(borough, ward_name, year_from, year_to)
 
 	ward_avg_df = pd.read_sql_query(ward_income_avg_sql, db_conn, index_col="Date")
 	
@@ -121,7 +140,7 @@ def generate_report_data(session_id
 	WITH ranked_income_uk_ons AS (
 	SELECT [INC].[Date]     AS [Date]
 	     , [INC].[LAD]      AS [LAD]
-	     , SUM([INC].[total_annual_income_net_gbp]) AS [total_annual_income_net_gbp_sum]
+	     , AVG([INC].[total_annual_income_net_gbp]) AS [total_annual_income_net_gbp_avg]
 	FROM income_uk_ons INC
 	WHERE [INC].[MSOA] IN (SELECT DISTINCT [LPC2].[MSOA] FROM IDX_LONDONPOSTCODES LPC2)
 	GROUP BY [INC].[Date], [INC].[LAD]
@@ -129,11 +148,11 @@ def generate_report_data(session_id
 	SELECT [RINC].[Date]                                                 AS [Date]
 	     , [RINC].[LAD]                                                  AS [LAD] 
 	     , [LB].[borough]                                                AS [borough]
-	     , [RINC].[total_annual_income_net_gbp_sum] 				     AS [total_annual_income_net_gbp_sum]
+	     , [RINC].[total_annual_income_net_gbp_avg] 				     AS [total_annual_income_net_gbp_avg]
 	     , ROW_NUMBER() OVER(
 	     				PARTITION BY [Date] 
 	     				ORDER BY [Date] DESC
-	     				       , [total_annual_income_net_gbp_sum] DESC) AS RANK
+	     				       , [total_annual_income_net_gbp_avg] DESC) AS RANK
 	FROM ranked_income_uk_ons RINC
 	CROSS APPLY(
 		SELECT TOP 1 [LPC3].[LAD_NAME] AS [borough]

@@ -19,26 +19,29 @@ session_id = "XX"
 ## Greenwich         : SE18 4AF
 city = "london"
 borough = "Bromley"
-ward = "Bromley Town"
+ward_name = "Bromley Town"
 post_code = ""
 
 city = "london"
 borough = "Merton"
-ward = "Dundonald"
+ward_name = "Dundonald"
 post_code = ""
 
-year_from=2014
-year_to=2018
+# borough = "Islington"
+# ward_name = "Holloway"
+
+year_from=2010
+year_to=2021
 
 # city = "London"
 # borough = "City of London"
-# ward = "Lime Street"
+# ward_name = "Lime Street"
 # post_code = "IG11 7FD"
 # # post_code = ""
 
 ## Parameter to pass
 search_term = {"city"      : city
-             , "ward_name" : ward
+             , "ward_name" : ward_name
              , "borough"   : borough
              , "post_code" : post_code
              , "year_from" : year_from
@@ -48,6 +51,7 @@ log.info(f"search_term:{search_term}")
 
 ## Generate a context to place items in which is used when generating the report in the final step
 report_context = {}
+report_context["report_option"] = 2
 
 import toml
 properties = toml.load("./.streamlit/secrets.toml")

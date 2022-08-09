@@ -63,10 +63,10 @@ def generate_report_artefacts(session_id
   # plot = sns.catplot(data=city_ward_min_max_avg_wide_df, x="Year", y="salary", hue="cols", kind="point", legend=False, height=y_fig_size, aspect=x_fig_size/y_fig_size)
   
   fig, ax = plt.subplots()
-  sns.lineplot(data=city_ward_min_max_avg_wide_df, x="Year", y="city_total_annual_income_net_gbp_avg", ax=ax, label='City Avg.', color='red', marker='o')
-  sns.lineplot(data=city_ward_min_max_avg_wide_df, x="Year", y="city_total_annual_income_net_gbp_min", ax=ax, label='City Min.', color='orange', marker='o')
-  sns.lineplot(data=city_ward_min_max_avg_wide_df, x="Year", y="city_total_annual_income_net_gbp_max", ax=ax, label='City Max.', color='yellow', marker='o')
-  sns.lineplot(data=city_ward_min_max_avg_wide_df, x="Year", y="ward_total_annual_income_net_gbp_avg", ax=ax, label='Ward Avg.', color='green', marker='o')
+  sns.lineplot(data=city_ward_min_max_avg_wide_df, x="Year", y="city_total_annual_income_net_gbp_max", ax=ax, label="City Max.", color="green", marker="o")
+  sns.lineplot(data=city_ward_min_max_avg_wide_df, x="Year", y="city_total_annual_income_net_gbp_avg", ax=ax, label="City Avg.", color="deepskyblue", marker="o")
+  sns.lineplot(data=city_ward_min_max_avg_wide_df, x="Year", y="ward_total_annual_income_net_gbp_avg", ax=ax, label="Ward Avg.", color="orange", marker="o")
+  sns.lineplot(data=city_ward_min_max_avg_wide_df, x="Year", y="city_total_annual_income_net_gbp_min", ax=ax, label="City Min.", color="red", marker="o")
   
   # ax.set_title("Average Salary for Ward and City between {} and {}".format(year_from, year_to))
   ax.set_title("Average Salary for Ward and City between {} and {}".format(year_from, year_to))
@@ -85,17 +85,26 @@ def generate_report_artefacts(session_id
   
   borough_salary_ranking_by_year_df = report_context["borough_salary_ranking_by_year_df"]
   
-  ### GENERATE THE PLOTS
   rep_ctx_idx = 1
+  ### GENERATE THE PLOTS
   # report_context["income_borough_rank_file_name"] = {}
-  for year in borough_salary_ranking_by_year_df["Year"].unique(): 
+  for year in borough_salary_ranking_by_year_df["Year"].unique():
+    
+    ## Filter data on year.
     data = borough_salary_ranking_by_year_df.loc[borough_salary_ranking_by_year_df["Year"] == year]
-    # log.debug(data)
+    
+    ## Create a custom palette for the plot
+    custom_pallete = ["deepskyblue"] * 33
+    ## Find the index of our borough
+    colour_idx =  data.loc[data["borough"] == borough]["RANK"].values[0]
+    ## Change the colour at the index location -1 to highlight our borough
+    custom_pallete = custom_pallete[:colour_idx-1]+["orange"]+custom_pallete[colour_idx:]
+
     fig, ax = plt.subplots()
-    sns.barplot(data["total_annual_income_net_gbp_sum"], data["borough"])
-    ax.set_title("Income Rankings by Borough {}".format(year))
+    sns.barplot(data["total_annual_income_net_gbp_avg"], data["borough"], palette=custom_pallete)
+    ax.set_title("Average Income Rankings by Borough {}".format(year))
     ax.set_ylabel("Borough")
-    ax.set_xlabel("Income")
+    ax.set_xlabel("Average Income")
     plt.tight_layout()
     income_borough_rank_file_name = "./reports/generation/images/{}_bar_income_borough_rank_{}_{}_{}.png".format(session_id, city, borough, year)
     mlib.save_plot_filename(plot=fig, filename=income_borough_rank_file_name, save_artefacts=True)

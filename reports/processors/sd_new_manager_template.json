@@ -1,0 +1,18 @@
+{ 
+  "report_options":
+  [
+    {   
+    "report_option":1,
+    "report_description": "General report Description - Doesn't Include Gender",
+    "report_template":"./reports/templates/sd_new_manager_template_01.docx",
+    "report_generation_folder":"./reports/generation/documents/"
+   },
+    {   
+    "report_option":2,
+    "report_description": "General report Description But More Complex - Includes Gender",
+    "report_template":"./reports/templates/sd_new_manager_template_02.docx",
+    "report_generation_folder":"./reports/generation/documents/"
+   }
+  ]
+} 
+

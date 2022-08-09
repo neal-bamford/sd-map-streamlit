@@ -1,12 +1,18 @@
-from lib import stats as stats
-from lib import formatting as fmt
-from lib import plot_tools as plttool
-from lib import masters_data_analytics_lib as mlib
 from data.daos import location_dao as loc_dao
+from lib import formatting as fmt
+from lib import masters_data_analytics_lib as mlib
+from lib import plot_tools as plttool
+from lib import stats as stats
+from matplotlib import pyplot as plt
+from matplotlib.colors import ListedColormap
+from matplotlib.ticker import (MultipleLocator, FormatStrFormatter, AutoMinorLocator)
 
+import colorcet as cc
 import logging
+import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
+import seaborn as sns
 
 log = logging.getLogger(__name__)
 
@@ -19,11 +25,14 @@ def generate_report_artefacts(session_id
   """
   ## These are the pandas dataframes used in this manager. They may be used in others too
   validated_search_term = report_context["validated_search_term"]
-  
+
   city      = validated_search_term["city"]
   borough   = validated_search_term["borough"]
   ward_name = validated_search_term["ward_name"]
   post_code = validated_search_term["post_code"]
+
+  year_from = validated_search_term["year_from"]
+  year_to   = validated_search_term["year_to"]
 
   all_ward_post_codes = report_context["all_ward_post_codes"]
   all_borough_wards   = report_context["all_borough_wards"]
@@ -260,7 +269,241 @@ def generate_report_artefacts(session_id
                                            qualification_location_stats_df.iloc[i]["city_borough_mean"]
                                            )
       
-    education.append(str)  
+    education.append(str)
+    
+    
+    
+  ###
+  ### EARNINGS
+  ###  
+  
+  ## Retrieve the data
+  borough_salary_ranking_by_year_df = report_context["borough_salary_ranking_by_year_df"]
+  
+  ## Generate the plot
+  borough_earnings_ranking_filtered_year_df = borough_salary_ranking_by_year_df[(borough_salary_ranking_by_year_df["YEAR"].astype(int) >= year_from) & (borough_salary_ranking_by_year_df["YEAR"].astype(int) <= year_to)]
+  
+  years_sorted = borough_earnings_ranking_filtered_year_df["YEAR"].sort_values().drop_duplicates()
+  first_year = years_sorted.iloc[0]
+  borough_sort_order = borough_earnings_ranking_filtered_year_df.loc[borough_earnings_ranking_filtered_year_df["YEAR"]==first_year]["BOROUGH"]
+  top_borough = borough_sort_order.iloc[0]
+  bottom_borough = borough_sort_order.iloc[-1]
+  
+  ## Loop through the boroughs in the sort order of first year
+  all_borough_ranking_by_year = []
+  
+  ## BOROUGH LOOP
+  for _borough in borough_sort_order:
+  
+      borough_ranking_by_year_list = []
+  
+      ## Add the Borough
+      borough_ranking_by_year_list.append(_borough)
+  
+      ## YEAR LOOP
+      for year in years_sorted:
+  
+          borough_ranking_for_year = borough_earnings_ranking_filtered_year_df.loc[(borough_earnings_ranking_filtered_year_df["BOROUGH"]==_borough) &
+                                        (borough_earnings_ranking_filtered_year_df["YEAR"]==year)]["RANK"].values[0]
+  
+          borough_ranking_by_year_list.append(borough_ranking_for_year)
+  
+      all_borough_ranking_by_year.append(borough_ranking_by_year_list)
+  
+  columns = ["Borough"] + list(years_sorted)
+  
+  all_borough_ranking_by_year_df = pd.DataFrame(all_borough_ranking_by_year, columns=columns).set_index("Borough")
+  
+  palette = sns.color_palette(cc.glasbey, n_colors=len(borough_sort_order))
+  my_cmap = ListedColormap(sns.color_palette(palette).as_hex())
+  ax = all_borough_ranking_by_year_df.T.plot(figsize=(30, 20), marker="o",  ms=5, cmap=my_cmap)
+  
+  ax.grid(False)
+  ax.set_title("Ranking of Average Earnings {} and {}".format(year_from, year_to), fontsize=20)
+  
+  plt.xticks(fontsize=20)
+  
+  ## Generate labels from the Borough names for the Y Axis
+  plt.yticks(range(1, len(borough_sort_order)+1), [borough_sort_order.iloc[i] for i in range(len(borough_sort_order))])
+  plt.yticks(fontsize=20)
+  
+  plt.gca().invert_yaxis()
+  plt.gca().get_legend().remove()
+  
+  for line in ax.get_lines():
+      if (line.get_label() == borough) or (line.get_label() == top_borough) or (line.get_label() == bottom_borough):
+          line.set_linewidth(5)
+          line.set_ms(10)
+      else:
+          line.set_linewidth(2)
+          line.set_ms(4)
+          line.set_alpha(0.2)
+  
+  
+  bump_borough_earnings_ranking_filtered_plot_file = "./reports/generation/images/{}_bump_borough_earnings_ranking_filtered_{}_{}_{}.png".format(session_id, city, year_from, year_to)
+  mlib.save_plot_filename(plot=plt, filename=bump_borough_earnings_ranking_filtered_plot_file, save_artefacts=True)
+
+  ###
+  ### EDUCATION
+  ###
+  education_by_borough_year_df_reduced = report_context["education_by_borough_year_df_reduced"] 
+  education_latest_data_year = report_context["education_latest_data_year"] 
+
+  ###
+  ### HORIZONTAL PLOT 100% BY BOROUGH - LATEST DATA
+  ###
+  
+  stacked_data = education_by_borough_year_df_reduced.apply(lambda x: x*100/sum(x), axis=1)
+  
+  ax = stacked_data.plot.barh(stacked=True, figsize=(30, 20))
+  
+  ax.grid(False)
+  ax.set_title("Education {}".format(education_latest_data_year), fontsize=20)
+  ax.set_ylabel("")
+  ax.legend(title="legend")
+  ax.legend(loc="upper right")
+  
+  plt.xticks(fontsize=20)
+  plt.yticks(fontsize=20)
+  plt.gca().invert_yaxis()
+  plt.legend(bbox_to_anchor=(1.05, 1), loc=2, borderaxespad=0.)
+  plt.tight_layout()
+  
+  
+  for y in range(0, 32):
+      ax.get_yticklabels()[y].set_color("grey")
+      ax.get_yticklabels()[y].set_fontweight("bold")
+  
+  for y in range(32, 33):
+      ax.get_yticklabels()[y].set_color("black")
+      ax.get_yticklabels()[y].set_fontweight("bold")
+  
+  for y in range(33, 35):
+      ax.get_yticklabels()[y].set_color("orange")
+      ax.get_yticklabels()[y].set_fontweight("bold")
+
+  education_horizontal_stacked_plot_file = "./reports/generation/images/{}_education_horizontal_stacked_{}_{}_{}.png".format(session_id, city, year_from, year_to)
+  mlib.save_plot_filename(plot=plt, filename=education_horizontal_stacked_plot_file, save_artefacts=True)
+
+  
+  ###
+  ### CRIME
+  ###
+  borough_crime_per_capita_by_year_df = report_context["borough_crime_per_capita_by_year_df"]
+  borough_crime_per_capita_filtered_year_df = borough_crime_per_capita_by_year_df[(borough_crime_per_capita_by_year_df["YEAR"].astype(int) >= year_from) & (borough_crime_per_capita_by_year_df["YEAR"].astype(int) <= year_to)]
+  
+  years_sorted = borough_crime_per_capita_filtered_year_df["YEAR"].sort_values().drop_duplicates()
+  first_year = years_sorted.iloc[0]
+  
+  borough_sort_order = borough_crime_per_capita_filtered_year_df.loc[borough_crime_per_capita_filtered_year_df["YEAR"]==first_year]["LAD_NAME"]
+  top_borough = borough_sort_order.iloc[0]
+  bottom_borough = borough_sort_order.iloc[-2]
+  
+  
+  ## Loop through the boroughs in the sort order of first year
+  all_borough_ranking_by_year = []
+  
+  ## BOROUGH LOOP
+  for _borough in borough_sort_order:
+  
+      borough_ranking_by_year_list = []
+  
+      ## Add the Borough
+      borough_ranking_by_year_list.append(_borough)
+  
+      ## YEAR LOOP
+      for year in years_sorted:
+  
+          borough_ranking_for_year = borough_crime_per_capita_filtered_year_df.loc[(borough_crime_per_capita_filtered_year_df["LAD_NAME"]==_borough) &
+                                        (borough_crime_per_capita_filtered_year_df["YEAR"]==year)]["RANK"].values[0]
+  
+          borough_ranking_by_year_list.append(borough_ranking_for_year)
+  
+      all_borough_ranking_by_year.append(borough_ranking_by_year_list)
+  
+  columns = ["Borough"] + list(years_sorted)
+  
+  all_borough_ranking_by_year_df = pd.DataFrame(all_borough_ranking_by_year, columns=columns).set_index("Borough")
+  
+  palette = sns.color_palette(cc.glasbey, n_colors=len(borough_sort_order))
+  my_cmap = ListedColormap(sns.color_palette(palette).as_hex())
+  ax = all_borough_ranking_by_year_df.T.plot(figsize=(30, 20), marker="o",  ms=1, cmap=my_cmap)
+  
+  
+  
+  ax.grid(False)
+  ax.set_title("Ranking of Crimes Per Capita {} and {}".format(year_from, year_to), fontsize=20)
+  
+  plt.xticks(fontsize=20)
+  
+  ## Generate labels from the Borough names for the Y Axis
+  
+  
+  plt.yticks(range(1, len(borough_sort_order)+1), [borough_sort_order.iloc[i] for i in range(len(borough_sort_order))])
+  plt.yticks(fontsize=20)
+  
+  plt.yticks(range(1, len(borough_sort_order)+1), [borough_sort_order.iloc[i] for i in range(len(borough_sort_order))])
+  plt.yticks(fontsize=20)
+  
+  ax.xaxis.set_minor_locator(MultipleLocator(1))
+  
+  plt.gca().invert_yaxis()
+  plt.gca().get_legend().remove()
+  
+  for line in ax.get_lines():
+      if (line.get_label() == borough) or (line.get_label() == top_borough) or (line.get_label() == bottom_borough):
+          line.set_linewidth(5)
+          line.set_ms(10)
+      else:
+          line.set_linewidth(2)
+          line.set_ms(4)
+          line.set_alpha(0.2)
+  bump_borough_crime_per_capita_ranking_filtered_plot_file = "./reports/generation/images/{}_bump_borough_crime_per_capita_ranking_filtered_{}_{}_{}.png".format(session_id, city, year_from, year_to)
+  mlib.save_plot_filename(plot=plt, filename=bump_borough_crime_per_capita_ranking_filtered_plot_file, save_artefacts=True)
+
+  ###
+  ### ETHNICITY
+  ###
+  
+  ethnicity_by_borough_year_df_reduced = report_context["ethnicity_by_borough_year_df_reduced"]
+  ethnicity_latest_data_year = report_context["ethnicity_latest_data_year"]
+  
+  ###
+  ### HORIZONTAL PLOT 100% BY BOROUGH - LATEST DATA
+  ###
+  
+  stacked_data = ethnicity_by_borough_year_df_reduced.apply(lambda x: x*100/sum(x), axis=1)
+  
+  ax = stacked_data.plot.barh(stacked=True, figsize=(30, 20))
+  
+  ax.grid(False)
+  ax.set_title("Ethnicity {}".format(ethnicity_latest_data_year), fontsize=20)
+  ax.set_ylabel("")
+  ax.legend(title="legend")
+  ax.legend(loc="upper right")
+  
+  plt.xticks(fontsize=20)
+  plt.yticks(fontsize=20)
+  plt.gca().invert_yaxis()
+  plt.legend(bbox_to_anchor=(1.05, 1), loc=2, borderaxespad=0.)
+  plt.tight_layout()
+  
+  
+  for y in range(0, 32):
+      ax.get_yticklabels()[y].set_color("grey")
+      ax.get_yticklabels()[y].set_fontweight("bold")
+  
+  for y in range(32, 33):
+      ax.get_yticklabels()[y].set_color("black")
+      ax.get_yticklabels()[y].set_fontweight("bold")
+  
+  for y in range(33, 35):
+      ax.get_yticklabels()[y].set_color("orange")
+      ax.get_yticklabels()[y].set_fontweight("bold")
+      
+  ethnicity_horizontal_stacked_plot_file = "./reports/generation/images/{}_ethnicity_horizontal_stacked_{}_{}_{}.png".format(session_id, city, year_from, year_to)
+  mlib.save_plot_filename(plot=plt, filename=ethnicity_horizontal_stacked_plot_file, save_artefacts=True)
+      
     
   ###
   ### ALL THE FORMATTED TEXT AND PLOT FILES TO GO INTO THE REPORT GENERATION
@@ -286,4 +529,9 @@ def generate_report_artefacts(session_id
   report_context["education_04"] = education[3]
   report_context["education_05"] = education[4]
   report_context["education_06"] = education[5]
+  
+  report_context["earnings_rankings_by_borough_plot"] = bump_borough_earnings_ranking_filtered_plot_file
+  report_context["crime_per_capita_ranking_by_borough_plot"] = bump_borough_crime_per_capita_ranking_filtered_plot_file
+  report_context["education_horizontal_stacked_plot"] = education_horizontal_stacked_plot_file
+  report_context["ethnicity_horizontal_stacked_plot"] = ethnicity_horizontal_stacked_plot_file
   

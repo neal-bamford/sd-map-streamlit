@@ -1,7 +1,9 @@
+from data.daos import dao_facade_local as dao_fac
+from lib import db_tools as db_tools
 from lib import stats as stats
 from lib import plot_tools as plttool
 from lib import masters_data_analytics_lib as mlib
-from data.daos import location_dao as loc_dao
+from lib import general_tools as gen_tools
 
 import numpy as np
 import pandas as pd
@@ -10,6 +12,7 @@ def generate_report_data(session_id
 					   , search_term
 					   , report_context
 				   	 , properties
+				   	 , dao_fac=dao_fac
 					   , **kwargs):  
 	"""
 	Manager to create the formatted String data to include in the sd_general_report_data
@@ -20,10 +23,22 @@ def generate_report_data(session_id
 	sd_london_population_oa_df     = kwargs["sd_london_population_oa_df"]
 	sd_london_household_oa_df      = kwargs["sd_london_household_oa_df"]
 	sd_london_qualification_oa_df  = kwargs["sd_london_qualification_oa_df"] 
+	
+	## Create a DB Connection at the manager level.
+	db_conn = db_tools.get_db_conn(properties[properties["database"]["flavour"]] )
 
-	### VALIDATE THE SEARCH TERMS
-	validated_search_term = loc_dao.location_search(search_term, sd_london_postcodes_df)
+
+	## Validate the search term	
+	validated_search_term = dao_fac.location_search(search_term, sd_london_postcodes_df)
+	
+	## Merge any non validated values with validated ones for future use	
+	validated_search_term = gen_tools.merge_two_dicts(search_term, validated_search_term)
 	report_context["validated_search_term"] = validated_search_term
+
+
+ # ### VALIDATE THE SEARCH TERMS
+ # validated_search_term = dao_fac.location_search(search_term, sd_london_postcodes_df)
+ # report_context["validated_search_term"] = validated_search_term
 	
 	## Use the validated search terms
 	city      = validated_search_term["city"]
@@ -38,15 +53,15 @@ def generate_report_data(session_id
 	###
 
 	#### POST CODE DATA AT WARD LEVEL	
-	all_ward_post_codes = loc_dao.list_post_codes_for_borough_ward_name(borough, ward_name, sd_london_postcodes_df)
+	all_ward_post_codes = dao_fac.list_post_codes_for_borough_ward_name(borough, ward_name, sd_london_postcodes_df)
 	other_post_codes = all_ward_post_codes
 	if post_code != "":
 		other_post_codes = np.delete(all_ward_post_codes, np.where(all_ward_post_codes == post_code))
 	
 	### WARD DATA AT BOROUGH LEVEL
-	all_borough_wards   = loc_dao.list_wards_for_borough(borough, sd_london_postcodes_df)
+	all_borough_wards   = dao_fac.list_wards_for_borough(borough, sd_london_postcodes_df)
 	other_wards = np.delete(all_borough_wards, np.where(all_borough_wards == ward_name))
-	number_of_boroughs = len(loc_dao.list_boroughs_for_city(city, sd_london_postcodes_df))
+	number_of_boroughs = len(dao_fac.list_boroughs_for_city(city, sd_london_postcodes_df))
 
 	###
 	### BUILD THE MAP DATA
@@ -54,13 +69,13 @@ def generate_report_data(session_id
 	map_args = {}
 	
 	if post_code != "":
-		post_code_lat_long_combined = loc_dao.list_lat_long_postcode(validated_search_term, sd_london_postcodes_df)
+		post_code_lat_long_combined = dao_fac.list_lat_long_postcode(validated_search_term, sd_london_postcodes_df)
 		map_args["post_code"] = {"label":post_code, "lat_long":post_code_lat_long_combined}
 	
-	ward_name_lat_long_combined = loc_dao.list_lat_long_ward_name(validated_search_term, sd_london_postcodes_df)
+	ward_name_lat_long_combined = dao_fac.list_lat_long_ward_name(validated_search_term, sd_london_postcodes_df)
 	map_args["ward_name"] = {"label":ward_name, "lat_long":ward_name_lat_long_combined}
 
-	borough_lat_long_combined = loc_dao.list_lat_long_borough(validated_search_term, sd_london_postcodes_df)
+	borough_lat_long_combined = dao_fac.list_lat_long_borough(validated_search_term, sd_london_postcodes_df)
 	map_args["borough"] = {"label":borough, "lat_long":borough_lat_long_combined}
 
 	###
@@ -111,6 +126,154 @@ def generate_report_data(session_id
 	edu_level4_stats  = stats.generate_stats(sd_london_qualification_oa_df, borough, ward_name, oacode, "Level4")
 	edu_other_stats   = stats.generate_stats(sd_london_qualification_oa_df, borough, ward_name, oacode, "OtherQualifications")
 	
+	
+	###
+	### ETHNICITY
+	###
+	###
+	### AVERAGE
+	###
+	ethnicity_average_year_df = dao_fac.ethnicity_ratio_average_years(db_conn)
+	
+	## What's the latest year of data for ethnicity?
+	ethnicity_latest_data_year = ethnicity_average_year_df["YEAR"].max()
+	
+	## Filter the dataframe to only include the latest data
+	ethnicity_average_year_df_latest = ethnicity_average_year_df.loc[ethnicity_average_year_df["YEAR"] == ethnicity_latest_data_year]
+	
+	## Drop the columns we don't want in the plot
+	
+	## Set the index for the plot, Borough
+	ethnicity_average_year_df_latest = ethnicity_average_year_df_latest.set_index("YEAR")
+	ethnicity_average_year_df_latest.index = ["Average"]
+	# ethnicity_average_year_df_latest
+	
+	
+	###
+	### WARD LEVEL
+	###
+	ethnicity_by_borough_ward_year_df = dao_fac.ethnicity_ratio_by_borough_ward_years(db_conn, search_term)
+	
+	## What's the latest year of data for ethnicity?
+	ethnicity_latest_data_year = ethnicity_by_borough_ward_year_df["YEAR"].max()
+	
+	## Filter the dataframe to only include the latest data
+	ethnicity_by_borough_ward_year_df_latest = ethnicity_by_borough_ward_year_df.loc[ethnicity_by_borough_ward_year_df["YEAR"] == ethnicity_latest_data_year]
+	
+	## Drop the columns we don't want in the plot
+	ethnicity_by_borough_ward_year_df_reduced = ethnicity_by_borough_ward_year_df_latest.drop(["YEAR", "LAD", "LAD_NAME", "WARD_CODE"], axis=1)
+	
+	## Set the index for the plot, Borough
+	ethnicity_by_borough_ward_year_df_reduced = ethnicity_by_borough_ward_year_df_reduced.set_index("WARD_NAME")
+	# ethnicity_by_borough_ward_year_df_reduced
+	
+	###
+	### BOROUGH
+	###
+	ethnicity_by_borough_year_df = dao_fac.ethnicity_ratio_by_borough_years(db_conn)
+	
+	## What's the latest year of data for ethnicity?
+	ethnicity_latest_data_year = ethnicity_by_borough_year_df["YEAR"].max()
+	
+	## Filter the dataframe to only include the latest data
+	ethnicity_by_borough_year_df_latest = ethnicity_by_borough_year_df.loc[ethnicity_by_borough_year_df["YEAR"] == ethnicity_latest_data_year]
+	
+	## Drop the columns we don't want in the plot
+	ethnicity_by_borough_year_df_reduced = ethnicity_by_borough_year_df_latest.drop(["YEAR", "LAD"], axis=1)
+	
+	## Set the index for the plot, Borough
+	ethnicity_by_borough_year_df_reduced = ethnicity_by_borough_year_df_reduced.set_index("LAD_NAME")
+	
+	# ethnicity_by_borough_year_df_reduced 
+	ethnicity_by_borough_year_df_borough = ethnicity_by_borough_year_df_reduced[(ethnicity_by_borough_year_df_reduced.index == borough)]
+	
+	
+	
+	ethnicity_by_borough_year_df_reduced = ethnicity_by_borough_year_df_reduced[(ethnicity_by_borough_year_df_reduced.index != borough)]
+	
+	
+	ethnicity_by_borough_year_df_reduced = pd.concat([ethnicity_by_borough_year_df_reduced, ethnicity_average_year_df_latest, ethnicity_by_borough_year_df_borough, ethnicity_by_borough_ward_year_df_reduced])
+	
+	# ethnicity_by_borough_year_df_borough
+	ethnicity_by_borough_year_df_reduced
+	
+	###
+	### EDUCATION
+	###
+	###
+	### AVERAGE
+	###
+	education_average_year_df = dao_fac.education_ratio_average_years(db_conn)
+	
+	## What's the latest year of data for ethnicity?
+	education_latest_data_year = education_average_year_df["YEAR"].max()
+	
+	## Filter the dataframe to only include the latest data
+	education_average_year_df_latest = education_average_year_df.loc[education_average_year_df["YEAR"] == education_latest_data_year]
+	
+	## Drop the columns we don't want in the plot
+	
+	## Set the index for the plot, Borough
+	education_average_year_df_latest = education_average_year_df_latest.set_index("YEAR")
+	education_average_year_df_latest.index = ["Average"]
+	education_average_year_df_latest
+	
+	
+	###
+	### WARD LEVEL
+	###
+	education_by_borough_ward_year_df = dao_fac.education_ratio_by_borough_ward_years(db_conn, search_term)
+	
+	## What's the latest year of data for ethnicity?
+	education_latest_data_year = education_by_borough_ward_year_df["YEAR"].max()
+	
+	## Filter the dataframe to only include the latest data
+	education_by_borough_ward_year_df_latest = education_by_borough_ward_year_df.loc[education_by_borough_ward_year_df["YEAR"] == education_latest_data_year]
+	
+	## Drop the columns we don't want in the plot
+	education_by_borough_ward_year_df_reduced = education_by_borough_ward_year_df_latest.drop(["YEAR", "LAD", "LAD_NAME", "WARD_CODE"], axis=1)
+	
+	## Set the index for the plot, Borough
+	education_by_borough_ward_year_df_reduced = education_by_borough_ward_year_df_reduced.set_index("WARD_NAME")
+	# education_by_borough_ward_year_df_reduced
+	
+	
+	###
+	### BOROUGH
+	###
+	education_by_borough_year_df = dao_fac.education_ratio_by_borough_years(db_conn)
+	
+	## What's the latest year of data for education?
+	education_latest_data_year = education_by_borough_year_df["YEAR"].max()
+	
+	## Filter the dataframe to only include the latest data
+	education_by_borough_year_df_latest = education_by_borough_year_df.loc[education_by_borough_year_df["YEAR"] == education_latest_data_year]
+	
+	## Drop the columns we don't want in the plot
+	education_by_borough_year_df_reduced = education_by_borough_year_df_latest.drop(["YEAR", "LAD"], axis=1)
+	
+	## Set the index for the plot, Borough
+	education_by_borough_year_df_reduced = education_by_borough_year_df_reduced.set_index("LAD_NAME")
+	
+	# ethnicity_by_borough_year_df_reduced 
+	education_by_borough_year_df_borough = education_by_borough_year_df_reduced[(education_by_borough_year_df_reduced.index == borough)]
+	
+	
+	
+	education_by_borough_year_df_reduced = education_by_borough_year_df_reduced[(education_by_borough_year_df_reduced.index != borough)]
+	
+	
+	education_by_borough_year_df_reduced = pd.concat([education_by_borough_year_df_reduced, education_average_year_df_latest, education_by_borough_year_df_borough, education_by_borough_ward_year_df_reduced])
+
+	###
+	### EARNINGS
+	###
+	borough_salary_ranking_by_year_df = dao_fac.earnings_ranked_by_borough_years(db_conn)
+	###
+	### CRIME
+	###
+	borough_crime_per_capita_by_year_df = dao_fac.crime_ranked_by_borough_years(db_conn)
+	
 	###
 	### PLACE ALL THE STATS COLLECTED INTO THE REPORT_CONTEXT
 	###
@@ -145,4 +308,10 @@ def generate_report_data(session_id
 	report_context["edu_level3_stats"] = edu_level3_stats
 	report_context["edu_level4_stats"] = edu_level4_stats
 	report_context["edu_other_stats"] = edu_other_stats
+	report_context["borough_salary_ranking_by_year_df"] = borough_salary_ranking_by_year_df 
+	report_context["borough_crime_per_capita_by_year_df"] = borough_crime_per_capita_by_year_df 
+	report_context["ethnicity_by_borough_year_df_reduced"] = ethnicity_by_borough_year_df_reduced
+	report_context["ethnicity_latest_data_year"] = ethnicity_latest_data_year
+	report_context["education_by_borough_year_df_reduced"] = education_by_borough_year_df_reduced 
+	report_context["education_latest_data_year"] = education_latest_data_year 
 
