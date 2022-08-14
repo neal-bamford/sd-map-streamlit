@@ -6,10 +6,10 @@ from lib import stats as stats
 from matplotlib import pyplot as plt
 from matplotlib.colors import ListedColormap
 from matplotlib.ticker import (MultipleLocator, FormatStrFormatter, AutoMinorLocator)
+from scipy import stats
 
 import colorcet as cc
 import logging
-import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import seaborn as sns
@@ -287,6 +287,7 @@ def generate_report_artefacts(session_id
   first_year = years_sorted.iloc[0]
   borough_sort_order = borough_earnings_ranking_filtered_year_df.loc[borough_earnings_ranking_filtered_year_df["YEAR"]==first_year]["BOROUGH"]
   top_borough = borough_sort_order.iloc[0]
+  mid_borough = borough_sort_order.iloc[16]
   bottom_borough = borough_sort_order.iloc[-1]
   
   ## Loop through the boroughs in the sort order of first year
@@ -314,48 +315,132 @@ def generate_report_artefacts(session_id
   
   all_borough_ranking_by_year_df = pd.DataFrame(all_borough_ranking_by_year, columns=columns).set_index("Borough")
   
-  palette = sns.color_palette(cc.glasbey, n_colors=len(borough_sort_order))
+  ## Report Version which contains 3-4 values
+  
+  tmb_borough_ranking_by_year_df = all_borough_ranking_by_year_df.copy()
+
+  tmb_borough_ranking_by_year_df = tmb_borough_ranking_by_year_df.loc[(tmb_borough_ranking_by_year_df.index == top_borough) | 
+                                                                    (tmb_borough_ranking_by_year_df.index == mid_borough) |
+                                                                    (tmb_borough_ranking_by_year_df.index == borough) | 
+                                                                    (tmb_borough_ranking_by_year_df.index == bottom_borough)]
+  
+  borough_ranking_by_year_df = tmb_borough_ranking_by_year_df.loc[(tmb_borough_ranking_by_year_df.index == borough)]
+  
+  ## Textual trend based on linear regression coefficient
+  ## -ve then increasing i.e. going from a lower to higher ranking per capita
+  ## +ve then decreasing i.e. going from a higher to lower ranking per capita
+  ##   0 then flat
+  
+  y = [borough_ranking_by_year_df.loc[borough].tolist()]
+  x = [int(x) for x in borough_ranking_by_year_df.columns.tolist()]
+
+  slope, intercept, r, p, std_err = stats.linregress(x, y)
+
+  rate = ""
+  directio = ""
+  if slope == 0:
+      earnings_direction = "flat"
+      rate = "have stayed the same"
+  elif slope < 0:    
+      earnings_direction = "up"
+      if slope >= -0.1:
+          rate = "have slightly increased"
+      elif slope >= - 0.5:
+          rate = "have moderately increased"
+      else:
+          rate = "have greatly increased"
+  else:
+      earnings_direction = "down"
+      if slope <= 0.1:
+          rate = "have slightly decreased"
+      elif slope <= 0.5:
+          rate = "have moderately decreased"
+      else:
+          rate = "have greatly decreased"
+  
+  earnings_trend_text = f"Earnings {rate} over the period"  
+  
+  ####
+  #### CREATE THE MAIN REPORT PLOT OF TOP, MID, BOTTOM
+  #### 
+  
+  palette = sns.color_palette(cc.glasbey, n_colors=len(tmb_borough_ranking_by_year_df.index.values))
   my_cmap = ListedColormap(sns.color_palette(palette).as_hex())
-  ax = all_borough_ranking_by_year_df.T.plot(figsize=(30, 20), marker="o",  ms=5, cmap=my_cmap)
+  ax = tmb_borough_ranking_by_year_df.T.plot(figsize=(20, 10), marker="o",  ms=5, cmap=my_cmap)
   
   ax.grid(False)
-  ax.set_title("Ranking of Average Earnings {} and {}".format(year_from, year_to), fontsize=20)
+  ax.set_title("Borough Rankings of Average Earnings {} and {}".format(year_from, year_to), fontsize=20)
   
-  plt.xticks(fontsize=20)
+  # plt.xticks(fontsize=20)
   
-  ## Generate labels from the Borough names for the Y Axis
+  # Generate labels from the Borough names for the Y Axis
   plt.yticks(range(1, len(borough_sort_order)+1), [borough_sort_order.iloc[i] for i in range(len(borough_sort_order))])
-  plt.yticks(fontsize=20)
+  plt.yticks(fontsize=15)
+  plt.xticks(fontsize=20)
   
   plt.gca().invert_yaxis()
   plt.gca().get_legend().remove()
   
   for line in ax.get_lines():
-      if (line.get_label() == borough) or (line.get_label() == top_borough) or (line.get_label() == bottom_borough):
+      if (line.get_label() == borough) or (line.get_label() == top_borough) or (line.get_label() == mid_borough) or (line.get_label() == bottom_borough):
           line.set_linewidth(5)
           line.set_ms(10)
       else:
           line.set_linewidth(2)
           line.set_ms(4)
-          line.set_alpha(0.2)
+          line.set_alpha(0.0)
+          
+  bump_borough_earnings_ranking_filtered_report_plot_file = "./reports/generation/images/{}_bump_borough_earnings_ranking_filtered_{}_{}_{}_report.png".format(session_id, city, year_from, year_to)
+  mlib.save_plot_filename(plot=plt, filename=bump_borough_earnings_ranking_filtered_report_plot_file, save_artefacts=True)
+          
+
+  ####
+  #### CREATE THE PLOTS - APPENDICES VERSION
+  #### 
+  
+  palette = sns.color_palette(cc.glasbey, n_colors=len(borough_sort_order))
+  my_cmap = ListedColormap(sns.color_palette(palette).as_hex())
+  ax = all_borough_ranking_by_year_df.T.plot(figsize=(20, 10), marker="o",  ms=5, cmap=my_cmap)
+  
+  ax.grid(False)
+  ax.set_title("Borough Rankings of Average Earnings {} and {}".format(year_from, year_to), fontsize=20)
+  
+  plt.xticks(fontsize=10)
+  
+  ## Generate labels from the Borough names for the Y Axis
+  plt.yticks(range(1, len(borough_sort_order)+1), [borough_sort_order.iloc[i] for i in range(len(borough_sort_order))])
+  plt.yticks(fontsize=15)
+  
+  plt.gca().invert_yaxis()
+  plt.gca().get_legend().remove()
+  
+  for line in ax.get_lines():
+      if (line.get_label() == borough) or (line.get_label() == top_borough) or (line.get_label() == mid_borough) or (line.get_label() == bottom_borough):
+          line.set_linewidth(5)
+          line.set_ms(10)
+      else:
+          line.set_linewidth(2)
+          line.set_ms(4)
+          line.set_alpha(0.3)
   
   
-  bump_borough_earnings_ranking_filtered_plot_file = "./reports/generation/images/{}_bump_borough_earnings_ranking_filtered_{}_{}_{}.png".format(session_id, city, year_from, year_to)
-  mlib.save_plot_filename(plot=plt, filename=bump_borough_earnings_ranking_filtered_plot_file, save_artefacts=True)
+  bump_borough_earnings_ranking_filtered_appendix_plot_file = "./reports/generation/images/{}_bump_borough_earnings_ranking_filtered_{}_{}_{}_appendix.png".format(session_id, city, year_from, year_to)
+  mlib.save_plot_filename(plot=plt, filename=bump_borough_earnings_ranking_filtered_appendix_plot_file, save_artefacts=True)
 
   ###
   ### EDUCATION
   ###
-  education_by_borough_year_df_reduced = report_context["education_by_borough_year_df_reduced"] 
-  education_latest_data_year = report_context["education_latest_data_year"] 
+  education_by_borough_year_df_all = report_context["education_by_borough_year_df_all"]
+  education_by_borough_year_df_reduced = report_context["education_by_borough_year_df_reduced"]
+  education_latest_data_year = report_context["education_latest_data_year"]
 
   ###
-  ### HORIZONTAL PLOT 100% BY BOROUGH - LATEST DATA
+  ### HORIZONTAL PLOT 100% BY BOROUGH - REPORT
   ###
   
   stacked_data = education_by_borough_year_df_reduced.apply(lambda x: x*100/sum(x), axis=1)
   
-  ax = stacked_data.plot.barh(stacked=True, figsize=(30, 20))
+  ax = stacked_data.plot.barh(stacked=True, figsize=(20, 5))
   
   ax.grid(False)
   ax.set_title("Education {}".format(education_latest_data_year), fontsize=20)
@@ -368,28 +453,40 @@ def generate_report_artefacts(session_id
   plt.gca().invert_yaxis()
   plt.legend(bbox_to_anchor=(1.05, 1), loc=2, borderaxespad=0.)
   plt.tight_layout()
-  
-  
-  for y in range(0, 32):
-      ax.get_yticklabels()[y].set_color("grey")
-      ax.get_yticklabels()[y].set_fontweight("bold")
-  
-  for y in range(32, 33):
-      ax.get_yticklabels()[y].set_color("black")
-      ax.get_yticklabels()[y].set_fontweight("bold")
-  
-  for y in range(33, 35):
-      ax.get_yticklabels()[y].set_color("orange")
-      ax.get_yticklabels()[y].set_fontweight("bold")
 
-  education_horizontal_stacked_plot_file = "./reports/generation/images/{}_education_horizontal_stacked_{}_{}_{}.png".format(session_id, city, year_from, year_to)
-  mlib.save_plot_filename(plot=plt, filename=education_horizontal_stacked_plot_file, save_artefacts=True)
+  education_horizontal_stacked_report_plot_file = "./reports/generation/images/{}_education_horizontal_stacked_{}_{}_{}_report.png".format(session_id, city, year_from, year_to)
+  mlib.save_plot_filename(plot=plt, filename=education_horizontal_stacked_report_plot_file, save_artefacts=True)
 
+  ###
+  ### HORIZONTAL PLOT 100% BY BOROUGH - APPENDIX
+  ###
   
+  stacked_data = education_by_borough_year_df_all.apply(lambda x: x*100/sum(x), axis=1)
+  
+  ax = stacked_data.plot.barh(stacked=True, figsize=(20, 15))
+  
+  ax.grid(False)
+  ax.set_title("Education {}".format(education_latest_data_year), fontsize=20)
+  ax.set_ylabel("")
+  ax.legend(title="legend")
+  ax.legend(loc="upper right")
+  
+  plt.xticks(fontsize=20)
+  plt.yticks(fontsize=15)
+  plt.gca().invert_yaxis()
+  plt.legend(bbox_to_anchor=(1.05, 1), loc=2, borderaxespad=0.)
+  plt.tight_layout()
+      
+  education_horizontal_stacked_appendix_plot_file = "./reports/generation/images/{}_education_horizontal_stacked_{}_{}_{}_appendix.png".format(session_id, city, year_from, year_to)
+  mlib.save_plot_filename(plot=plt, filename=education_horizontal_stacked_appendix_plot_file, save_artefacts=True)
+    
   ###
   ### CRIME
   ###
+  
+  ## Retrieve the data
   borough_crime_per_capita_by_year_df = report_context["borough_crime_per_capita_by_year_df"]
+
   borough_crime_per_capita_filtered_year_df = borough_crime_per_capita_by_year_df[(borough_crime_per_capita_by_year_df["YEAR"].astype(int) >= year_from) & (borough_crime_per_capita_by_year_df["YEAR"].astype(int) <= year_to)]
   
   years_sorted = borough_crime_per_capita_filtered_year_df["YEAR"].sort_values().drop_duplicates()
@@ -397,7 +494,8 @@ def generate_report_artefacts(session_id
   
   borough_sort_order = borough_crime_per_capita_filtered_year_df.loc[borough_crime_per_capita_filtered_year_df["YEAR"]==first_year]["LAD_NAME"]
   top_borough = borough_sort_order.iloc[0]
-  bottom_borough = borough_sort_order.iloc[-2]
+  mid_borough = borough_sort_order.iloc[16]
+  bottom_borough = borough_sort_order.iloc[-1]
   
   
   ## Loop through the boroughs in the sort order of first year
@@ -425,25 +523,67 @@ def generate_report_artefacts(session_id
   
   all_borough_ranking_by_year_df = pd.DataFrame(all_borough_ranking_by_year, columns=columns).set_index("Borough")
   
-  palette = sns.color_palette(cc.glasbey, n_colors=len(borough_sort_order))
+  tmb_borough_ranking_by_year_df = all_borough_ranking_by_year_df.copy()
+  
+  tmb_borough_ranking_by_year_df = tmb_borough_ranking_by_year_df.loc[(tmb_borough_ranking_by_year_df.index == top_borough) | 
+                                                                      (tmb_borough_ranking_by_year_df.index == mid_borough) |
+                                                                      (tmb_borough_ranking_by_year_df.index == borough) | 
+                                                                      (tmb_borough_ranking_by_year_df.index == bottom_borough)]
+  
+  borough_ranking_by_year_df = tmb_borough_ranking_by_year_df.loc[(tmb_borough_ranking_by_year_df.index == borough)]
+  
+  ## Textual trend based on linear regression coefficient
+  ## -ve then increasing i.e. going from a lower to higher ranking per capita
+  ## +ve then decreasing i.e. going from a higher to lower ranking per capita
+  ##   0 then flat
+  
+  y = [borough_ranking_by_year_df.loc[borough].tolist()]
+  x = [int(x) for x in borough_ranking_by_year_df.columns.tolist()]
+
+  slope, intercept, r, p, std_err = stats.linregress(x, y)
+
+  rate = ""
+  directio = ""
+  if slope == 0:
+      crime_direction = "flat"
+      rate = "has stayed the same"
+  elif slope < 0:    
+      crime_direction = "up"
+      if slope >= -0.1:
+          rate = "has slightly increased"
+      elif slope >= - 0.5:
+          rate = "has moderately increased"
+      else:
+          rate = "has greatly increased"
+  else:
+      crime_direction = "down"
+      if slope <= 0.1:
+          rate = "has slightly decreased"
+      elif slope <= 0.5:
+          rate = "has moderately decreased"
+      else:
+          rate = "has greatly decreased"
+  
+  crime_trend_text = f"Crime {rate} over the period"
+
+  ####
+  #### CREATE THE MAIN REPORT PLOT OF TOP, MID, BOTTOM
+  #### 
+  
+  palette = sns.color_palette(cc.glasbey, n_colors=len(tmb_borough_ranking_by_year_df.index.values))
   my_cmap = ListedColormap(sns.color_palette(palette).as_hex())
-  ax = all_borough_ranking_by_year_df.T.plot(figsize=(30, 20), marker="o",  ms=1, cmap=my_cmap)
-  
-  
+  ax = tmb_borough_ranking_by_year_df.T.plot(figsize=(20, 10), marker="o",  ms=5, cmap=my_cmap)
   
   ax.grid(False)
-  ax.set_title("Ranking of Crimes Per Capita {} and {}".format(year_from, year_to), fontsize=20)
+  ax.set_title("Crimes Per Capita {} and {}".format(year_from, year_to), fontsize=20)
   
   plt.xticks(fontsize=20)
   
   ## Generate labels from the Borough names for the Y Axis
   
-  
   plt.yticks(range(1, len(borough_sort_order)+1), [borough_sort_order.iloc[i] for i in range(len(borough_sort_order))])
-  plt.yticks(fontsize=20)
-  
-  plt.yticks(range(1, len(borough_sort_order)+1), [borough_sort_order.iloc[i] for i in range(len(borough_sort_order))])
-  plt.yticks(fontsize=20)
+  plt.yticks(fontsize=15)
+  plt.xticks(fontsize=10)
   
   ax.xaxis.set_minor_locator(MultipleLocator(1))
   
@@ -451,30 +591,67 @@ def generate_report_artefacts(session_id
   plt.gca().get_legend().remove()
   
   for line in ax.get_lines():
-      if (line.get_label() == borough) or (line.get_label() == top_borough) or (line.get_label() == bottom_borough):
+      if (line.get_label() == borough) or (line.get_label() == top_borough) or (line.get_label() == mid_borough) or (line.get_label() == bottom_borough):
           line.set_linewidth(5)
           line.set_ms(10)
       else:
           line.set_linewidth(2)
           line.set_ms(4)
-          line.set_alpha(0.2)
-  bump_borough_crime_per_capita_ranking_filtered_plot_file = "./reports/generation/images/{}_bump_borough_crime_per_capita_ranking_filtered_{}_{}_{}.png".format(session_id, city, year_from, year_to)
-  mlib.save_plot_filename(plot=plt, filename=bump_borough_crime_per_capita_ranking_filtered_plot_file, save_artefacts=True)
+          line.set_alpha(0.0)          
+
+  bump_borough_crime_per_capita_ranking_filtered_report_plot_file = "./reports/generation/images/{}_bump_borough_crime_per_capita_ranking_filtered_{}_{}_{}_report.png".format(session_id, city, year_from, year_to)
+  mlib.save_plot_filename(plot=plt, filename=bump_borough_crime_per_capita_ranking_filtered_report_plot_file, save_artefacts=True)
+  
+  ####
+  #### CREATE THE PLOTS - APPENDICES VERSION
+  #### 
+  
+  palette = sns.color_palette(cc.glasbey, n_colors=len(borough_sort_order))
+  my_cmap = ListedColormap(sns.color_palette(palette).as_hex())
+  ax = all_borough_ranking_by_year_df.T.plot(figsize=(20, 10), marker="o",  ms=1, cmap=my_cmap)
+  
+  ax.grid(False)
+  ax.set_title("Crimes Per Capita {} and {}".format(year_from, year_to), fontsize=20)
+  
+  plt.xticks(fontsize=20)
+  
+  ## Generate labels from the Borough names for the Y Axis
+  plt.yticks(range(1, len(borough_sort_order)+1), [borough_sort_order.iloc[i] for i in range(len(borough_sort_order))])
+  plt.yticks(fontsize=15)
+  plt.xticks(fontsize=10)
+  
+  ax.xaxis.set_minor_locator(MultipleLocator(1))
+  
+  plt.gca().invert_yaxis()
+  plt.gca().get_legend().remove()
+  
+  for line in ax.get_lines():
+      if (line.get_label() == borough) or (line.get_label() == top_borough) or (line.get_label() == mid_borough) or (line.get_label() == bottom_borough):
+          line.set_linewidth(5)
+          line.set_ms(10)
+      else:
+          line.set_linewidth(2)
+          line.set_ms(4)
+          line.set_alpha(0.3)
+  
+  bump_borough_crime_per_capita_ranking_filtered_appendix_plot_file = "./reports/generation/images/{}_bump_borough_crime_per_capita_ranking_filtered_{}_{}_{}_appendix.png".format(session_id, city, year_from, year_to)
+  mlib.save_plot_filename(plot=plt, filename=bump_borough_crime_per_capita_ranking_filtered_appendix_plot_file, save_artefacts=True)
 
   ###
   ### ETHNICITY
   ###
   
+  ethnicity_by_borough_year_df_all = report_context["ethnicity_by_borough_year_df_all"]
   ethnicity_by_borough_year_df_reduced = report_context["ethnicity_by_borough_year_df_reduced"]
   ethnicity_latest_data_year = report_context["ethnicity_latest_data_year"]
   
   ###
-  ### HORIZONTAL PLOT 100% BY BOROUGH - LATEST DATA
+  ### HORIZONTAL PLOT 100% BY BOROUGH - REPORT
   ###
   
   stacked_data = ethnicity_by_borough_year_df_reduced.apply(lambda x: x*100/sum(x), axis=1)
   
-  ax = stacked_data.plot.barh(stacked=True, figsize=(30, 20))
+  ax = stacked_data.plot.barh(stacked=True, figsize=(20, 5))
   
   ax.grid(False)
   ax.set_title("Ethnicity {}".format(ethnicity_latest_data_year), fontsize=20)
@@ -487,23 +664,32 @@ def generate_report_artefacts(session_id
   plt.gca().invert_yaxis()
   plt.legend(bbox_to_anchor=(1.05, 1), loc=2, borderaxespad=0.)
   plt.tight_layout()
-  
-  
-  for y in range(0, 32):
-      ax.get_yticklabels()[y].set_color("grey")
-      ax.get_yticklabels()[y].set_fontweight("bold")
-  
-  for y in range(32, 33):
-      ax.get_yticklabels()[y].set_color("black")
-      ax.get_yticklabels()[y].set_fontweight("bold")
-  
-  for y in range(33, 35):
-      ax.get_yticklabels()[y].set_color("orange")
-      ax.get_yticklabels()[y].set_fontweight("bold")
       
-  ethnicity_horizontal_stacked_plot_file = "./reports/generation/images/{}_ethnicity_horizontal_stacked_{}_{}_{}.png".format(session_id, city, year_from, year_to)
-  mlib.save_plot_filename(plot=plt, filename=ethnicity_horizontal_stacked_plot_file, save_artefacts=True)
+  ethnicity_horizontal_stacked_report_plot_file = "./reports/generation/images/{}_ethnicity_horizontal_stacked_{}_{}_{}_report.png".format(session_id, city, year_from, year_to)
+  mlib.save_plot_filename(plot=plt, filename=ethnicity_horizontal_stacked_report_plot_file, save_artefacts=True)
       
+  ###
+  ### HORIZONTAL PLOT 100% BY BOROUGH - APPENDIX
+  ###
+  
+  stacked_data = ethnicity_by_borough_year_df_all.apply(lambda x: x*100/sum(x), axis=1)
+  
+  ax = stacked_data.plot.barh(stacked=True, figsize=(20, 15))
+  
+  ax.grid(False)
+  ax.set_title("Ethnicity {}".format(ethnicity_latest_data_year), fontsize=20)
+  ax.set_ylabel("")
+  ax.legend(title="legend")
+  ax.legend(loc="upper right")
+  
+  plt.xticks(fontsize=20)
+  plt.yticks(fontsize=15)
+  plt.gca().invert_yaxis()
+  plt.legend(bbox_to_anchor=(1.05, 1), loc=2, borderaxespad=0.)
+  plt.tight_layout()
+      
+  ethnicity_horizontal_stacked_appendix_plot_file = "./reports/generation/images/{}_ethnicity_horizontal_stacked_{}_{}_{}_appendix.png".format(session_id, city, year_from, year_to)
+  mlib.save_plot_filename(plot=plt, filename=ethnicity_horizontal_stacked_appendix_plot_file, save_artefacts=True)
     
   ###
   ### ALL THE FORMATTED TEXT AND PLOT FILES TO GO INTO THE REPORT GENERATION
@@ -530,8 +716,31 @@ def generate_report_artefacts(session_id
   report_context["education_05"] = education[4]
   report_context["education_06"] = education[5]
   
-  report_context["earnings_rankings_by_borough_plot"] = bump_borough_earnings_ranking_filtered_plot_file
-  report_context["crime_per_capita_ranking_by_borough_plot"] = bump_borough_crime_per_capita_ranking_filtered_plot_file
-  report_context["education_horizontal_stacked_plot"] = education_horizontal_stacked_plot_file
-  report_context["ethnicity_horizontal_stacked_plot"] = ethnicity_horizontal_stacked_plot_file
+  ## Earnins - Report and Appendix
+  report_context["earnings_rankings_by_borough_plot_report"] = bump_borough_earnings_ranking_filtered_report_plot_file
+  report_context["earnings_rankings_by_borough_plot_appendix"] = bump_borough_earnings_ranking_filtered_appendix_plot_file
+
+  ## Crime - Report and Appendix  
+  report_context["crime_per_capita_ranking_by_borough_plot_report"] = bump_borough_crime_per_capita_ranking_filtered_report_plot_file
+  report_context["crime_per_capita_ranking_by_borough_plot_appendix"] = bump_borough_crime_per_capita_ranking_filtered_appendix_plot_file
+  
+  report_context["earnings_direction"] = earnings_direction
+  report_context["earnings_flat"] = (earnings_direction.lower() == "flat")
+  report_context["earnings_up"]   = (earnings_direction.lower() == "up")
+  report_context["earnings_down"] = (earnings_direction.lower() == "down")
+  report_context["earnings_trend_text"] = earnings_trend_text
+  
+  report_context["crime_direction"] = crime_direction
+  report_context["crime_flat"] = (crime_direction.lower() == "flat")
+  report_context["crime_up"]   = (crime_direction.lower() == "up")
+  report_context["crime_down"] = (crime_direction.lower() == "down")
+  report_context["crime_trend_text"] = crime_trend_text
+  
+  ## Education report and full for appendix  education_horizontal_stacked_plot_report_file
+  report_context["education_horizontal_stacked_report_plot"] = education_horizontal_stacked_report_plot_file
+  report_context["education_horizontal_stacked_appendix_plot"] = education_horizontal_stacked_appendix_plot_file
+  
+  ## Ethnicity report and full for appendix  
+  report_context["ethnicity_horizontal_stacked_report_plot"] = ethnicity_horizontal_stacked_report_plot_file
+  report_context["ethnicity_horizontal_stacked_appendix_plot"] = ethnicity_horizontal_stacked_appendix_plot_file
   

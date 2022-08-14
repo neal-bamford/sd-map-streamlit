@@ -146,8 +146,6 @@ def generate_report_data(session_id
 	## Set the index for the plot, Borough
 	ethnicity_average_year_df_latest = ethnicity_average_year_df_latest.set_index("YEAR")
 	ethnicity_average_year_df_latest.index = ["Average"]
-	# ethnicity_average_year_df_latest
-	
 	
 	###
 	### WARD LEVEL
@@ -184,18 +182,14 @@ def generate_report_data(session_id
 	## Set the index for the plot, Borough
 	ethnicity_by_borough_year_df_reduced = ethnicity_by_borough_year_df_reduced.set_index("LAD_NAME")
 	
+	## Make a copy to include all boroughs for the appendix
+	## This is used for the appendix version of the plot
+	ethnicity_by_borough_year_df_all = ethnicity_by_borough_year_df_reduced.copy()
+	
 	# ethnicity_by_borough_year_df_reduced 
+	# Only the borough we're interested in
 	ethnicity_by_borough_year_df_borough = ethnicity_by_borough_year_df_reduced[(ethnicity_by_borough_year_df_reduced.index == borough)]
-	
-	
-	
-	ethnicity_by_borough_year_df_reduced = ethnicity_by_borough_year_df_reduced[(ethnicity_by_borough_year_df_reduced.index != borough)]
-	
-	
-	ethnicity_by_borough_year_df_reduced = pd.concat([ethnicity_by_borough_year_df_reduced, ethnicity_average_year_df_latest, ethnicity_by_borough_year_df_borough, ethnicity_by_borough_ward_year_df_reduced])
-	
-	# ethnicity_by_borough_year_df_borough
-	ethnicity_by_borough_year_df_reduced
+	ethnicity_by_borough_year_df_reduced = pd.concat([ethnicity_average_year_df_latest, ethnicity_by_borough_year_df_borough, ethnicity_by_borough_ward_year_df_reduced])
 	
 	###
 	### EDUCATION
@@ -255,15 +249,17 @@ def generate_report_data(session_id
 	## Set the index for the plot, Borough
 	education_by_borough_year_df_reduced = education_by_borough_year_df_reduced.set_index("LAD_NAME")
 	
+	## Make a copy to include all boroughs for the appendix
+	## This is used for the appendix version of the plot
+	education_by_borough_year_df_all = education_by_borough_year_df_reduced.copy()
+	
 	# ethnicity_by_borough_year_df_reduced 
 	education_by_borough_year_df_borough = education_by_borough_year_df_reduced[(education_by_borough_year_df_reduced.index == borough)]
 	
 	
-	
-	education_by_borough_year_df_reduced = education_by_borough_year_df_reduced[(education_by_borough_year_df_reduced.index != borough)]
-	
-	
-	education_by_borough_year_df_reduced = pd.concat([education_by_borough_year_df_reduced, education_average_year_df_latest, education_by_borough_year_df_borough, education_by_borough_ward_year_df_reduced])
+	# Only the borough we're interested in
+	education_by_borough_year_df_borough = education_by_borough_year_df_reduced[(education_by_borough_year_df_reduced.index == borough)]
+	education_by_borough_year_df_reduced = pd.concat([education_average_year_df_latest, education_by_borough_year_df_borough, education_by_borough_ward_year_df_reduced])
 
 	###
 	### EARNINGS
@@ -309,9 +305,13 @@ def generate_report_data(session_id
 	report_context["edu_level4_stats"] = edu_level4_stats
 	report_context["edu_other_stats"] = edu_other_stats
 	report_context["borough_salary_ranking_by_year_df"] = borough_salary_ranking_by_year_df 
-	report_context["borough_crime_per_capita_by_year_df"] = borough_crime_per_capita_by_year_df 
+	report_context["borough_crime_per_capita_by_year_df"] = borough_crime_per_capita_by_year_df
+	
+	report_context["ethnicity_by_borough_year_df_all"] = ethnicity_by_borough_year_df_all
 	report_context["ethnicity_by_borough_year_df_reduced"] = ethnicity_by_borough_year_df_reduced
 	report_context["ethnicity_latest_data_year"] = ethnicity_latest_data_year
+	
+	report_context["education_by_borough_year_df_all"] = education_by_borough_year_df_all
 	report_context["education_by_borough_year_df_reduced"] = education_by_borough_year_df_reduced 
 	report_context["education_latest_data_year"] = education_latest_data_year 
 

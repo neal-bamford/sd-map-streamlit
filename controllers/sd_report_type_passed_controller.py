@@ -31,7 +31,7 @@ post_code = ""
 # ward_name = "Holloway"
 
 year_from=2010
-year_to=2021
+year_to=2022
 
 # city = "London"
 # borough = "City of London"
@@ -51,8 +51,7 @@ log.info(f"search_term:{search_term}")
 
 ## Generate a context to place items in which is used when generating the report in the final step
 report_context = {}
-report_context["report_option"] = 2
-
+report_context["report_option"] = 1
 import toml
 properties = toml.load("./.streamlit/secrets.toml")
 ## This comes from Streamlit so fake here
@@ -63,6 +62,8 @@ properties = toml.load("./.streamlit/secrets.toml")
 log.info(f"properties:{properties}")
 
 def call_controller(sd_report_man):
+  log.debug("CONTROLLER STARTED")
   generated_report = sd_report_man.generate_report(session_id=session_id, search_term=search_term, report_context=report_context, lib=mlib, properties=properties)
   log.info(generated_report)
-  log.info(report_context)
+  # log.info(report_context)
+  log.debug("CONTROLLER FINISHED")
