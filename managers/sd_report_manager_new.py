@@ -26,11 +26,33 @@ def map_alignment(alignment):
     return WD_TABLE_ALIGNMENT.LEFT
   
 def clear_cell():
+  """
+  
+  """
   if "table_cell" not in globals():
     log.error("Can not reference table_cell")
   else:
     table_cell = globals()["table_cell"]
     table_cell.text = ""
+    
+def delete_row():
+  """
+  
+  """
+  if "table_cell" not in globals():
+    log.error("Can not reference table_cell")
+  else:
+    table_cell = globals()["table_cell"]
+    parent = table_cell._parent
+    
+    row_to_delete = None
+    for row in parent.rows:
+      for cell in row.cells:
+        if cell._element == table_cell._element:
+          row_to_delete = row
+    
+    if row_to_delete != None:
+      parent._tbl.remove(row_to_delete._tr)
   
 def include_image(image_name_in_context, image_alignment="left", image_width=6):
   if "table_cell" not in globals():
@@ -156,7 +178,7 @@ def generate_report(session_id
           except Exception as response_error:
             include_error(str(response_error))
             log.error(str(response_error))
-
+            print(f"error:{str(response_error)}")
         else:
           log.warn("Not a Command")            
     

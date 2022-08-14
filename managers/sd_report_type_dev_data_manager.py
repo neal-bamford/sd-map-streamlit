@@ -22,7 +22,7 @@ def generate_report_data(session_id
 	### PLACE ALL THE STATS COLLECTED INTO THE REPORT_CONTEXT
 	###
 	report_context["name_of_text_in_context"] = u"Some Interesting Unecode Text"
-	report_context["include_gender_mekko"] = True
+	report_context["include_gender_mekko"] = False
 	report_context["crime_flat"] = False
 	report_context["crime_up"] = False
 	report_context["crime_down"] = True
