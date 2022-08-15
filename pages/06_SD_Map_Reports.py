@@ -55,8 +55,8 @@ if "report_auto_generate" in  query_params:
 ##
 ## Start of Streamlit
 ##
-st.markdown("# SD General Report Refactored")
-st.sidebar.markdown("# SD General Report Refactored")
+st.markdown("# SD Map Reports")
+st.sidebar.markdown("#  SD Map Reports")
 
 ## Input the post code to search with
 ## City
