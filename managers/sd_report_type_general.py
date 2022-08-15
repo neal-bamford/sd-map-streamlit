@@ -13,7 +13,7 @@ from managers import sd_report_manager_new as report_manager
 log = logging.getLogger(__name__)
 
 ### This is the process for this report
-template_processor_file_name = "./reports/processors/sd_general_report_template_processor-new.json"
+template_processor_file_name = "./reports/processors/sd_general_report_template_processor.json"
 log.debug(f"template_processor_file_name:{template_processor_file_name}")
 
 def load_data(search_term, lib):

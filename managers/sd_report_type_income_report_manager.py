@@ -24,8 +24,6 @@ def generate_report_artefacts(session_id
   borough   = validated_search_term["borough"]
   ward_name = validated_search_term["ward_name"]
   post_code = validated_search_term["post_code"]
-  year_from = validated_search_term["year_from"]
-  year_to   = validated_search_term["year_to"]
     
   ###
   ### ALL THE FORMATTED TEXT AND PLOT FILES TO GO INTO THE REPORT GENERATION
@@ -36,85 +34,6 @@ def generate_report_artefacts(session_id
   report_context["post_code"] = post_code
   report_context["post_code_or_ward_name"] = post_code if post_code != "" else ward_name
 
-  report_context["general_information"] = "Income Report Placeholder Text"
-  
-  ## Retrieve our dataframe to make the plot from
-  
-  city_ward_min_max_avg_wide_df = report_context["city_ward_min_max_avg_wide_df"]
-  
-
-  ###
-  ### Create the plot, this could probably go into the plot_tools library to make it more generalised solution
-  ###
-  
-  from matplotlib import pyplot as plt
-  import seaborn as sns
-  import matplotlib.pyplot as plt
-  
-  x_fig_size = 10
-  y_fig_size = 6
-  
-  ## Set the size
-  sns.set(rc={"figure.figsize":(x_fig_size, y_fig_size)})
-  
-  ## Set the theme
-  sns.set_style("whitegrid")
-  
-  # plot = sns.catplot(data=city_ward_min_max_avg_wide_df, x="Year", y="salary", hue="cols", kind="point", legend=False, height=y_fig_size, aspect=x_fig_size/y_fig_size)
-  
-  fig, ax = plt.subplots()
-  sns.lineplot(data=city_ward_min_max_avg_wide_df, x="Year", y="city_total_annual_income_net_gbp_max", ax=ax, label="City Max.", color="green", marker="o")
-  sns.lineplot(data=city_ward_min_max_avg_wide_df, x="Year", y="city_total_annual_income_net_gbp_avg", ax=ax, label="City Avg.", color="deepskyblue", marker="o")
-  sns.lineplot(data=city_ward_min_max_avg_wide_df, x="Year", y="ward_total_annual_income_net_gbp_avg", ax=ax, label="Ward Avg.", color="orange", marker="o")
-  sns.lineplot(data=city_ward_min_max_avg_wide_df, x="Year", y="city_total_annual_income_net_gbp_min", ax=ax, label="City Min.", color="red", marker="o")
-  
-  # ax.set_title("Average Salary for Ward and City between {} and {}".format(year_from, year_to))
-  ax.set_title("Average Salary for Ward and City between {} and {}".format(year_from, year_to))
-  ax.set_ylabel("Salary")
-  ax.legend(title="legend")
-  ax.legend(loc="upper right")
-  plt.legend(bbox_to_anchor=(1.05, 1), loc=2, borderaxespad=0.)
-  plt.tight_layout()
-
-  income_plot_file_name = "./reports/generation/images/{}_line_income_borough_{}_{}_{}.png".format(session_id, city, borough, ward_name)
-  mlib.save_plot_filename(plot=fig, filename=income_plot_file_name, save_artefacts=True)
-  
-  report_context["income_plot_file_name"] = income_plot_file_name
-  
-  
-  
-  borough_salary_ranking_by_year_df = report_context["borough_salary_ranking_by_year_df"]
-  
-  rep_ctx_idx = 1
-  ### GENERATE THE PLOTS
-  # report_context["income_borough_rank_file_name"] = {}
-  for year in borough_salary_ranking_by_year_df["Year"].unique():
-    
-    ## Filter data on year.
-    data = borough_salary_ranking_by_year_df.loc[borough_salary_ranking_by_year_df["Year"] == year]
-    
-    ## Create a custom palette for the plot
-    custom_pallete = ["deepskyblue"] * 33
-    ## Find the index of our borough
-    colour_idx =  data.loc[data["borough"] == borough]["RANK"].values[0]
-    ## Change the colour at the index location -1 to highlight our borough
-    custom_pallete = custom_pallete[:colour_idx-1]+["orange"]+custom_pallete[colour_idx:]
-
-    fig, ax = plt.subplots()
-    sns.barplot(data["total_annual_income_net_gbp_avg"], data["borough"], palette=custom_pallete)
-    ax.set_title("Average Income Rankings by Borough {}".format(year))
-    ax.set_ylabel("Borough")
-    ax.set_xlabel("Average Income")
-    plt.tight_layout()
-    income_borough_rank_file_name = "./reports/generation/images/{}_bar_income_borough_rank_{}_{}_{}.png".format(session_id, city, borough, year)
-    mlib.save_plot_filename(plot=fig, filename=income_borough_rank_file_name, save_artefacts=True)
-    rep_ctx_idx_str = str(rep_ctx_idx)
-    # report_context["income_borough_rank_file_name"].update({rep_ctx_idx_str:income_borough_rank_file_name})
-    #TODO this needs to go into a loop like structure in the rport_manager
-    report_context["income_borough_rank_file_name_{}".format(rep_ctx_idx_str)] = income_borough_rank_file_name
-    rep_ctx_idx += 1
-
-  ## Add to the length to the report context
-  report_context["income_borough_rank_file_name_idx"] = rep_ctx_idx - 1
+  report_context["general_information"] = "Health Report Placeholder Text"
   
   

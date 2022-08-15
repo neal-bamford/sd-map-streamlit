@@ -51,6 +51,7 @@ if "report_type" in  query_params:
 if "report_auto_generate" in  query_params:
     url_report_auto_generate = query_params["report_auto_generate"][0]
 
+
 ##
 ## Start of Streamlit
 ##
@@ -66,12 +67,46 @@ search_post_code = st.text_input("Post Code", value=url_search_post_code, key="s
 
 ## Clear input text
 st.button("Clear", on_click=clear_text)
-report_type_idx = {"Crime":0, "General":1, "Health":2, "Income":3}
+report_type_idx = {"Crime":0, "General":1, "Health":2, "Earnings":3}
 
 # print(f"url_report_type:{url_report_type}")
 # print(report_type_idx[url_report_type])
 
-report_type = st.selectbox("Select Report Type", ("Crime", "General", "Health", "Income"), index=report_type_idx[url_report_type])
+# report_type = None
+
+## These will come from a json file I think, but for now, we'll hard code them
+report_type_options = {"Crime":{"Full Report"}, "General":{"Full Report", "Condensed Report"}, "Health":{"Full Report"}, "Earnings":{"Full Report"}}
+## Choose the initial set to dispaly as options   
+report_type_option = report_type_options[url_report_type]
+## Stick it into the streamlit session
+st.session_state.report_type_option = report_type_option
+
+def report_type_on_chage():
+  """
+  When the report_type selectbox chnages we need to set the
+  value for the options
+  """
+  if "report_type" in st.session_state:
+    if st.session_state.report_type != None:
+        ## Update the available options for the report_type
+        report_type_option = report_type_options[st.session_state.report_type]
+        ## Stick it into the streamlit session
+        st.session_state.report_type_option = report_type_option
+
+## This is the report type
+report_type = st.selectbox(key="report_type",
+                           label="Report Type",
+                           options=["Crime", "General", "Health", "Earnings"], 
+                           index=report_type_idx[url_report_type],
+                           on_change = report_type_on_chage())
+
+## And the options of the report we can choose from
+report_option = st.selectbox(key="report_option",
+                             label="Report Option",
+                             options=st.session_state.report_type_option)
+
+st.session_state["report_option_obj"] = report_option
+
 
 log.debug("Here")
 year_from_to = st.slider("Date Range", min_value=2001, max_value=2022, value=[2001,2022], step=1)
@@ -99,14 +134,15 @@ if generate_report_link:
 
     ## Generate a context to place items in which is used when generating the report in the final step
     report_context = {}
-    report_context["template_processor_file_name"] = "./reports/processors/sd_general_report_data_manager.json"
+    # report_context["template_processor_file_name"] = "./reports/processors/sd_general_report_data_manager.json"
+    ### This should come from another drop down
+    report_context["report_option"] = report_option
     
     ## This comes from Streamlit so fake here
     properties = st.secrets
     
     try:
         log.debug(f"report_type:{report_type}")
-        
         
         rep_man = None
         if report_type == "Crime":
@@ -115,7 +151,7 @@ if generate_report_link:
             rep_man = sd_report_man_general
         elif report_type == "Health":
             rep_man = sd_report_man_health
-        elif report_type == "Income":
+        elif report_type == "Earnings":
             rep_man = sd_report_man_income
 
         generated_report = rep_man.generate_report(session_id=session_id, search_term=search_term, report_context=report_context, properties=properties, lib=mlib, dao_fac=dao_fac)    
@@ -131,6 +167,8 @@ if generate_report_link:
         borough   = report_context["borough"]
         ward_name = report_context["ward_name"]
         post_code = report_context["post_code"]
+        
+        
         
         gernerated_report_download = "sd_{}_report_{}_{}_{}{}{}.docx".format(report_type.lower(), city, borough, ward_name, ("_" if post_code != "" else ""), post_code).replace(" ", "_")
         

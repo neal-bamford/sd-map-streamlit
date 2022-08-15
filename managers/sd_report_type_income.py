@@ -2,17 +2,21 @@ import logging
 import uuid
 import os
 
+from data.daos import dao_facade_local as dao_fac
 from lib import file_tools as ft
 from lib import masters_data_analytics_lib as mlib
 from managers import sd_map_manager as map_manager
 from managers import sd_report_type_income_data_manager as data_manager
 from managers import sd_report_type_income_report_manager as report_type_manager
-from managers import sd_report_manager as report_manager
+# from managers import sd_report_manager as report_manager
+from managers import sd_report_manager_new as report_manager
+from managers import sd_report_type_general_data_manager as gen_data_manager
+from managers import sd_report_type_general_report_manager as gen_report_type_manager
 
 log = logging.getLogger(__name__)
 
 ### This is the process for this report
-template_processor_file_name = "./reports/processors/sd_income_report_template_processor.json"
+template_processor_file_name = "./reports/processors/sd_earnings_report_template_processor.json"
 log.debug(f"template_processor_file_name:{template_processor_file_name}")
 
 def load_data(search_term, lib):
@@ -39,7 +43,8 @@ def generate_report(session_id
                   , search_term
                   , report_context
                   , properties
-                  , lib=mlib):
+                  , lib=mlib
+                  , dao_fac=dao_fac):
     
     ###
     ### LOAD THE RAW DATA
@@ -47,6 +52,16 @@ def generate_report(session_id
     #### Load our data. lib will either be mlib or streamlit wrapper mlib which uses caching
     sd_london_postcodes_df, sd_london_population_oa_df, sd_london_household_oa_df, sd_london_qualification_oa_df = load_data(search_term=search_term, lib=lib)
 
+    ## We may have some data in the general data manager we want to include
+    gen_data_manager.generate_report_data(session_id                    = session_id
+                                        , search_term                   = search_term
+                                        , report_context                = report_context
+                                        , properties                    = properties 
+                                        , dao_fac                       = dao_fac
+                                        , sd_london_postcodes_df        = sd_london_postcodes_df
+                                        , sd_london_population_oa_df    = sd_london_population_oa_df
+                                        , sd_london_household_oa_df     = sd_london_household_oa_df
+                                        , sd_london_qualification_oa_df = sd_london_qualification_oa_df)
     
     ##
     ## GENERATE THE DATA FOR THE REPORT
@@ -79,6 +94,13 @@ def generate_report(session_id
                                                , properties = properties)
     
     report_context["location_png_file"] = location_png_file
+
+    ###
+    ### GENERATE ANY GENERAL REPORT ARTEFACTS WE MIGHT WANT TO INCLUDE
+    ###
+    gen_report_type_manager.generate_report_artefacts(session_id     = session_id
+                                                    , report_context = report_context
+                                                    , properties     = properties )    
 
     ###
     ### CREATE THE PARTS FOR THE REPORT FROM THE DATA

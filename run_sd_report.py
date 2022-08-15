@@ -12,8 +12,8 @@ import controllers.sd_report_type_passed_controller as sd_report_controller
 # sd_report_man = sd_report_man_crime
 # sd_report_man = sd_report_man_general
 # sd_report_man = sd_report_man_health
-# sd_report_man = sd_report_man_income
-sd_report_man = sd_report_man_dev
+sd_report_man = sd_report_man_income
+# sd_report_man = sd_report_man_dev
 
 sd_report_controller.call_controller(sd_report_man)
 

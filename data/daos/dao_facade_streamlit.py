@@ -47,15 +47,28 @@ def crime_ranked_by_borough_years(db_conn):
 def earnings_ranked_by_borough_years(db_conn):    
     return dat_dao.earnings_ranked_by_borough_years(db_conn)
   
-@cache.memoize()    
+@st.cache(hash_funcs={pyodbc.Connection: hash_db_conn})
 def ethnicity_ratio_by_borough_years(db_conn):
   return dat_dao.ethnicity_ratio_by_borough_years(db_conn)
 
-@cache.memoize()    
+@st.cache(hash_funcs={pyodbc.Connection: hash_db_conn})
 def ethnicity_ratio_by_borough_ward_years(db_conn, search_term):
   return dat_dao.ethnicity_ratio_by_borough_ward_years(db_conn, search_term)
 
-@cache.memoize()    
+@st.cache(hash_funcs={pyodbc.Connection: hash_db_conn})
 def ethnicity_ratio_average_years(db_conn):
   return dat_dao.ethnicity_ratio_average_years(db_conn)
+
+@st.cache(hash_funcs={pyodbc.Connection: hash_db_conn})
+def education_ratio_by_borough_years(db_conn):
+  return dat_dao.education_ratio_by_borough_years(db_conn)
+  
+@st.cache(hash_funcs={pyodbc.Connection: hash_db_conn})
+def education_ratio_by_borough_ward_years(db_conn, search_term):
+  return dat_dao.education_ratio_by_borough_ward_years(db_conn, search_term)
+
+@st.cache(hash_funcs={pyodbc.Connection: hash_db_conn})
+def education_ratio_average_years(db_conn):
+    return dat_dao.education_ratio_average_years(db_conn)
+
   

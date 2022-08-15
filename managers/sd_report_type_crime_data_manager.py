@@ -3,6 +3,7 @@ from lib import formatting as fmt
 from lib import plot_tools as plttool
 from lib import masters_data_analytics_lib as mlib
 from data.daos import location_dao as loc_dao
+from lib import general_tools as gen_tools
 
 import logging
 import numpy as np
@@ -27,6 +28,8 @@ def generate_report_data(session_id
 
 	## Validate the search term	
 	validated_search_term = loc_dao.location_search(search_term, sd_london_postcodes_df)
+	## Merge any non validated values with validated ones for future use	
+	validated_search_term = gen_tools.merge_two_dicts(search_term, validated_search_term)
 	report_context["validated_search_term"] = validated_search_term
 	
 	city      = validated_search_term["city"]

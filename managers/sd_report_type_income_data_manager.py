@@ -5,6 +5,7 @@ from lib import masters_data_analytics_lib as mlib
 from lib import plot_tools as plttool
 from lib import stats as stats
 from data.daos import location_dao as loc_dao
+from lib import general_tools as gen_tools
 
 import logging
 import numpy as np
@@ -29,6 +30,8 @@ def generate_report_data(session_id
 
 	## Validate the search term	
 	validated_search_term = loc_dao.location_search(search_term, sd_london_postcodes_df)
+	## Merge any non validated values with validated ones for future use	
+	validated_search_term = gen_tools.merge_two_dicts(search_term, validated_search_term)
 	
 	## Merge any non validated values with validated ones for future use	
 	validated_search_term = gen_tools.merge_two_dicts(search_term, validated_search_term)
@@ -68,103 +71,3 @@ def generate_report_data(session_id
 	map_args["borough"] = {"label":borough, "lat_long":borough_combined}
 
 	report_context["map_args"] = map_args
-
-
-	### Connect to the database and get some income data
- # year_from = 2012
- # year_to   = 2018
-
-
-	db_conn = db_tools.get_db_conn(properties[properties["database"]["flavour"]] )
-
-	city_income_min_max_avg_sql ="""
-	SELECT [Date] 						                AS [Date]
-	      , ROUND(AVG([total_annual_income_net_gbp]),0) AS [city_total_annual_income_net_gbp_avg]
-	      , ROUND(MIN([total_annual_income_net_gbp]),0) AS [city_total_annual_income_net_gbp_min]
-	      , ROUND(MAX([total_annual_income_net_gbp]),0) AS [city_total_annual_income_net_gbp_max]
-	FROM income_uk_ons 		 INC
-	WHERE [MSOA] IN (SELECT DISTINCT [LPC].[MSOA] FROM IDX_LONDONPOSTCODES LPC)
-	AND   CONVERT(int, [Date]) BETWEEN {} AND {}
-	GROUP BY [Date]
-	ORDER BY [Date] ASC;
-	""".format(year_from, year_to)
-	
-	city_min_max_avg_df = pd.read_sql_query(city_income_min_max_avg_sql, db_conn, index_col="Date")
-	# log.debug(city_min_max_avg_df.head())
-	
-	ward_income_avg_sql = """
-  SELECT [Date] 						                AS [Date]
-        , ROUND(AVG([total_annual_income_net_gbp]),0) AS [ward_total_annual_income_net_gbp_avg]
-  FROM income_uk_ons 		 INC
-     , IDX_LONDONPOSTCODES LPC
-  WHERE INC.[MSOA] = LPC.[MSOA]
-  AND   INC.[LAD]  = LPC.[LAD]
-  AND   LPC.[LAD_NAME] = '{}'
-  AND   LPC.[WARD_NAME] = '{}'
-  AND   CONVERT(int, [Date]) BETWEEN {} AND {}
-  GROUP BY [Date];
-  """.format(borough, ward_name, year_from, year_to)
-  
-  
-	ward_income_avg_sql = """
-  SELECT [Date] 						                       AS [Date]
-     , ROUND(AVG([total_annual_income_net_gbp]),0) AS [ward_total_annual_income_net_gbp_avg]
-    FROM income_uk_ons 		   INC
-       , IDX_LONDONPOSTCODES LPC
-    WHERE EXISTS (
-        SELECT 1/0
-        FROM IDX_LONDONPOSTCODES LPC
-        WHERE [LPC].[MSOA] = INC.[MSOA]
-        )
-    AND   INC.[LAD]  = LPC.[LAD]
-    AND   LPC.[LAD_NAME] = '{}'
-    AND   LPC.[WARD_NAME] = '{}'
-    AND   CONVERT(int, [Date]) BETWEEN {} AND {}
-    GROUP BY [Date]
-    ORDER BY [Date] DESC
-    """.format(borough, ward_name, year_from, year_to)
-
-	ward_avg_df = pd.read_sql_query(ward_income_avg_sql, db_conn, index_col="Date")
-	
-	
-	city_ward_min_max_avg_wide_df = pd.concat([city_min_max_avg_df, ward_avg_df], axis=1)
-	city_ward_min_max_avg_wide_df["Year"] = city_ward_min_max_avg_wide_df.index
-	
-	report_context["city_ward_min_max_avg_wide_df"] = city_ward_min_max_avg_wide_df
-	
-	###
-	### Borough Rankings
-	###
-	
-	borough_salary_ranking_by_year_sql = """
-	WITH ranked_income_uk_ons AS (
-	SELECT [INC].[Date]     AS [Date]
-	     , [INC].[LAD]      AS [LAD]
-	     , AVG([INC].[total_annual_income_net_gbp]) AS [total_annual_income_net_gbp_avg]
-	FROM income_uk_ons INC
-	WHERE [INC].[MSOA] IN (SELECT DISTINCT [LPC2].[MSOA] FROM IDX_LONDONPOSTCODES LPC2)
-	GROUP BY [INC].[Date], [INC].[LAD]
-	)
-	SELECT [RINC].[Date]                                                 AS [Date]
-	     , [RINC].[LAD]                                                  AS [LAD] 
-	     , [LB].[borough]                                                AS [borough]
-	     , [RINC].[total_annual_income_net_gbp_avg] 				     AS [total_annual_income_net_gbp_avg]
-	     , ROW_NUMBER() OVER(
-	     				PARTITION BY [Date] 
-	     				ORDER BY [Date] DESC
-	     				       , [total_annual_income_net_gbp_avg] DESC) AS RANK
-	FROM ranked_income_uk_ons RINC
-	CROSS APPLY(
-		SELECT TOP 1 [LPC3].[LAD_NAME] AS [borough]
-		FROM IDX_LONDONPOSTCODES LPC3
-		WHERE [LPC3].[LAD] = [RINC].[LAD]) AS LB
-	WHERE CONVERT(int, [Date]) BETWEEN {} AND {}
-	ORDER BY [Date] DESC, [RANK] ASC"""
-	
-	borough_salary_ranking_by_year_df = pd.read_sql_query(borough_salary_ranking_by_year_sql.format(year_from, year_to), db_conn, index_col="Date")
-	borough_salary_ranking_by_year_df["Year"] = borough_salary_ranking_by_year_df.index
-
-	report_context["borough_salary_ranking_by_year_df"] = borough_salary_ranking_by_year_df
-	
-
-	db_conn.close()
