@@ -19,3 +19,4 @@ tests/__pycache__
 logs/*.log
 *.log
 A_requirements.txt
+requirements.txt
