@@ -39,14 +39,23 @@ def list_lat_long_borough(search_term, data):
 def hash_db_conn(db_conn):
     return "X"
 
+###
+### Crime
+###
 @st.cache(hash_funcs={pyodbc.Connection: hash_db_conn})
 def crime_ranked_by_borough_years(db_conn):
     return dat_dao.crime_ranked_by_borough_years(db_conn)
 
+###
+### Earnings
+###
 @st.cache(hash_funcs={pyodbc.Connection: hash_db_conn})
 def earnings_ranked_by_borough_years(db_conn):    
     return dat_dao.earnings_ranked_by_borough_years(db_conn)
-  
+
+###
+### Ethnicity
+###
 @st.cache(hash_funcs={pyodbc.Connection: hash_db_conn})
 def ethnicity_ratio_by_borough_years(db_conn):
   return dat_dao.ethnicity_ratio_by_borough_years(db_conn)
@@ -59,6 +68,9 @@ def ethnicity_ratio_by_borough_ward_years(db_conn, search_term):
 def ethnicity_ratio_average_years(db_conn):
   return dat_dao.ethnicity_ratio_average_years(db_conn)
 
+###
+### Education
+###
 @st.cache(hash_funcs={pyodbc.Connection: hash_db_conn})
 def education_ratio_by_borough_years(db_conn):
   return dat_dao.education_ratio_by_borough_years(db_conn)
@@ -71,4 +83,17 @@ def education_ratio_by_borough_ward_years(db_conn, search_term):
 def education_ratio_average_years(db_conn):
     return dat_dao.education_ratio_average_years(db_conn)
 
-  
+###
+### General Health
+###
+@st.cache(hash_funcs={pyodbc.Connection: hash_db_conn})
+def general_health_ratio_by_borough_years(db_conn):
+  return dat_dao.general_health_ratio_by_borough_years(db_conn)
+
+@st.cache(hash_funcs={pyodbc.Connection: hash_db_conn})
+def general_health_ratio_by_borough_ward_years(db_conn, search_term):
+  return dat_dao.general_health_ratio_by_borough_ward_years(db_conn, search_term)
+
+@st.cache(hash_funcs={pyodbc.Connection: hash_db_conn})
+def general_health_ratio_average_years(db_conn):
+  return dat_dao.general_health_ratio_average_years(db_conn)  

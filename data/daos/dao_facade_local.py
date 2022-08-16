@@ -39,14 +39,23 @@ from cacheout import Cache
 
 cache = Cache()
 
+###
+### Crime
+###
 @cache.memoize()
 def crime_ranked_by_borough_years(db_conn):
   return dat_dao.crime_ranked_by_borough_years(db_conn)
     
+###
+### Earnings
+###
 @cache.memoize()    
 def earnings_ranked_by_borough_years(db_conn):    
   return dat_dao.earnings_ranked_by_borough_years(db_conn)
   
+###
+### Ethnicity
+###
 @cache.memoize()    
 def ethnicity_ratio_by_borough_years(db_conn):
   return dat_dao.ethnicity_ratio_by_borough_years(db_conn)
@@ -59,6 +68,9 @@ def ethnicity_ratio_by_borough_ward_years(db_conn, search_term):
 def ethnicity_ratio_average_years(db_conn):
   return dat_dao.ethnicity_ratio_average_years(db_conn)
 
+###
+### Education
+###
 @cache.memoize()
 def education_ratio_by_borough_years(db_conn):
   return dat_dao.education_ratio_by_borough_years(db_conn)
@@ -70,3 +82,18 @@ def education_ratio_by_borough_ward_years(db_conn, search_term):
 @cache.memoize()
 def education_ratio_average_years(db_conn):
     return dat_dao.education_ratio_average_years(db_conn)
+
+###
+### General Health
+###
+@cache.memoize()
+def general_health_ratio_by_borough_years(db_conn):
+  return dat_dao.general_health_ratio_by_borough_years(db_conn)
+
+@cache.memoize()
+def general_health_ratio_by_borough_ward_years(db_conn, search_term):
+  return dat_dao.general_health_ratio_by_borough_ward_years(db_conn, search_term)
+
+@cache.memoize()
+def general_health_ratio_average_years(db_conn):
+  return dat_dao.general_health_ratio_average_years(db_conn)

@@ -262,6 +262,72 @@ def generate_report_data(session_id
 	education_by_borough_year_df_reduced = pd.concat([education_average_year_df_latest, education_by_borough_year_df_borough, education_by_borough_ward_year_df_reduced])
 
 	###
+	### GENERAL HEALTH
+	###
+	
+	###
+	### AVERAGE
+	###
+	general_health_average_year_df = dao_fac.general_health_ratio_average_years(db_conn)
+	
+	## What's the latest year of data for ethnicity?
+	latest_data_year = general_health_average_year_df["YEAR"].max()
+	
+	## Filter the dataframe to only include the latest data
+	general_health_average_year_df_latest = general_health_average_year_df.loc[general_health_average_year_df["YEAR"] == latest_data_year]
+	
+	## Drop the columns we don't want in the plot
+	
+	## Set the index for the plot, Borough
+	general_health_average_year_df_latest = general_health_average_year_df_latest.set_index("YEAR")
+	general_health_average_year_df_latest.index = ["Average"]
+	# general_health_average_year_df_latest
+	
+	###
+	### WARD LEVEL
+	###
+	general_health_by_borough_ward_year_df = dao_fac.general_health_ratio_by_borough_ward_years(db_conn, search_term)
+	
+	general_health_latest_data_year = general_health_by_borough_ward_year_df["YEAR"].max()
+	
+	## Filter the dataframe to only include the latest data
+	general_health_by_borough_ward_year_df_latest = general_health_by_borough_ward_year_df.loc[general_health_by_borough_ward_year_df["YEAR"] == general_health_latest_data_year]
+	
+	## Drop the columns we don't want in the plot
+	general_health_by_borough_ward_year_df_reduced = general_health_by_borough_ward_year_df_latest.drop(["YEAR", "LAD", "LAD_NAME", "WARD_CODE"], axis=1)
+	
+	## Set the index for the plot, Borough
+	general_health_by_borough_ward_year_df_reduced = general_health_by_borough_ward_year_df_reduced.set_index("WARD_NAME")
+	# education_by_borough_ward_year_df_reduced
+	
+	###
+	### BOROUGH
+	###
+	general_health_by_borough_year_df = dao_fac.general_health_ratio_by_borough_years(db_conn)
+	
+	## What's the latest year of data for education?
+	general_health_latest_data_year = general_health_by_borough_year_df["YEAR"].max()
+	
+	## Filter the dataframe to only include the latest data
+	general_health_by_borough_year_df_latest = general_health_by_borough_year_df.loc[general_health_by_borough_year_df["YEAR"] == general_health_latest_data_year]
+	
+	## Drop the columns we don't want in the plot
+	general_health_by_borough_year_df_reduced = general_health_by_borough_year_df_latest.drop(["YEAR", "LAD"], axis=1)
+	
+	## Set the index for the plot, Borough
+	general_health_by_borough_year_df_reduced = general_health_by_borough_year_df_reduced.set_index("LAD_NAME")
+	
+	# ethnicity_by_borough_year_df_reduced 
+	general_health_by_borough_year_df_borough = general_health_by_borough_year_df_reduced[(general_health_by_borough_year_df_reduced.index == borough)]
+	
+	general_health_by_borough_year_df_all = general_health_by_borough_year_df_reduced
+	general_health_by_borough_year_df_reduced = pd.concat([general_health_average_year_df_latest, general_health_by_borough_year_df_borough, general_health_by_borough_ward_year_df_reduced])
+
+
+
+
+
+	###
 	### EARNINGS
 	###
 	borough_salary_ranking_by_year_df = dao_fac.earnings_ranked_by_borough_years(db_conn)
@@ -307,6 +373,7 @@ def generate_report_data(session_id
 	report_context["borough_salary_ranking_by_year_df"] = borough_salary_ranking_by_year_df 
 	report_context["borough_crime_per_capita_by_year_df"] = borough_crime_per_capita_by_year_df
 	
+	
 	report_context["ethnicity_by_borough_year_df_all"] = ethnicity_by_borough_year_df_all
 	report_context["ethnicity_by_borough_year_df_reduced"] = ethnicity_by_borough_year_df_reduced
 	report_context["ethnicity_latest_data_year"] = ethnicity_latest_data_year
@@ -315,3 +382,7 @@ def generate_report_data(session_id
 	report_context["education_by_borough_year_df_reduced"] = education_by_borough_year_df_reduced 
 	report_context["education_latest_data_year"] = education_latest_data_year 
 
+	report_context["general_health_by_borough_year_df_all"] = general_health_by_borough_year_df_all
+	report_context["general_health_by_borough_year_df_reduced"] = general_health_by_borough_year_df_reduced
+	report_context["general_health_latest_data_year"] = general_health_latest_data_year
+	

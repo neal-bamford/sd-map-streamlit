@@ -493,3 +493,168 @@ def education_ratio_average_years(db_conn):
   
   education_ratio_average_years_df = pd.read_sql_query(education_ratio_average_years_sql, db_conn, index_col=None)
   return education_ratio_average_years_df
+
+
+###
+### GENERAL_HEALTH - BOROUGH
+###
+def general_health_ratio_by_borough_years(db_conn):
+  logging.debug("genearl_health_ratio_by_borough_years")
+
+  general_health_by_borough_year_sql = """
+  ---
+  --- GENERAL_HEALTH - BOROUGH
+  ---
+ WITH SUMMED_GENERAL_HEALTH_BOROUGH AS (
+  SELECT [LGENH].[Date]                                          AS [Date],
+       CAST(Year([LGENH].[Date]) AS int)              AS [Year],
+         [LU_LAD_OA].[LAD]                                       AS [LAD],  
+         [LU_LAD_OA].[LAD_NAME]                                  AS [LAD_NAME],
+         [LGENH].[OAcode]                                        AS [OA],
+       CONVERT(float, [LGENH].[levcel1]) + 
+       CONVERT(float, [LGENH].[levcel2]) + 
+       CONVERT(float, [LGENH].[levcel3]) + 
+       CONVERT(float, [LGENH].[levcel4]) + 
+       CONVERT(float, [LGENH].[levcel5]) + 
+       CONVERT(float, [LGENH].[levcel6])                       AS [All], 
+       CONVERT(float, [LGENH].[levcel1])                       AS [Level_1],
+       CONVERT(float, [LGENH].[levcel2])                       AS [Level_2],
+       CONVERT(float, [LGENH].[levcel3])                       AS [Level_3],
+       CONVERT(float, [LGENH].[levcel4])                       AS [Level_4],
+       CONVERT(float, [LGENH].[levcel5])                       AS [Level_5],
+       CONVERT(float, [LGENH].[levcel6])                       AS [Level_6]
+  FROM [LondonGeneralhealth]                        AS [LGENH],
+        LOOKUP_LAD_OA [LU_LAD_OA]
+  WHERE [LGENH].[OAcode] = [LU_LAD_OA].[OA]
+  ) 
+  SELECT [SGHB].[YEAR]                                           AS [YEAR],
+         [SGHB].[LAD]                                            AS [LAD],
+         [SGHB].[LAD_NAME]                                       AS [LAD_NAME],
+         ROUND(SUM([SGHB].[Level_1]) /SUM([SGHB].[All]),4)     AS [Level 1],
+         ROUND(SUM([SGHB].[Level_2]) /SUM([SGHB].[All]),4)     AS [Level 2],
+         ROUND(SUM([SGHB].[Level_3]) /SUM([SGHB].[All]),4)     AS [Level 3],
+         ROUND(SUM([SGHB].[Level_4]) /SUM([SGHB].[All]),4)     AS [Level 4],
+         ROUND(SUM([SGHB].[Level_5]) /SUM([SGHB].[All]),4)     AS [Level 5],
+         ROUND(SUM([SGHB].[Level_6]) /SUM([SGHB].[All]),4)     AS [Level 6]
+  FROM [SUMMED_GENERAL_HEALTH_BOROUGH] AS [SGHB]
+  GROUP BY [SGHB].[YEAR],
+           [SGHB].[LAD], 
+           [SGHB].[LAD_NAME]
+  ORDER BY [YEAR] DESC, [LAD_NAME] ASC
+  """
+  
+  general_health_ratio_by_borough_year_df = pd.read_sql_query(general_health_by_borough_year_sql, db_conn, index_col=None)
+  return general_health_ratio_by_borough_year_df
+
+###
+### GENERAL_HEALTH - BOROUGH/WARD
+###
+def general_health_ratio_by_borough_ward_years(db_conn, search_term):
+  logging.debug("general_health_ratio_by_borough_ward_years")
+
+  borough = search_term["borough"]
+  ward_name = search_term["ward_name"]
+  
+  general_health_by_borough_ward_year_sql = """
+  ---
+  --- GENERAL_HEALTH - BOROUGH/WARD
+  ---
+  WITH SUMMED_GENERAL_HEALTH_BOROUGH AS (
+  SELECT [LGENH].[Date]                                          AS [Date],
+       CAST(Year([LGENH].[Date]) AS int)              AS [Year],
+         [LU_LAD_OA].[LAD]                                       AS [LAD],  
+         [LU_LAD_OA].[LAD_NAME]                                  AS [LAD_NAME],
+         [LU_WARD_OA].[WARD_CODE]                                AS [WARD_CODE],
+         [LU_WARD_OA].[WARD_NAME]                                AS [WARD_NAME],
+         [LGENH].[OAcode]                                        AS [OA],
+       CONVERT(float, [LGENH].[levcel1]) + 
+       CONVERT(float, [LGENH].[levcel2]) + 
+       CONVERT(float, [LGENH].[levcel3]) + 
+       CONVERT(float, [LGENH].[levcel4]) + 
+       CONVERT(float, [LGENH].[levcel5]) + 
+       CONVERT(float, [LGENH].[levcel6])                       AS [All], 
+       CONVERT(float, [LGENH].[levcel1])                       AS [Level_1],
+       CONVERT(float, [LGENH].[levcel2])                       AS [Level_2],
+       CONVERT(float, [LGENH].[levcel3])                       AS [Level_3],
+       CONVERT(float, [LGENH].[levcel4])                       AS [Level_4],
+       CONVERT(float, [LGENH].[levcel5])                       AS [Level_5],
+       CONVERT(float, [LGENH].[levcel6])                       AS [Level_6]
+  FROM [LondonGeneralhealth]                        AS [LGENH],
+        [LOOKUP_LAD_OA]                                          AS [LU_LAD_OA],
+        [LOOKUP_WARD_CODE_OA]                                    AS [LU_WARD_OA]
+  WHERE [LGENH].[OAcode] = [LU_LAD_OA].[OA]
+  AND   [LU_LAD_OA].[OA] = [LU_WARD_OA].[OA]
+  ) 
+  SELECT [SGHB].[YEAR]                                           AS [YEAR],
+         [SGHB].[LAD]                                            AS [LAD],
+         [SGHB].[LAD_NAME]                                       AS [LAD_NAME],
+         [SGHB].[WARD_CODE]                                      AS [WARD_CODE],
+         [SGHB].[WARD_NAME]                                      AS [WARD_NAME],
+         SUM([SGHB].[Level_1]) /SUM([SGHB].[All])              AS [Level 1],
+         SUM([SGHB].[Level_2]) /SUM([SGHB].[All])              AS [Level 2],
+         SUM([SGHB].[Level_3]) /SUM([SGHB].[All])              AS [Level 3],
+         SUM([SGHB].[Level_4]) /SUM([SGHB].[All])              AS [Level 4],
+         SUM([SGHB].[Level_5]) /SUM([SGHB].[All])              AS [Level 5],
+         SUM([SGHB].[Level_6]) /SUM([SGHB].[All])              AS [Level 6]
+  FROM [SUMMED_GENERAL_HEALTH_BOROUGH] AS [SGHB]
+  WHERE  [LAD_NAME] = '{}' AND [WARD_NAME] = '{}' 
+  GROUP BY [YEAR], [LAD], [LAD_NAME], [WARD_CODE], [WARD_NAME]
+  ORDER BY [YEAR] DESC, [LAD_NAME] ASC
+""".format(borough, ward_name)
+
+  general_health_ratio_by_borough_ward_year_df = pd.read_sql_query(general_health_by_borough_ward_year_sql, db_conn, index_col=None)
+  return general_health_ratio_by_borough_ward_year_df
+
+### 
+### GENERAL_HEALTH - AVERAGE
+###
+def general_health_ratio_average_years(db_conn):
+  logging.debug("general_health_ratio_average_years")
+
+  general_health_ratio_average_years_sql = """
+  ---
+  --- GENERAL_HEALTH AVERAGE
+  ---
+  ---
+  --- GENERAL_HEALTH - BOROUGH/WARD
+  ---
+  WITH SUMMED_GENERAL_HEALTH_BOROUGH AS (
+  SELECT [LGENH].[Date]                                          AS [Date],
+       CAST(Year([LGENH].[Date]) AS int)              AS [Year],
+         [LU_LAD_OA].[LAD]                                       AS [LAD],  
+         [LU_LAD_OA].[LAD_NAME]                                  AS [LAD_NAME],
+         [LU_WARD_OA].[WARD_CODE]                                AS [WARD_CODE],
+         [LU_WARD_OA].[WARD_NAME]                                AS [WARD_NAME],
+         [LGENH].[OAcode]                                        AS [OA],
+       CONVERT(float, [LGENH].[levcel1]) + 
+       CONVERT(float, [LGENH].[levcel2]) + 
+       CONVERT(float, [LGENH].[levcel3]) + 
+       CONVERT(float, [LGENH].[levcel4]) + 
+       CONVERT(float, [LGENH].[levcel5]) + 
+       CONVERT(float, [LGENH].[levcel6])                       AS [All], 
+       CONVERT(float, [LGENH].[levcel1])                       AS [Level_1],
+       CONVERT(float, [LGENH].[levcel2])                       AS [Level_2],
+       CONVERT(float, [LGENH].[levcel3])                       AS [Level_3],
+       CONVERT(float, [LGENH].[levcel4])                       AS [Level_4],
+       CONVERT(float, [LGENH].[levcel5])                       AS [Level_5],
+       CONVERT(float, [LGENH].[levcel6])                       AS [Level_6]
+  FROM [LondonGeneralhealth]                        AS [LGENH],
+        [LOOKUP_LAD_OA]                                          AS [LU_LAD_OA],
+        [LOOKUP_WARD_CODE_OA]                                    AS [LU_WARD_OA]
+  WHERE [LGENH].[OAcode] = [LU_LAD_OA].[OA]
+  AND   [LU_LAD_OA].[OA] = [LU_WARD_OA].[OA]
+  ) 
+  SELECT [SGHB].[YEAR]                                       AS [YEAR],
+         AVG([SGHB].[Level_1] /[SGHB].[All])              AS [Level 1],
+         AVG([SGHB].[Level_2] /[SGHB].[All])              AS [Level 2],
+         AVG([SGHB].[Level_3] /[SGHB].[All])              AS [Level 3],
+         AVG([SGHB].[Level_4] /[SGHB].[All])              AS [Level 4],
+         AVG([SGHB].[Level_5] /[SGHB].[All])              AS [Level 5],
+         AVG([SGHB].[Level_6] /[SGHB].[All])              AS [Level 6]
+  FROM [SUMMED_GENERAL_HEALTH_BOROUGH] AS [SGHB]
+  GROUP BY [YEAR]
+  ORDER BY [YEAR] DESC
+"""
+  
+  general_health_ratio_average_years_df = pd.read_sql_query(general_health_ratio_average_years_sql, db_conn, index_col=None)
+  return general_health_ratio_average_years_df

@@ -691,6 +691,62 @@ def generate_report_artefacts(session_id
   ethnicity_horizontal_stacked_appendix_plot_file = "./reports/generation/images/{}_ethnicity_horizontal_stacked_{}_{}_{}_appendix.png".format(session_id, city, year_from, year_to)
   mlib.save_plot_filename(plot=plt, filename=ethnicity_horizontal_stacked_appendix_plot_file, save_artefacts=True)
     
+
+  ###
+  ### GENERAL_HEALTH
+  ###
+  
+  general_health_by_borough_year_df_all = report_context["general_health_by_borough_year_df_all"]
+  general_health_by_borough_year_df_reduced = report_context["general_health_by_borough_year_df_reduced"]
+  general_health_latest_data_year = report_context["general_health_latest_data_year"]
+  
+  ###
+  ### HORIZONTAL PLOT 100% BY BOROUGH - REPORT
+  ###
+  
+  stacked_data = general_health_by_borough_year_df_reduced.apply(lambda x: x*100/sum(x), axis=1)
+  
+  ax = stacked_data.plot.barh(stacked=True, figsize=(20, 5))
+  
+  ax.grid(False)
+  ax.set_title("General Health {}".format(general_health_latest_data_year), fontsize=20)
+  ax.set_ylabel("")
+  ax.legend(title="legend")
+  ax.legend(loc="upper right")
+  
+  plt.xticks(fontsize=20)
+  plt.yticks(fontsize=20)
+  plt.gca().invert_yaxis()
+  plt.legend(bbox_to_anchor=(1.05, 1), loc=2, borderaxespad=0.)
+  plt.tight_layout()  
+
+  general_health_horizontal_stacked_report_plot_file = "./reports/generation/images/{}_general_health_horizontal_stacked_{}_{}_{}_report.png".format(session_id, city, year_from, year_to)
+  mlib.save_plot_filename(plot=plt, filename=general_health_horizontal_stacked_report_plot_file, save_artefacts=True)
+
+  ###
+  ### HORIZONTAL PLOT 100% BY BOROUGH - APPENDIX
+  ###
+  
+  stacked_data = general_health_by_borough_year_df_all.apply(lambda x: x*100/sum(x), axis=1)
+  
+  ax = stacked_data.plot.barh(stacked=True, figsize=(20, 15))
+  
+  ax.grid(False)
+  ax.set_title("General Health {}".format(general_health_latest_data_year), fontsize=20)
+  ax.set_ylabel("")
+  ax.legend(title="legend")
+  ax.legend(loc="upper right")
+  
+  plt.xticks(fontsize=20)
+  plt.yticks(fontsize=15)
+  plt.gca().invert_yaxis()
+  plt.legend(bbox_to_anchor=(1.05, 1), loc=2, borderaxespad=0.)
+  plt.tight_layout()
+
+  general_health_horizontal_stacked_appendix_plot_file = "./reports/generation/images/{}_general_health_horizontal_stacked_{}_{}_{}_appendix.png".format(session_id, city, year_from, year_to)
+  mlib.save_plot_filename(plot=plt, filename=general_health_horizontal_stacked_appendix_plot_file, save_artefacts=True)
+
+    
   ###
   ### ALL THE FORMATTED TEXT AND PLOT FILES TO GO INTO THE REPORT GENERATION
   ###
@@ -743,4 +799,8 @@ def generate_report_artefacts(session_id
   ## Ethnicity report and full for appendix  
   report_context["ethnicity_horizontal_stacked_report_plot"] = ethnicity_horizontal_stacked_report_plot_file
   report_context["ethnicity_horizontal_stacked_appendix_plot"] = ethnicity_horizontal_stacked_appendix_plot_file
+  
+  ## General Health  
+  report_context["general_health_horizontal_stacked_report_plot"] = general_health_horizontal_stacked_report_plot_file
+  report_context["general_health_horizontal_stacked_appendix_plot"] = general_health_horizontal_stacked_appendix_plot_file
   

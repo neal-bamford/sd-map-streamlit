@@ -51,7 +51,7 @@ log.info(f"search_term:{search_term}")
 
 ## Generate a context to place items in which is used when generating the report in the final step
 report_context = {}
-report_context["report_option"] = 1
+report_context["report_option"] = "Condensed Report"
 import toml
 properties = toml.load("./.streamlit/secrets.toml")
 ## This comes from Streamlit so fake here
