@@ -736,7 +736,7 @@ def generate_report_artefacts(session_id
   ax.set_ylabel("")
   ax.legend(title="legend")
   ax.legend(loc="upper right")
-  
+  #
   plt.xticks(fontsize=20)
   plt.yticks(fontsize=15)
   plt.gca().invert_yaxis()
