@@ -173,7 +173,7 @@ if generate_report_link:
         gernerated_report_download = "sd_{}_report_{}_{}_{}{}{}.docx".format(report_type.lower(), city, borough, ward_name, ("_" if post_code != "" else ""), post_code).replace(" ", "_")
         
         
-        html_link = mlib.create_download_link(encoded , gernerated_report_download)
+        html_link = mlib.create_download_link(encoded , gernerated_report_download, f"[{report_type} - {report_option}]")
         
         
         
