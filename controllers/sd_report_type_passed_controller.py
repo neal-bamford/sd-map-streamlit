@@ -23,14 +23,14 @@ ward_name = "Bromley Town"
 post_code = ""
 
 city = "london"
-borough = "Merton"
-ward_name = "Dundonald"
+borough = "Hackney"
+ward_name = "Brownswood"
 post_code = ""
 
 # borough = "Islington"
 # ward_name = "Holloway"
 
-year_from=2010
+year_from=2001
 year_to=2022
 
 # city = "London"
@@ -52,6 +52,7 @@ log.info(f"search_term:{search_term}")
 ## Generate a context to place items in which is used when generating the report in the final step
 report_context = {}
 report_context["report_option"] = "Condensed Report"
+report_context["report_option"] = "Full Report"
 import toml
 properties = toml.load("./.streamlit/secrets.toml")
 ## This comes from Streamlit so fake here

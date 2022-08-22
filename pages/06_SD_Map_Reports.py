@@ -58,12 +58,88 @@ if "report_auto_generate" in  query_params:
 st.markdown("# SD Map Reports")
 st.sidebar.markdown("#  SD Map Reports")
 
+
+def x(borough_wards, borough_ward_name=None):
+  # print("in x")
+  search_terms_options = []
+  if borough_ward_name == None:
+    borough_wards_reduced = borough_wards
+    for borough_name in borough_wards_reduced.keys():
+      # print(f"{borough_name}")
+      search_terms_options.append(borough_name)
+
+      for ward_name in borough_wards_reduced[borough_name]['WARD_NAMES']:
+        # print(f"\t{ward_name}")
+        search_terms_options.append(ward_name)
+    
+  elif borough_ward_name != None:
+    # print("Not None")
+    if len(borough_ward_name) == 1:
+      # print("1")
+      # print(f"x:ward_name:{borough_ward_name[0]}")
+      borough_wards_reduced = borough_wards[borough_ward_name[0]] 
+      print(borough_wards_reduced )
+      
+      for ward_name in borough_wards_reduced['WARD_NAMES']:
+        # print(f"\t{ward_name}")
+        search_terms_options.append(ward_name)
+  
+  return search_terms_options
+
+  
+def search_options_on_change():
+  print("here")
+  if "search_terms" in st.session_state:
+    print(f"st.session_state.search_terms:{st.session_state.search_terms}")
+    
+    if st.session_state.search_terms != None:
+      print("then then here ")
+      _search_terms = st.session_state.search_terms
+      print(_search_terms)
+      st.session_state.search_terms_options = x(search_boroughs_wards, borough_ward_name=_search_terms)
+      print(f"st.session_state.search_terms_options:{st.session_state.search_terms_options}")
+
+# search_boroughs = ["Hackney", "Hounslow", "Newham", "Richmond upon Thames", "Tower Hamlets"]
+
+search_boroughs_wards = {"Hackney":{"WARD_NAMES":["Brownswood", "Hoxton West", "Woodberry Down"]},
+                         "Hounslow":{"WARD_NAMES":["Bedfont", "Heston Central", "Turnham Green"]},
+                         "Newham":{"WARD_NAMES":["Beckton", "Forest Gate South", "West Ham"]},
+                         "Richmond upon Thames":{"WARD_NAMES":["Barnes", "Kew", "Whitton"]},
+                         "Tower Hamlets":{"WARD_NAMES":["Bethnal Green", "Limehouse", "Whitechapel"]}}
+
+search_terms_options = x(search_boroughs_wards)
+
+# for borough_name in search_boroughs_wards.keys():
+#   # print(f"{borough_name}")
+#   search_terms_options.append(borough_name)
+#
+#   for ward_name in search_boroughs_wards[borough_name]['WARD_NAMES']:
+#     # print(f"\t{ward_name}")
+#     search_terms_options.append(ward_name)
+st.session_state.search_terms_options = search_terms_options
+print(f"st.session_state.search_terms_options:{st.session_state.search_terms_options}")
+
+#   st.session_state.search_terms_options = search_terms_options
+
+                         
+
+search_terms = st.multiselect(label = "search_terms", 
+                              options = st.session_state.search_terms_options,
+                              key="search_terms", 
+                              help="Search Options" , 
+                              on_change=search_options_on_change())
+
+# options = st.selectbox(label='What are your favorite colors',
+#      options = ['Green', 'Yellow', 'Red', 'Blue'])
+#
+# st.write('You selected:', options)
+
 ## Input the post code to search with
 ## City
 search_city = url_search_city if url_search_city != "" else "London"
-search_borough   = st.text_input("Borough", value=url_search_borough, key="search_borough")
-search_ward_name = st.text_input("Ward Name", value=url_search_ward_name, key="search_ward_name")
-search_post_code = st.text_input("Post Code", value=url_search_post_code, key="search_post_code")
+search_borough   = st.text_input("Borough", value=url_search_borough, key="search_borough", help="Borough you want to analyse")
+search_ward_name = st.text_input("Ward Name", value=url_search_ward_name, key="search_ward_name", help="Ward in the borough you want to analyse")
+search_post_code = st.text_input("Post Code", value=url_search_post_code, key="search_post_code", help="Post Code in the City you want to analyse")
 
 ## Clear input text
 st.button("Clear", on_click=clear_text)

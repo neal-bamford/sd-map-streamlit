@@ -43,8 +43,20 @@ cache = Cache()
 ### Crime
 ###
 @cache.memoize()
+def crime_min_max_year(db_conn):
+  return dat_dao.crime_min_max_year(db_conn)
+
+@cache.memoize()
 def crime_ranked_by_borough_years(db_conn):
   return dat_dao.crime_ranked_by_borough_years(db_conn)
+    
+@cache.memoize()
+def crime_ranked_by_borough_years(db_conn, search_term):
+  return dat_dao.crime_ranked_by_borough_years(db_conn, search_term)
+    
+@cache.memoize()
+def crime_major_category_in_borough_years(db_conn, search_term):
+  return dat_dao.crime_major_category_in_borough_years(db_conn, search_term)
     
 ###
 ### Earnings
@@ -57,16 +69,16 @@ def earnings_ranked_by_borough_years(db_conn):
 ### Ethnicity
 ###
 @cache.memoize()    
-def ethnicity_ratio_by_borough_years(db_conn):
-  return dat_dao.ethnicity_ratio_by_borough_years(db_conn)
+def ethnicity_ratio_by_borough_years(db_conn, search_term):
+  return dat_dao.ethnicity_ratio_by_borough_years(db_conn, search_term)
 
 @cache.memoize()    
 def ethnicity_ratio_by_borough_ward_years(db_conn, search_term):
   return dat_dao.ethnicity_ratio_by_borough_ward_years(db_conn, search_term)
 
 @cache.memoize()
-def ethnicity_ratio_average_years(db_conn):
-  return dat_dao.ethnicity_ratio_average_years(db_conn)
+def ethnicity_ratio_average_years(db_conn, search_term):
+  return dat_dao.ethnicity_ratio_average_years(db_conn, search_term)
 
 ###
 ### Education
@@ -97,3 +109,19 @@ def general_health_ratio_by_borough_ward_years(db_conn, search_term):
 @cache.memoize()
 def general_health_ratio_average_years(db_conn):
   return dat_dao.general_health_ratio_average_years(db_conn)
+
+@cache.memoize()
+def city_yearly_population(db_conn, search_term):
+  return dat_dao.city_yearly_population(db_conn, search_term)  
+
+@cache.memoize()
+def borough_yearly_population(db_conn, search_term):
+  return dat_dao.borough_yearly_population(db_conn, search_term)  
+
+@cache.memoize()
+def city_boroughs_wards_postcodes(db_conn, search_term):
+  return dat_dao.city_boroughs_wards_postcodes(db_conn, search_term)  
+
+@cache.memoize()
+def ethnicity_min_max_year(db_conn):
+  return dat_dao.ethnicity_min_max_year(db_conn)  

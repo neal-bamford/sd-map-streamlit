@@ -148,3 +148,13 @@ ALTER TABLE LONDON_CRIME_LDS ADD [YEAR] NVARCHAR(4);
 SELECT LEFT(DATE,4) FROM LONDON_CRIME_LDS LCD
 
 UPDATE LONDON_CRIME_LDS SET [YEAR] = LEFT(DATE,4);
+
+
+SELECT * FROM LondonGeneralhealth lg 
+
+SELECT MAX([Date]), MIN([Date]) FROM LondonGeneralhealth lg
+
+
+SELECT * FROM [LondonLong-termHealthProblem] llthp 
+
+SELECT MAX([Date]), MIN([Date]) FROM [LondonLong-termHealthProblem] llthp
