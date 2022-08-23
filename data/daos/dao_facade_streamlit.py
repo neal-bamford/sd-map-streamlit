@@ -84,31 +84,31 @@ def ethnicity_ratio_average_years(db_conn, search_term):
 ### Education
 ###
 @st.cache(hash_funcs={pyodbc.Connection: hash_db_conn})
-def education_ratio_by_borough_years(db_conn):
-  return dat_dao.education_ratio_by_borough_years(db_conn)
+def education_ratio_by_borough_years(db_conn, search_term):
+  return dat_dao.education_ratio_by_borough_years(db_conn, search_term)
   
 @st.cache(hash_funcs={pyodbc.Connection: hash_db_conn})
 def education_ratio_by_borough_ward_years(db_conn, search_term):
   return dat_dao.education_ratio_by_borough_ward_years(db_conn, search_term)
 
 @st.cache(hash_funcs={pyodbc.Connection: hash_db_conn})
-def education_ratio_average_years(db_conn):
-    return dat_dao.education_ratio_average_years(db_conn)
+def education_ratio_average_years(db_conn, search_term):
+    return dat_dao.education_ratio_average_years(db_conn, search_term)
 
 ###
 ### General Health
 ###
 @st.cache(hash_funcs={pyodbc.Connection: hash_db_conn})
-def general_health_ratio_by_borough_years(db_conn):
-  return dat_dao.general_health_ratio_by_borough_years(db_conn)
+def general_health_ratio_by_borough_years(db_conn, search_term):
+  return dat_dao.general_health_ratio_by_borough_years(db_conn, search_term)
 
 @st.cache(hash_funcs={pyodbc.Connection: hash_db_conn})
 def general_health_ratio_by_borough_ward_years(db_conn, search_term):
   return dat_dao.general_health_ratio_by_borough_ward_years(db_conn, search_term)
 
 @st.cache(hash_funcs={pyodbc.Connection: hash_db_conn})
-def general_health_ratio_average_years(db_conn):
-  return dat_dao.general_health_ratio_average_years(db_conn)  
+def general_health_ratio_average_years(db_conn, search_term):
+  return dat_dao.general_health_ratio_average_years(db_conn, search_term)  
 
 @st.cache(hash_funcs={pyodbc.Connection: hash_db_conn})
 def city_yearly_population(db_conn, search_term):
@@ -125,3 +125,11 @@ def city_boroughs_wards_postcodes(db_conn, search_term):
 @st.cache(hash_funcs={pyodbc.Connection: hash_db_conn})
 def ethnicity_min_max_year(db_conn):
   return dat_dao.ethnicity_min_max_year(db_conn)  
+
+@st.cache(hash_funcs={pyodbc.Connection: hash_db_conn})
+def general_health_min_max_year(db_conn):
+  return dat_dao.general_health_min_max_year(db_conn)  
+
+@st.cache(hash_funcs={pyodbc.Connection: hash_db_conn})
+def qualifications_min_max_year(db_conn):
+  return dat_dao.qualifications_min_max_year(db_conn)  

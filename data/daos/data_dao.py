@@ -18,9 +18,9 @@ def crime_min_max_year(db_conn):
 ---
 --- CRIME - MIN MAX YEAR
 ---
-SELECT DISTINCT CAST(LEFT(MAX([DATE]), 4) AS int) AS [MAX_YEAR]
-              , CAST(LEFT(MIN([DATE]), 4) AS int) AS [MIN_YEAR]
-FROM LONDON_CRIME_LDS LCLDS
+SELECT DISTINCT CAST(LEFT(MAX([LCLDS].[DATE]), 4) AS int) AS [MAX_YEAR]
+              , CAST(LEFT(MIN([LCLDS].[DATE]), 4) AS int) AS [MIN_YEAR]
+FROM LONDON_CRIME_LDS AS [LCLDS]
 """  
 
   crime_min_max_year_df = pd.read_sql_query(crime_min_max_year_sql, db_conn, index_col=None)
@@ -388,9 +388,12 @@ def ethnicity_ratio_average_years(db_conn, search_term):
 ###
 ### EDUCATION - BOROUGH
 ###
-def education_ratio_by_borough_years(db_conn):
+def education_ratio_by_borough_years(db_conn, search_term):
   logging.debug("education_ratio_by_borough_years")
 
+  # year_from = search_term["year_from"]
+  year_to   = search_term["year_to"]
+  
   education_by_borough_year_sql = """
   ---
   --- EDUCATION - BOROUGH
@@ -432,11 +435,12 @@ def education_ratio_by_borough_years(db_conn):
          SUM([SEB].[FTStudents18aboveinEmp])  /SUM([SEB].[All]) AS [FT Student 18+ Employed],	
          SUM([SEB].[FTStudents18aboveinUnemp])/SUM([SEB].[All]) AS [FT Student 18+ Unemployed]
   FROM [SUMMED_EDUCATION_BOROUGH] AS [SEB]
+  WHERE   [SEB].[YEAR] = {}
   GROUP BY [SEB].[YEAR],
            [SEB].[LAD], 
            [SEB].[LAD_NAME]
   ORDER BY [YEAR] DESC, [LAD_NAME] ASC
-"""
+""".format(year_to)
   
   education_ratio_by_borough_year_df = pd.read_sql_query(education_by_borough_year_sql, db_conn, index_col=None)
   return education_ratio_by_borough_year_df
@@ -447,6 +451,8 @@ def education_ratio_by_borough_years(db_conn):
 def education_ratio_by_borough_ward_years(db_conn, search_term):
   logging.debug("education_ratio_by_borough_ward_years")
 
+  # year_from = search_term["year_from"]
+  year_to   = search_term["year_to"]
   borough = search_term["borough"]
   ward_name = search_term["ward_name"]
   
@@ -521,11 +527,12 @@ def education_ratio_by_borough_ward_years(db_conn, search_term):
          [BER].[FT_STUDENTS_18_ABOVE_IN_EMP_RATIO]   AS [FT Student 18+ Employed],	
          [BER].[FT_STUDENTS_18_ABOVE_IN_UNEMP_RATIO] AS [FT Student 18+ Unemployed]
   FROM [BOROUGH_EDUCATION_RATIO] AS [BER]
-  WHERE  [LAD_NAME] = '{}' AND [WARD_NAME] = '{}' 
+  WHERE  [LAD_NAME] = '{}' AND [WARD_NAME] = '{}'
+  AND    [BER].[YEAR] = {}   
   ORDER BY [BER].[YEAR],
            [BER].[LAD_NAME], 
            [BER].[WARD_NAME]
-""".format(borough, ward_name)
+""".format(borough, ward_name, year_to)
   
   education_ratio_by_borough_ward_year_df = pd.read_sql_query(education_by_borough_ward_year_sql, db_conn, index_col=None)
   return education_ratio_by_borough_ward_year_df
@@ -533,8 +540,11 @@ def education_ratio_by_borough_ward_years(db_conn, search_term):
 ### 
 ### EDUCATION - AVERAGE
 ###
-def education_ratio_average_years(db_conn):
+def education_ratio_average_years(db_conn, search_term):
   logging.debug("education_ratio_average_years")
+  
+  # year_from = search_term["year_from"]
+  year_to   = search_term["year_to"]
 
   education_ratio_average_years_sql = """
   ---
@@ -605,9 +615,10 @@ def education_ratio_average_years(db_conn):
          AVG([GEW].[FT_STUDENTS_18_ABOVE_IN_EMP_RATIO])   AS [FT Student 18+ Employed],	
          AVG([GEW].[FT_STUDENTS_18_ABOVE_IN_UNEMP_RATIO]) AS [FT Student 18+ Unemployed]
   FROM [GROUPED_EDUCATION_WARD]                           AS [GEW]
+  WHERE [GEW].[YEAR] = {}
   GROUP BY [GEW].[YEAR]
   ORDER BY [GEW].[YEAR] DESC;         
-"""
+""".format(year_to)
   
   education_ratio_average_years_df = pd.read_sql_query(education_ratio_average_years_sql, db_conn, index_col=None)
   return education_ratio_average_years_df
@@ -616,8 +627,11 @@ def education_ratio_average_years(db_conn):
 ###
 ### GENERAL_HEALTH - BOROUGH
 ###
-def general_health_ratio_by_borough_years(db_conn):
+def general_health_ratio_by_borough_years(db_conn, search_term):
   logging.debug("genearl_health_ratio_by_borough_years")
+
+  # year_from = search_term["year_from"]
+  year_to = search_term["year_to"]
 
   general_health_by_borough_year_sql = """
   ---
@@ -648,11 +662,12 @@ def general_health_ratio_by_borough_years(db_conn):
          ROUND(SUM([SGHB].[Level_5]) /SUM([SGHB].[All]),4)   AS [Bad],
          ROUND(SUM([SGHB].[Level_6]) /SUM([SGHB].[All]),4)   AS [Very Bad]
   FROM [SUMMED_GENERAL_HEALTH_BOROUGH] AS [SGHB]
+  WHERE [SGHB].[YEAR] = {}
   GROUP BY [SGHB].[YEAR],
            [SGHB].[LAD], 
            [SGHB].[LAD_NAME]
   ORDER BY [YEAR] DESC, [LAD_NAME] ASC
-  """
+  """.format(year_to)
   
   general_health_ratio_by_borough_year_df = pd.read_sql_query(general_health_by_borough_year_sql, db_conn, index_col=None)
   return general_health_ratio_by_borough_year_df
@@ -663,6 +678,8 @@ def general_health_ratio_by_borough_years(db_conn):
 def general_health_ratio_by_borough_ward_years(db_conn, search_term):
   logging.debug("general_health_ratio_by_borough_ward_years")
 
+  # year_from = search_term["year_from"]
+  year_to   = search_term["year_to"]
   borough = search_term["borough"]
   ward_name = search_term["ward_name"]
   
@@ -702,9 +719,10 @@ def general_health_ratio_by_borough_ward_years(db_conn, search_term):
          SUM([SGHB].[Level_6]) /SUM([SGHB].[All])              AS [Very Bad]
   FROM [SUMMED_GENERAL_HEALTH_BOROUGH] AS [SGHB]
   WHERE  [LAD_NAME] = '{}' AND [WARD_NAME] = '{}' 
+  AND    [SGHB].[YEAR] = {}
   GROUP BY [YEAR], [LAD], [LAD_NAME], [WARD_CODE], [WARD_NAME]
   ORDER BY [YEAR] DESC, [LAD_NAME] ASC
-""".format(borough, ward_name)
+""".format(borough, ward_name, year_to)
 
   general_health_ratio_by_borough_ward_year_df = pd.read_sql_query(general_health_by_borough_ward_year_sql, db_conn, index_col=None)
   return general_health_ratio_by_borough_ward_year_df
@@ -712,8 +730,11 @@ def general_health_ratio_by_borough_ward_years(db_conn, search_term):
 ### 
 ### GENERAL_HEALTH - AVERAGE
 ###
-def general_health_ratio_average_years(db_conn):
+def general_health_ratio_average_years(db_conn, search_term):
   logging.debug("general_health_ratio_average_years")
+
+  # year_from = search_term["year_from"]
+  year_to   = search_term["year_to"]
 
   general_health_ratio_average_years_sql = """
   ---
@@ -740,8 +761,7 @@ def general_health_ratio_average_years(db_conn):
         [LOOKUP_LAD_OA]                               AS [LU_LAD_OA],
         [LOOKUP_WARD_CODE_OA]                         AS [LU_WARD_OA]
   WHERE [LGENH].[OAcode] = [LU_LAD_OA].[OA]
-  AND   [LU_LAD_OA].[OA] = [LU_WARD_OA].[OA]
-  ) 
+  AND   [LU_LAD_OA].[OA] = [LU_WARD_OA].[OA])
   SELECT [SGHB].[YEAR]                                AS [YEAR],
          AVG([SGHB].[Level_2] /[SGHB].[All])          AS [Very Good],
          AVG([SGHB].[Level_3] /[SGHB].[All])          AS [Good],
@@ -749,9 +769,10 @@ def general_health_ratio_average_years(db_conn):
          AVG([SGHB].[Level_5] /[SGHB].[All])          AS [Bad],
          AVG([SGHB].[Level_6] /[SGHB].[All])          AS [Very Bad]
   FROM [SUMMED_GENERAL_HEALTH_BOROUGH] AS [SGHB]
+  WHERE [SGHB].[YEAR] = {}
   GROUP BY [YEAR]
   ORDER BY [YEAR] DESC
-"""
+""".format(year_to)
   
   general_health_ratio_average_years_df = pd.read_sql_query(general_health_ratio_average_years_sql, db_conn, index_col=None)
   return general_health_ratio_average_years_df
@@ -837,10 +858,52 @@ def ethnicity_min_max_year(db_conn):
 ---
 --- ETHNICITY - MIN MAX YEAR
 ---
-SELECT DISTINCT CAST(MAX([YEAR]) AS int) AS [MAX_YEAR]
-              , CAST(MIN([YEAR]) AS int) AS [MIN_YEAR]
-FROM LondonEthnicity  [LCLDS]
+SELECT DISTINCT CAST(MAX([LCLDS].[YEAR]) AS int) AS [MAX_YEAR]
+              , CAST(MIN([LCLDS].[YEAR]) AS int) AS [MIN_YEAR]
+FROM LondonEthnicity AS [LCLDS]
 """  
 
   ethnicity_min_max_year_df = pd.read_sql_query(ethnicity_min_max_year_sql, db_conn, index_col=None)
   return ethnicity_min_max_year_df
+
+
+###
+### GENERAL HEALTH - MIN MAX YEAR
+###
+def general_health_min_max_year(db_conn):
+  logging.debug("Retrieving general health min max year")
+  
+  general_health_min_max_year_sql = """
+---
+--- GENERAL HEALTH - MIN MAX YEAR
+---
+SELECT DISTINCT MAX(CAST(LEFT([LGH].[Date],4) AS int)) AS [MAX_YEAR]
+              , MIN(CAST(LEFT([LGH].[Date],4) AS int)) AS [MIN_YEAR]
+FROM LondonGeneralhealth  AS [LGH]
+"""  
+
+  general_health_min_max_year_df = pd.read_sql_query(general_health_min_max_year_sql, db_conn, index_col=None)
+  return general_health_min_max_year_df
+
+
+
+
+###
+### QUALIFICATIONS - MIN MAX YEAR
+###
+def qualifications_min_max_year(db_conn):
+  logging.debug("Retrieving qualifications min max year")
+  
+  qualifications_min_max_year_sql = """
+---
+--- QUALIFICATIONS - MIN MAX YEAR
+---
+SELECT CAST(MAX([LQUAL].[DATE]) AS int) AS [MAX_YEAR]
+     , CAST(MIN([LQUAL].[DATE]) AS int) AS [MIN_YEAR]
+FROM LondonQualification  AS [LQUAL]
+"""  
+
+  qualifications_min_max_year_df = pd.read_sql_query(qualifications_min_max_year_sql, db_conn, index_col=None)
+  return qualifications_min_max_year_df
+
+

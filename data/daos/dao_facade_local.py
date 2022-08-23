@@ -84,31 +84,31 @@ def ethnicity_ratio_average_years(db_conn, search_term):
 ### Education
 ###
 @cache.memoize()
-def education_ratio_by_borough_years(db_conn):
-  return dat_dao.education_ratio_by_borough_years(db_conn)
+def education_ratio_by_borough_years(db_conn, search_term):
+  return dat_dao.education_ratio_by_borough_years(db_conn, search_term)
   
 @cache.memoize()
 def education_ratio_by_borough_ward_years(db_conn, search_term):
   return dat_dao.education_ratio_by_borough_ward_years(db_conn, search_term)
 
 @cache.memoize()
-def education_ratio_average_years(db_conn):
-    return dat_dao.education_ratio_average_years(db_conn)
+def education_ratio_average_years(db_conn, search_term):
+    return dat_dao.education_ratio_average_years(db_conn, search_term)
 
 ###
 ### General Health
 ###
 @cache.memoize()
-def general_health_ratio_by_borough_years(db_conn):
-  return dat_dao.general_health_ratio_by_borough_years(db_conn)
+def general_health_ratio_by_borough_years(db_conn, search_term):
+  return dat_dao.general_health_ratio_by_borough_years(db_conn, search_term)
 
 @cache.memoize()
 def general_health_ratio_by_borough_ward_years(db_conn, search_term):
   return dat_dao.general_health_ratio_by_borough_ward_years(db_conn, search_term)
 
 @cache.memoize()
-def general_health_ratio_average_years(db_conn):
-  return dat_dao.general_health_ratio_average_years(db_conn)
+def general_health_ratio_average_years(db_conn, search_term):
+  return dat_dao.general_health_ratio_average_years(db_conn, search_term)
 
 @cache.memoize()
 def city_yearly_population(db_conn, search_term):
@@ -125,3 +125,11 @@ def city_boroughs_wards_postcodes(db_conn, search_term):
 @cache.memoize()
 def ethnicity_min_max_year(db_conn):
   return dat_dao.ethnicity_min_max_year(db_conn)  
+
+@cache.memoize()
+def general_health_min_max_year(db_conn):
+  return dat_dao.general_health_min_max_year(db_conn)  
+
+@cache.memoize()
+def qualifications_min_max_year(db_conn):
+  return dat_dao.qualifications_min_max_year(db_conn)  
