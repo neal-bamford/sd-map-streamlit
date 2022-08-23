@@ -62,8 +62,8 @@ def crime_major_category_in_borough_years(db_conn, search_term):
 ### Earnings
 ###
 @cache.memoize()    
-def earnings_ranked_by_borough_years(db_conn):    
-  return dat_dao.earnings_ranked_by_borough_years(db_conn)
+def earnings_ranked_by_borough_years(db_conn, search_term):    
+  return dat_dao.earnings_ranked_by_borough_years(db_conn, search_term)
   
 ###
 ### Ethnicity
@@ -133,3 +133,8 @@ def general_health_min_max_year(db_conn):
 @cache.memoize()
 def qualifications_min_max_year(db_conn):
   return dat_dao.qualifications_min_max_year(db_conn)  
+
+@cache.memoize()
+def earnings_min_max_year(db_conn):
+  return dat_dao.earnings_min_max_year(db_conn)  
+

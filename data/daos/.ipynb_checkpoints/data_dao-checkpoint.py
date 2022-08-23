@@ -158,6 +158,9 @@ ORDER BY [NBYMCRTF].[YEAR] DESC
 def earnings_ranked_by_borough_years(db_conn, search_term):
   logging.debug("Retrieving Crime Ranked By Borough Years")
   
+  year_from = search_term["year_from"]
+  year_to   = search_term["year_to"]
+  
   earnings_ranked_by_borough_years_sql = """
 ---
 --- INCOME - RANKED BY BOROUGH - ALL YEARS
@@ -179,8 +182,10 @@ SELECT [REL].[YEAR]                         AS [YEAR]
      , [REL].[MEAN_INCOME_GBP_BOROUGH]      AS [MEAN_INCOME_GBP_BOROUGH]
      , [REL].[MEAN_INCOME_ACTUAL_ESTIMATED] AS [MEAN_INCOME_ACTUAL_ESTIMATED]
 FROM RANKED_EARNINGS_LONDON_ONS REL
+WHERE [REL].[YEAR] BETWEEN {} AND {}
 ORDER BY [YEAR] DESC, [RANK] ASC
-"""
+""".format(year_from, year_to)
+  
   earnings_ranked_by_borough_year_df = pd.read_sql_query(earnings_ranked_by_borough_years_sql, db_conn, index_col=None)
   return earnings_ranked_by_borough_year_df
 
@@ -905,3 +910,23 @@ FROM LondonQualification  AS [LQUAL]
 
   qualifications_min_max_year_df = pd.read_sql_query(qualifications_min_max_year_sql, db_conn, index_col=None)
   return qualifications_min_max_year_df
+
+
+
+###
+### EARNINGS - MIN MAX YEAR
+###
+def earnings_min_max_year(db_conn):
+  logging.debug("Retrieving earnings min max year")
+  
+  earnings_min_max_year_sql = """
+---
+--- EARNINGS - MIN MAX YEAR
+---
+SELECT DISTINCT MAX(CAST([LEO].[Date] AS int)) AS [MAX_YEAR]
+              , MIN(CAST([LEO].[Date] AS int)) AS [MIN_YEAR]
+FROM LONDON_EARNINGS_ON  AS [LEO]
+"""  
+
+  earnings_min_max_year_df = pd.read_sql_query(earnings_min_max_year_sql, db_conn, index_col=None)
+  return earnings_min_max_year_df
