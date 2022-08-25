@@ -185,9 +185,8 @@ def include_table(data, shading=None, style=None, columns=None):
 
     ## Add any table style - the table style MUST exist in the word doc being used
     if style != None:
-      for style in document_styles:
-        log.debug(style.name)
-
+      # for style in document_styles:
+        # log.debug(style.name)
       dataframe_table.style = style
         
 

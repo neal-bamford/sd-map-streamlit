@@ -281,41 +281,8 @@ def generate_report_section(session_id
   ## Loop through each row in the dataframe to build up a cell shading list of lists    
   education_ranking_table_cell_shading = []
   education_ranking_table_cell.apply(lambda row: education_ranking_cell_shading(row, education_ranking_table_cell_shading), axis=1)
-  log.debug(education_ranking_table_cell_shading)
-  
-  ### 
-  ### DELETE START
-  ###
-  # education_ward_borough_city_pct_name_merged_df_html
-    
-  # def format_ranking_row(row):
-  #     ## Borough to City Check
-  #     ward_val    = row.iloc[0].split(' - [')[0].strip()
-  #     borough_val = row.iloc[1].split(' - [')[0].strip()
-  #     city_val    = row.iloc[2].split(' - [')[0].strip()
-  #     # log.debug(f"{ward_val}-{borough_val}-{city_val}")
-  #
-  #     ward_val_cell_col = "" if ward_val     == city_val else "background-color: #EAFAF1" if ward_val == borough_val else "background-color: #D5F5E3"
-  #     borough_val_col   = "" if borough_val  == city_val else "background-color: #EAFAF1"
-  #     # log.debug(r[1])
-  #     return [ward_val_cell_col] + [borough_val_col] + [""]
-    
-  
-  # from IPython.display import HTML
-  # styles = [
-  #   dict(selector="tr", props=[("font-size", "110%"),
-  #                              ("text-align", "right")])
-  # ]
-  
-  # education_ward_borough_city_pct_ranked_merged_df_html = (education_ranking_table_cell.style.set_table_styles(styles).apply(format_ranking_row, axis=1))
-  
-  # education_ranking_display_table_file_name = "{}/{}_education_ranking_display_table_{}_{}_{}.png".format(save_image_path, session_id, city, borough, ward_name) 
-  # mlib.save_df(education_ward_borough_city_pct_ranked_merged_df_html, education_ranking_display_table_file_name, save_artefacts=True)
-  # report_context["education_ranking_display_table"] = education_ranking_display_table_file_name
-  ### 
-  ### DELETE END
-  ###
-  
+  # log.debug(education_ranking_table_cell_shading)
+ 
   #
   ##
   ### ADD ITEM TO REPORT CONTEXT
@@ -435,20 +402,6 @@ def generate_report_section(session_id
                               "#AF7AC5"
   
       cell_shading.append(["", ward_val_cell_col, borough_val_col, ""])
-
-      # return cell_shading.append([ward_val_cell_col, borough_val_col, ""])
-  
-  
-  # from IPython.display import HTML
-  # styles = [
-  #   dict(selector="tr", props=[("font-size", "110%"),
-  #                              ("text-align", "right")])
-  # ]
-  
-  # education_ward_borough_city_pct_name_merged_df_html = (education_comparison_table.style.set_table_styles(styles).apply(format_pct_row, axis=1))
-  # education_comparison_display_table_file_name = "{}/{}_education_comparison_display_table_{}_{}_{}.png".format(save_image_path, session_id, city, borough, ward_name) 
-  # mlib.save_df(education_ward_borough_city_pct_name_merged_df_html, education_comparison_display_table_file_name, save_artefacts=True)
-  # report_context["educataion_comparison_display_table"] = education_comparison_display_table_file_name
 
   education_comparison_table_shading = []
   education_comparison_table.apply(lambda row: education_comparison_cell_shading(row, education_comparison_table_shading), axis=1)
