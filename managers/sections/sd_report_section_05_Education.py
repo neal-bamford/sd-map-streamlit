@@ -94,12 +94,19 @@ def generate_report_section(session_id
                               (education_year_to <= education_year_to)) else "outside"
   
   education_search_range = f"of {education_year_from_orig} to {education_year_to_orig}" if education_year_from_orig != education_year_to_orig else f"{education_year_to_orig}"
-  education_narrative_search_criters = f"Using the latest qualifications data from {education_year_to} which is {education_in_not_in} your search range {education_search_range}"
+  education_narrative_search_criteria = f"Using the latest qualifications data from {education_year_to} which is {education_in_not_in} your search range {education_search_range}"
   
-  education_narrative_01 = f"{education_narrative_search_criters}. The table below ranks qualifications in {ward_name}, {borough} and {city}. " + \
+  education_narrative_01 = f"{education_narrative_search_criteria}. The table {{}} ranks qualifications in {ward_name}, {borough} and {city}. " + \
   "The ranking is highest to lowest percentage from top to bottom. Where there is a difference in qualification the cell is shaded, a darker " + \
   "shade denotes a difference between borough and ward. Values in [] give the percentage value."  
 
+  #
+  ##
+  ### ADD ITEM TO REPORT CONTEXT
+  ##
+  #
+
+  report_context["education_narrative_01"] = education_narrative_01
 
   ## Borough & Ward
   education_borough_ward_for_year = education_by_borough_ward_year_df.copy()
@@ -148,14 +155,14 @@ def generate_report_section(session_id
       education_city_pct_sorted.append(education_name_pct_fmt)
   
   education_ward_borough_city_pct_ranked_merged = [education_ward_pct_sorted, education_borough_pct_sorted, education_city_pct_sorted]
-  education_ward_borough_city_pct_ranked_merged_df = pd.DataFrame(data=education_ward_borough_city_pct_ranked_merged)
+  education_ranking_table_cell = pd.DataFrame(data=education_ward_borough_city_pct_ranked_merged)
   
   ## Rotate 
-  education_ward_borough_city_pct_ranked_merged_df = education_ward_borough_city_pct_ranked_merged_df.T
-  education_ward_borough_city_pct_ranked_merged_df.columns = [f"{ward_name}",f"{borough}",f"{city}"]
-  education_ward_borough_city_pct_ranked_merged_df.index   = [str(rank) for rank in range(1, len(education_ward_borough_city_pct_ranked_merged_df.index)+1)]
+  education_ranking_table_cell = education_ranking_table_cell.T
+  education_ranking_table_cell.columns = [f"{ward_name}",f"{borough}",f"{city}"]
+  education_ranking_table_cell.index   = [str(rank) for rank in range(1, len(education_ranking_table_cell.index)+1)]
   
-  education_ward_borough_city_pct_ranked_merged_df
+  education_ranking_table_cell
   
   ##
   ##
@@ -166,19 +173,19 @@ def generate_report_section(session_id
   
   
   ## Level 4 - top 2 then high
-  level_4_education_ward_top_2    = "Level 4" in str(education_ward_borough_city_pct_ranked_merged_df[0:2][ward_name])
-  level_4_education_borough_top_2 = "Level 4" in str(education_ward_borough_city_pct_ranked_merged_df[0:2][borough])
-  level_4_education_city_top_2 = "Level 4" in str(education_ward_borough_city_pct_ranked_merged_df[0:2][city])
+  level_4_education_ward_top_2    = "Level 4" in str(education_ranking_table_cell[0:2][ward_name])
+  level_4_education_borough_top_2 = "Level 4" in str(education_ranking_table_cell[0:2][borough])
+  level_4_education_city_top_2 = "Level 4" in str(education_ranking_table_cell[0:2][city])
   
   ## None    - top 4 then high
-  none_education_ward_top_4     = "None" in str(education_ward_borough_city_pct_ranked_merged_df[0:4][ward_name])
-  none_education_borough_top_4  = "None" in str(education_ward_borough_city_pct_ranked_merged_df[0:4][borough])
-  none_education_city_top_4  = "None" in str(education_ward_borough_city_pct_ranked_merged_df[0:4][city])
+  none_education_ward_top_4     = "None" in str(education_ranking_table_cell[0:4][ward_name])
+  none_education_borough_top_4  = "None" in str(education_ranking_table_cell[0:4][borough])
+  none_education_city_top_4  = "None" in str(education_ranking_table_cell[0:4][city])
   
   ## FT Student 18+ top 3 then post school student area
-  student_education_ward_top_3     = "FT Student 18+" in str(education_ward_borough_city_pct_ranked_merged_df[0:3][ward_name])
-  student_education_borough_top_3  = "FT Student 18+" in str(education_ward_borough_city_pct_ranked_merged_df[0:3][borough])
-  student_education_city_top_3  = "FT Student 18+" in str(education_ward_borough_city_pct_ranked_merged_df[0:3][city])
+  student_education_ward_top_3     = "FT Student 18+" in str(education_ranking_table_cell[0:3][ward_name])
+  student_education_borough_top_3  = "FT Student 18+" in str(education_ranking_table_cell[0:3][borough])
+  student_education_city_top_3  = "FT Student 18+" in str(education_ranking_table_cell[0:3][city])
   
   ## Build the narrative
   
@@ -213,12 +220,18 @@ def generate_report_section(session_id
   student_area         = "" if (not student_education_ward_top_3 and not student_education_borough_top_3) \
                             else f"{student_area_both_01} have high levels of full time 18+ students. Indicating that {student_area_both_02} student area{student_area_both_03}."
   
-  education_narrative_01 = f"For the borough {borough} and ward {ward_name}, the Level 4 education level (post secondary school including university) " + \
+  education_narrative_03 = f"For the borough {borough} and ward {ward_name}, the Level 4 education level (post secondary school including university) " + \
                            f"is{level_4_high} high, which is {level_4_high_similar} at the borough level." + \
                            f" Levels of no education (None) is {none_high_ward} for the ward {none_also} at the borough level{none_high_borough}." + \
                            f"{student_area}"
 
-  report_context["education_narrative_01"] = education_narrative_01
+  #
+  ##
+  ### ADD ITEM TO REPORT CONTEXT
+  ##
+  #
+
+  report_context["education_narrative_03"] = education_narrative_03
   
   ##
   ##
@@ -228,7 +241,7 @@ def generate_report_section(session_id
   ## 1 == shade 1 change
   ## 2 == shade 2 change
   
-  for index, row in education_ward_borough_city_pct_ranked_merged_df.iterrows():
+  for index, row in education_ranking_table_cell.iterrows():
       colour_change_row =[]
       
       ## Borough to City Check
@@ -246,33 +259,75 @@ def generate_report_section(session_id
       colour_change_row.append(cityl_col)
       colour_change.append(colour_change_row)
   
-  def format_ranking_row(row):
+  ## Shades the ward_borough_city comparison table
+  def education_ranking_cell_shading(row, cell_shading):
+    
       ## Borough to City Check
       ward_val    = row.iloc[0].split(' - [')[0].strip()
       borough_val = row.iloc[1].split(' - [')[0].strip()
       city_val    = row.iloc[2].split(' - [')[0].strip()
       # log.debug(f"{ward_val}-{borough_val}-{city_val}")
   
-      ward_val_cell_col = "" if ward_val     == city_val else "background-color: #EAFAF1" if ward_val == borough_val else "background-color: #D5F5E3"
-      borough_val_col   = "" if borough_val  == city_val else "background-color: #EAFAF1"
+      ward_val_cell_col = "" if ward_val     == city_val else "#EAFAF1" if ward_val == borough_val else "#D5F5E3"
+      borough_val_col   = "" if borough_val  == city_val else "#EAFAF1"
       # log.debug(r[1])
-      return [ward_val_cell_col] + [borough_val_col] + [""]
+      
+      ## No index column, just ward and borough
+      cell_shading.append([ward_val_cell_col, borough_val_col, ""])
+      
+      # return cell_shading
+    
+    
+  ## Loop through each row in the dataframe to build up a cell shading list of lists    
+  education_ranking_table_cell_shading = []
+  education_ranking_table_cell.apply(lambda row: education_ranking_cell_shading(row, education_ranking_table_cell_shading), axis=1)
+  log.debug(education_ranking_table_cell_shading)
   
+  ### 
+  ### DELETE START
+  ###
+  # education_ward_borough_city_pct_name_merged_df_html
+    
+  # def format_ranking_row(row):
+  #     ## Borough to City Check
+  #     ward_val    = row.iloc[0].split(' - [')[0].strip()
+  #     borough_val = row.iloc[1].split(' - [')[0].strip()
+  #     city_val    = row.iloc[2].split(' - [')[0].strip()
+  #     # log.debug(f"{ward_val}-{borough_val}-{city_val}")
+  #
+  #     ward_val_cell_col = "" if ward_val     == city_val else "background-color: #EAFAF1" if ward_val == borough_val else "background-color: #D5F5E3"
+  #     borough_val_col   = "" if borough_val  == city_val else "background-color: #EAFAF1"
+  #     # log.debug(r[1])
+  #     return [ward_val_cell_col] + [borough_val_col] + [""]
+    
   
-  from IPython.display import HTML
-  styles = [
-    dict(selector="tr", props=[("font-size", "110%"),
-                               ("text-align", "right")])
-  ]
+  # from IPython.display import HTML
+  # styles = [
+  #   dict(selector="tr", props=[("font-size", "110%"),
+  #                              ("text-align", "right")])
+  # ]
   
-  education_ward_borough_city_pct_ranked_merged_df_html = (education_ward_borough_city_pct_ranked_merged_df.style.set_table_styles(styles).apply(format_ranking_row, axis=1))
+  # education_ward_borough_city_pct_ranked_merged_df_html = (education_ranking_table_cell.style.set_table_styles(styles).apply(format_ranking_row, axis=1))
   
-  education_ranking_display_table_file_name = "{}/{}_education_ranking_display_table_{}_{}_{}.png".format(save_image_path, session_id, city, borough, ward_name) 
-  mlib.save_df(education_ward_borough_city_pct_ranked_merged_df_html, education_ranking_display_table_file_name, save_artefacts=True)
-  report_context["education_ranking_display_table"] = education_ranking_display_table_file_name
-
+  # education_ranking_display_table_file_name = "{}/{}_education_ranking_display_table_{}_{}_{}.png".format(save_image_path, session_id, city, borough, ward_name) 
+  # mlib.save_df(education_ward_borough_city_pct_ranked_merged_df_html, education_ranking_display_table_file_name, save_artefacts=True)
+  # report_context["education_ranking_display_table"] = education_ranking_display_table_file_name
+  ### 
+  ### DELETE END
+  ###
+  
+  #
   ##
-  ##  
+  ### ADD ITEM TO REPORT CONTEXT
+  ##
+  #
+
+  ## ADD DATAFRAME
+  report_context["education_ranking_table"] = education_ranking_table_cell
+  ## ADD DATAFRAME SHADING
+  report_context["education_ranking_table_shading"] = education_ranking_table_cell_shading
+
+
 
   education_borough_ward_for_year_name_sorted = education_borough_ward_for_year.sort_index(ascending=True)
   education_borough_for_year_name_sorted      = education_borough_for_year.sort_index(ascending=True)
@@ -305,62 +360,66 @@ def generate_report_section(session_id
       education_city_name_sorted.append(education_pct_fmt)
   
   education_ward_borough_city_pct_name_merged = [education_ward_name_sorted, education_borough_name_sorted, education_city_name_sorted]
-  education_ward_borough_city_pct_name_merged_df = pd.DataFrame(data=education_ward_borough_city_pct_name_merged)
+  education_comparison_table = pd.DataFrame(data=education_ward_borough_city_pct_name_merged)
   
   ## Rotate 
-  education_ward_borough_city_pct_name_merged_df = education_ward_borough_city_pct_name_merged_df.T
-  education_ward_borough_city_pct_name_merged_df.columns = [f"{ward_name}",f"{borough}",f"{city}"]
-  education_ward_borough_city_pct_name_merged_df.index   = education_borough_ward_for_year_name_sorted.index
+  education_comparison_table = education_comparison_table.T
+  education_comparison_table.columns = [f"{ward_name}",f"{borough}",f"{city}"]
+  education_comparison_table.index   = education_borough_ward_for_year_name_sorted.index
+  ## Copy the index to the level
+  education_comparison_table["Level"] = education_comparison_table.index
   
-  education_ward_borough_city_pct_name_merged_df
+  ## Reorder the columns
+  education_comparison_table = education_comparison_table[["Level", f"{ward_name}",f"{borough}",f"{city}"]]
+  # education_comparison_table
   
   ##
   ##
   
-  def format_pct_row(row):
+  def education_comparison_cell_shading(row, cell_shading):
       
       # log.debug(f"index:{row.name}")
       
       ## Borough to City 
       # name        = row.name
-      ward_val    = float(row.iloc[0].split("%")[0].strip())
-      borough_val = float(row.iloc[1].split("%")[0].strip())
-      city_val    = float(row.iloc[2].split("%")[0].strip())
+      ward_val    = float(row.iloc[1].split("%")[0].strip())
+      borough_val = float(row.iloc[2].split("%")[0].strip())
+      city_val    = float(row.iloc[3].split("%")[0].strip())
       
       ## It's more than the city so should be green
       if ward_val >= city_val:
           # log.debug("Ward more so Green")
           diff = ward_val - city_val
-          ward_val_cell_col = ""                          if (diff) < 1.0 else \
-                              "background-color: #EAFAF1" if (diff) < 2.0 else \
-                              "background-color: #D5F5E3" if (diff) < 3.0 else \
-                              "background-color: #ABEBC6" if (diff) < 4.0 else \
-                              "background-color: #82E0AA" if (diff) < 5.0 else \
-                              "background-color: #58D68D"
+          ward_val_cell_col = ""        if (diff) < 1.0 else \
+                              "#EAFAF1" if (diff) < 2.0 else \
+                              "#D5F5E3" if (diff) < 3.0 else \
+                              "#ABEBC6" if (diff) < 4.0 else \
+                              "#82E0AA" if (diff) < 5.0 else \
+                              "#58D68D"
   
       ## It's less than, so should be red
       else:
           # log.debug("Ward less so Red")
           #-ve then red shades
           diff = city_val - ward_val
-          ward_val_cell_col = ""                          if (diff) < 1.0 else \
-                              "background-color: #F5EEF8" if (diff) < 2.0 else \
-                              "background-color: #EBDEF0" if (diff) < 3.0 else \
-                              "background-color: #D7BDE2" if (diff) < 4.0 else \
-                              "background-color: #C39BD3" if (diff) < 5.0 else \
-                              "background-color: #AF7AC5"
+          ward_val_cell_col = ""        if (diff) < 1.0 else \
+                              "#F5EEF8" if (diff) < 2.0 else \
+                              "#EBDEF0" if (diff) < 3.0 else \
+                              "#D7BDE2" if (diff) < 4.0 else \
+                              "#C39BD3" if (diff) < 5.0 else \
+                              "#AF7AC5"
   
       ## It's more than the city so should be green
       if borough_val >= city_val:
           # log.debug("Borough more so Green")
           #+ve then green shades
           diff = borough_val - city_val
-          borough_val_col   = ""                          if (diff) < 1.0 else \
-                              "background-color: #EAFAF1" if (diff) < 2.0 else \
-                              "background-color: #D5F5E3" if (diff) < 3.0 else \
-                              "background-color: #ABEBC6" if (diff) < 4.0 else \
-                              "background-color: #82E0AA" if (diff) < 5.0 else \
-                              "background-color: #58D68D"
+          borough_val_col   = ""        if (diff) < 1.0 else \
+                              "#EAFAF1" if (diff) < 2.0 else \
+                              "#D5F5E3" if (diff) < 3.0 else \
+                              "#ABEBC6" if (diff) < 4.0 else \
+                              "#82E0AA" if (diff) < 5.0 else \
+                              "#58D68D"
   
   
       ## It's less than, so should be red
@@ -368,34 +427,54 @@ def generate_report_section(session_id
           # log.debug("Borough less so Red")
           #-ve then red shades
           diff = city_val - borough_val
-          borough_val_col   = ""                          if (diff) < 1.0 else \
-                              "background-color: #F5EEF8" if (diff) < 2.0 else \
-                              "background-color: #EBDEF0" if (diff) < 3.0 else \
-                              "background-color: #D7BDE2" if (diff) < 4.0 else \
-                              "background-color: #C39BD3" if (diff) < 5.0 else \
-                              "background-color: #AF7AC5"
+          borough_val_col   = ""        if (diff) < 1.0 else \
+                              "#F5EEF8" if (diff) < 2.0 else \
+                              "#EBDEF0" if (diff) < 3.0 else \
+                              "#D7BDE2" if (diff) < 4.0 else \
+                              "#C39BD3" if (diff) < 5.0 else \
+                              "#AF7AC5"
   
-      return [ward_val_cell_col] + [borough_val_col] + [""]
-  
-  
-  from IPython.display import HTML
-  styles = [
-    dict(selector="tr", props=[("font-size", "110%"),
-                               ("text-align", "right")])
-  ]
-  
-  education_ward_borough_city_pct_name_merged_df_html = (education_ward_borough_city_pct_name_merged_df.style.set_table_styles(styles).apply(format_pct_row, axis=1))
-  
-  education_comparison_display_table_file_name = "{}/{}_education_comparison_display_table_{}_{}_{}.png".format(save_image_path, session_id, city, borough, ward_name) 
-  mlib.save_df(education_ward_borough_city_pct_name_merged_df_html, education_comparison_display_table_file_name, save_artefacts=True)
-  report_context["educataion_comparison_display_table"] = education_comparison_display_table_file_name
+      cell_shading.append(["", ward_val_cell_col, borough_val_col, ""])
 
+      # return cell_shading.append([ward_val_cell_col, borough_val_col, ""])
+  
+  
+  # from IPython.display import HTML
+  # styles = [
+  #   dict(selector="tr", props=[("font-size", "110%"),
+  #                              ("text-align", "right")])
+  # ]
+  
+  # education_ward_borough_city_pct_name_merged_df_html = (education_comparison_table.style.set_table_styles(styles).apply(format_pct_row, axis=1))
+  # education_comparison_display_table_file_name = "{}/{}_education_comparison_display_table_{}_{}_{}.png".format(save_image_path, session_id, city, borough, ward_name) 
+  # mlib.save_df(education_ward_borough_city_pct_name_merged_df_html, education_comparison_display_table_file_name, save_artefacts=True)
+  # report_context["educataion_comparison_display_table"] = education_comparison_display_table_file_name
+
+  education_comparison_table_shading = []
+  education_comparison_table.apply(lambda row: education_comparison_cell_shading(row, education_comparison_table_shading), axis=1)
+  # log.debug(education_comparison_table_shading)
+  
+  
+  #
+  ##
+  ### ADD ITEM TO REPORT CONTEXT
+  ##
+  #
+  report_context["education_comparison_table"] = education_comparison_table
+  report_context["education_comparison_table_shading"] = education_comparison_table_shading
+  
   ##
   ##
   
-  education_narrative_02 = f"The table below shows the percentage levels of qualifications achieved in {ward_name}, {borough} and {city} for the year {education_year_to}" + \
+  education_narrative_02 = f"The table {{}} shows the comparison of qualifications (highest to lowest) achieved in {ward_name}, {borough} and {city} for the year {education_year_to}" + \
   ". Value shading indicates a difference from the city level from 1 to 5 percent in 1 percent intervals." + \
   " The shade darkens with an increase in difference. Increases and decreases use different colours for clarity only."
+
+  #
+  ##
+  ### ADD ITEM TO REPORT CONTEXT
+  ##
+  #
 
   report_context["education_narrative_02"] = education_narrative_02
 
