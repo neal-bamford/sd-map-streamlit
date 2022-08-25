@@ -2,7 +2,7 @@ import numpy as np
 import os.path
 import pandas as pd
 import dataframe_image as dfi
-
+# import imgkit
 
 # Turns off annoying Pandas warning when setting a value across an column axis. As it's a warning and not an error
 # it's OK to set this value
@@ -246,6 +246,7 @@ def save_plot_filename(plot, filename, save_artefacts=False):
         except:
             plot.savefig(filename, dpi=100, bbox_inches = 'tight')
 
+
 def save_df(df, path, name, save_artefacts=False, max_rows=None):
     """
     Saves a dataframe to a directory, creating that directory if needed
@@ -268,3 +269,22 @@ def save_df(df, path, name, save_artefacts=False, max_rows=None):
             dfi.export(df, file_path_name, max_rows=max_rows)
         else:
             dfi.export(df, file_path_name)
+
+def save_df(df, filename, save_artefacts=False, max_rows=None):
+    """
+    Saves a dataframe to a directory, creating that directory if needed
+    Default is not to save, override by passing save_artefacts=True
+    """
+    try:
+      if save_artefacts:
+          # Remove it if it's already there
+          if os.path.isfile(filename):
+             os.remove(filename)
+          
+          # Save it
+          if max_rows is not None:
+              dfi.export(df, filename, max_rows=max_rows)
+          else:
+            dfi.export(df, filename)
+    except Exception as ex:
+      print(ex)

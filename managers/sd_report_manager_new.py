@@ -1,21 +1,25 @@
 from docx import Document
-from pathlib import Path
-from unidecode import unidecode
-from docx.shared import RGBColor
-import logging
-import mailmerge as mm
-import docx
-import os
-import json
+from docx.enum.table import WD_TABLE_ALIGNMENT
+from docx.oxml.ns import nsdecls
+from docx.oxml import parse_xml
 from docx.shared import Inches
+from docx.shared import Pt       #Helps to specify font size
+from docx.shared import RGBColor
+from docx.shared import RGBColor #Helps to specify font Color
 from fpdf import FPDF
 from lib import file_tools as ft
-from docx.shared import Pt       #Helps to specify font size
-from docx.shared import RGBColor #Helps to specify font Color
+from pathlib import Path
+from unidecode import unidecode
+
+import docx
+import json
+import logging
+import mailmerge as mm
+import os
+import pandas as pd
 
 log = logging.getLogger(__name__)
 
-from docx.enum.table import WD_TABLE_ALIGNMENT
 
 def map_alignment(alignment):
   if alignment.lower() == "center" or alignment.lower() == "centre":
@@ -27,7 +31,7 @@ def map_alignment(alignment):
   
 def clear_cell():
   """
-  
+  Clear the contents of the cell retrieved from globals[]["table_cell"]
   """
   if "table_cell" not in globals():
     log.error("Can not reference table_cell")
@@ -37,7 +41,7 @@ def clear_cell():
     
 def delete_row():
   """
-  
+  Deletes the row of the table if we choose not to add the item
   """
   if "table_cell" not in globals():
     log.error("Can not reference table_cell")
@@ -107,6 +111,90 @@ def include_error(error_content, text_alignment='left'):
     run = paragraph.add_run(error_content)
     run.font.color.rgb = RGBColor(255, 0, 0)
 
+def include_table(data, shading=None, style=None, columns=None):
+  """
+  Include a Pandas DataFrame as a Word Table
+  Apply a style to it - the style MUST exist in the template document
+  Shading as a [[],[]] list of lists ignore the columns
+  reorder the columns with columns
+  """
+  if "table_cell" not in globals():
+    log.error("Can not reference table_cell")
+  else:
+    table_cell = globals()["table_cell"]
+    
+    ## Reference available styles
+    document_styles = table_cell._parent._parent._parent.styles
+
+    ## Make a note of what's there, we need to remove it later
+    existing_paragraphs = table_cell.paragraphs
+
+    ## If we want shading then make a dataframe with the 
+    ## original data column
+    if shading != None:
+        shading_df = pd.DataFrame(shading, columns=data.columns.tolist())
+        
+    ## make a frame from the columns - should be able to re-order here too
+    if columns != None:
+        data = data[columns]
+        
+    ## Create the new table to populate with our data
+    dataframe_table = table_cell.add_table(data.shape[0]+1, data.shape[1])
+
+    ## Remove the existing paragraph so it fits properly
+    for paragraph in existing_paragraphs:
+        p = paragraph._element
+        p.getparent().remove(p)
+        p._p = p._element = None
+
+    ## Needed?
+    dataframe_table.allow_autofit = True
+    dataframe_table.autofit = True
+
+    ## Add any table style - the table style MUST exist in the word doc being used
+    if style != None:
+      for style in document_styles:
+        log.debug(style.name)
+
+      dataframe_table.style = style
+        
+
+    ## Populate the table with our dataframe
+    
+    ### add the header rows.
+    for j in range(data.shape[-1]):
+        dataframe_table.cell(0,j).text = data.columns[j]
+
+    ### add the rest of the data frame
+    for i in range(data.shape[0]):
+        for j in range(data.shape[-1]):
+            dataframe_table.cell(i+1,j).text = str(data.values[i,j])    
+
+    ## Add any cell colouring
+    if shading != None:
+        
+        ## If we want to change the columns then
+        if columns != None:
+            data = data[columns]
+            shading_df = shading_df[columns]
+        
+        ## We might have re-ordered the columns so remake the list
+        shading = shading_df.values.tolist()
+        
+        s_r_idx = 0                          # Style row index
+        for shading_row in shading:          # Style rows LOOP
+            s_c_idx = 0                      # Style cell index
+            for shading_cell in shading_row: # Style cells LOOP
+                if shading_cell:             # There's a shading in there, let's use it!
+                    ## Remove # in colour
+                    shading_cell = shading_cell.replace("#", "")
+                    ## Create the shading element and apply it
+                    shading_element = parse_xml(r'<w:shd {} w:fill="{}"/>'.format(nsdecls("w"), shading_cell))
+                    dataframe_table.rows[s_r_idx+1].cells[s_c_idx]._tc.get_or_add_tcPr().append(shading_element)
+                s_c_idx += 1
+            
+            s_r_idx += 1
+            
 def generate_report(session_id
                   , report_context
                   , properties) -> str:
