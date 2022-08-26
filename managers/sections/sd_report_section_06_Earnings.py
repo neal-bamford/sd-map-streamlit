@@ -103,11 +103,11 @@ def generate_report_section(session_id
   earnings_changed_search_s              = f" was" if earnings_year_from == earnings_year_to else \
                                            f"s were"
   
-  earnings_changed_search_date_narrative = f"Your original search date{earnings_changed_search_s} changed to match the date range of the earnings data. {earnings_changed_search_date_dates}" \
+  earnings_narrative_01 = f"Your original search date{earnings_changed_search_s} changed to match the date range of the earnings data. {earnings_changed_search_date_dates}" \
                                            if ((earnings_year_from != earnings_year_from_orig) or \
                                                (earnings_year_to   != earnings_year_to_orig)) else ""
   
-  report_context["earnings_changed_search_date_narrative"] = earnings_changed_search_date_narrative
+  report_context["earnings_narrative_01"] = earnings_narrative_01
 
   ##
   ##
@@ -157,9 +157,8 @@ def generate_report_section(session_id
   ##
   
   earnings_plot_desctiption_year_range = f"between {earnings_year_from} and {earnings_year_to}" if earnings_year_to != earnings_year_from else f"for {earnings_year_to}"
-  earnings_plot_description_narrative = f"The graph below compares the average earnings in the {city} borough of {borough} {earnings_plot_desctiption_year_range}."
- 
-  report_context["earnings_plot_description_narrative"] = earnings_plot_description_narrative
+  earnings_narrative_02 = f"The graph {{}} compares the average earnings in the {city} borough of {borough} {earnings_plot_desctiption_year_range} with the {city} maximum, minimum and average and with the country average."
+  report_context["earnings_narrative_02"] = earnings_narrative_02
   
   ##
   ##
@@ -335,9 +334,9 @@ def generate_report_section(session_id
       part_07 = f" Please note that the earnings for {year_prefix}year{year_suffix} {sd_formatting.series_format(estimated_list)} {estimated_prefix} estimated."
       
   ### Put them all together  [ ]
-  earnings_narrative = f"{part_01}{part_02}{part_03}{part_04}{part_05}{part_06}{part_07}"
+  earnings_narrative_03 = f"{part_01}{part_02}{part_03}{part_04}{part_05}{part_06}{part_07}"
 
-  report_context["earnings_narrative"] = earnings_narrative
+  report_context["earnings_narrative_03"] = earnings_narrative_03
   
   ##
   ##
@@ -412,13 +411,13 @@ def generate_report_section(session_id
   
   earnings_bump_chart_plot_file = "{}/{}_earnings_bump_chart_plot_{}_{}_{}.png".format(save_image_path, session_id, city, year_from, year_to)
   mlib.save_plot_filename(plot=earnings_bump_chart_plot, filename=earnings_bump_chart_plot_file, save_artefacts=True)
-  report_context["earnings_bump_chart_plot_file"] = earnings_bump_chart_plot_file
+  report_context["earnings_bump_chart_plot"] = earnings_bump_chart_plot_file
   
   ##
   ##
   
   earnings_bump_chart_date_range = f"over the period {earnings_year_from} to {earnings_year_to}" if earnings_year_from != earnings_year_to else f"for {earnings_year_to}"
-  earnings_bump_chart_narrative = f"How {borough} ranks with the other {city} boroughs {earnings_bump_chart_date_range} can be seen below. Ranking is top to bottom, with the top representing the highest earnings."
+  earnings_bump_chart_narrative = f"How {borough} ranks with the other {city} boroughs {earnings_bump_chart_date_range} can be seen {{}}. Ranking is top to bottom, with the top representing the highest earnings."
 
   report_context["earnings_bump_chart_narrative"] = earnings_bump_chart_narrative
   
@@ -473,21 +472,32 @@ def generate_report_section(session_id
     
     earnings_benchmark_data.append(earnings_benchmark_data_row)
     
-    earnings_benchmark_data_df = pd.DataFrame(data=earnings_benchmark_data, columns=["Year", "Borough with Lowest Avg. Earnings", f"{borough} Avg. Earnings", "Borough with Highest Avg. Earnings"])
-    earnings_benchmark_data_df = earnings_benchmark_data_df.set_index("Year")
+    earnings_benchmark_table = pd.DataFrame(data=earnings_benchmark_data, columns=["Year", "Borough with Lowest Avg. Earnings", f"{borough} Avg. Earnings", "Borough with Highest Avg. Earnings"])
+    # earnings_benchmark_table = earnings_benchmark_table.set_index("Year")
+    
+    report_context["earnings_benchmark_table"] = earnings_benchmark_table
+    
+    
+  earnings_narrative_04 = f"The {{}} table shows the lowest and highest average earning boroughs in the same period. The middle shows the average earnings in {borough} for the same year."
+  report_context["earnings_narrative_04"] = earnings_narrative_04
       
-      
-  from IPython.display import HTML
-  styles = [
-    dict(selector="tr", props=[("font-size", "120%"),
-                               ("text-align", "right")])
-  ]
+  ####
+  #### DELETE 
+  ####
+  # from IPython.display import HTML
+  # styles = [
+  #   dict(selector="tr", props=[("font-size", "120%"),
+  #                              ("text-align", "right")])
+  # ]
   
-  earnings_benchmark_data_df_html = (earnings_benchmark_data_df.style.set_table_styles(styles))
-  
-  earnings_benchmark_display_table_file_name = "{}/{}_earnings_benchmark_display_table_{}_{}_{}.png".format(save_image_path, session_id, city, borough, ward_name) 
-  mlib.save_df(earnings_benchmark_data_df_html, earnings_benchark_display_table_file_name, save_artefacts=True)
-  report_context["earnings_benchmark_display_table"] = earnings_benchmark_display_table_file_name
+  # earnings_benchmark_data_df_html = (earnings_benchmark_table.style.set_table_styles(styles))
+  #
+  # earnings_benchmark_display_table_file_name = "{}/{}_earnings_benchmark_display_table_{}_{}_{}.png".format(save_image_path, session_id, city, borough, ward_name) 
+  # mlib.save_df(earnings_benchmark_data_df_html, earnings_benchark_display_table_file_name, save_artefacts=True)
+  # report_context["earnings_benchmark_display_table"] = earnings_benchmark_display_table_file_name
+  ####
+  #### DELETE 
+  ####
   
   db_conn.close()
   

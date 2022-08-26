@@ -187,7 +187,6 @@ def generate_report_section(session_id
 
   ##
   ##
-  print(">>>>>>>>>>>>>>>>>>>>>>>>>1")
 
   crime_changed_search_date_dates     = f"The new date is {crime_year_to}" if crime_year_from == crime_year_to else \
                                            f"The new dates are {crime_year_from} to {crime_year_to}"
@@ -195,15 +194,14 @@ def generate_report_section(session_id
   crime_changed_search_s              = f" was" if crime_year_from == crime_year_to else \
                                            f"s were"
   
-  crime_changed_search_date_narrative = f"Your original search date{crime_changed_search_s} changed to match the date range of the earnings data. {crime_changed_search_date_dates}" \
+  crime_narrative_01 = f"Your original search date{crime_changed_search_s} changed to match the date range of the earnings data. {crime_changed_search_date_dates}" \
                                            if ((crime_year_from != crime_year_from_orig) or \
                                                (crime_year_to   != crime_year_to_orig)) else ""
 
-  report_context["crime_changed_search_date_narrative"] = crime_changed_search_date_narrative  
+  report_context["crime_narrative_01"] = crime_narrative_01  
   
   ##
   ##
-  print(">>>>>>>>>>>>>>>>>>>>>>>>>2")
   
   ## The maximum year from the data set
   crime_latest_year = borough_crime_per_capita_by_year_df["YEAR"].max()
@@ -299,7 +297,7 @@ def generate_report_section(session_id
           elif slope <= - 0.5:
               rate = "has moderatly decreased"
           else:
-              rate = "has greatly decreasd"
+              rate = "has greatly decreased"
   
       part_05 = f". Over the period {year_from} to {year_to} crimes per person in {borough} {rate}."
   
@@ -345,9 +343,9 @@ def generate_report_section(session_id
           elif slope <= - 0.5:
               rate = "has moderatly decreased"
           else:
-              rate = "has greatly decreasd"
+              rate = "has greatly decreased"
   
-      part_06 = f" Over the same period the population of {borough} {rate} starting at {borough_population_start_fmt} and ending at {borough_population_end_fmt} {inc_dec_narrative}."
+      part_06 = f" Over the same period the population of {borough} {rate} from {borough_population_start_fmt} to {borough_population_end_fmt} {inc_dec_narrative}."
   
       ## City population trend
       y = [city_yearly_population_ts_df["POPULATION_FOR_YEAR_CITY"].tolist()]
@@ -385,19 +383,18 @@ def generate_report_section(session_id
           elif slope <= - 0.5:
               rate = "has moderatly decreased"
           else:
-              rate = "has greatly decreasd"
+              rate = "has greatly decreased"
   
-      part_07 = f" {city}'s population {rate} from {city_population_start_fmt} and ending at {city_population_end_fmt} {inc_dec_narrative}."
+      part_07 = f" {city}'s population {rate} from {city_population_start_fmt} and ending at {city_population_end_fmt}{inc_dec_narrative}."
       
       
   ### Put them all together  [ ]
-  crime_narrative = f"\n{part_01}{part_02}{part_03}{part_04}{part_05}{part_06}{part_07}"
+  crime_narrative_02 = f"\n{part_01}{part_02}{part_03}{part_04}{part_05}{part_06}{part_07}"
 
-  report_context["crime_narrative"] = crime_narrative
+  report_context["crime_narrative_02"] = crime_narrative_02
 
   ##
   ##
-  print(">>>>>>>>>>>>>>>>>>>>>>>>>3")
   
   years_sorted = borough_crime_per_capita_by_year_df["YEAR"].sort_values().drop_duplicates()
   first_year = years_sorted.iloc[0]
@@ -435,7 +432,6 @@ def generate_report_section(session_id
   
   ##
   ##
-  print(">>>>>>>>>>>>>>>>>>>>>>>>>4")
   
   palette = sns.color_palette(cc.glasbey, n_colors=len(borough_sort_order))
   my_cmap = ListedColormap(sns.color_palette(palette).as_hex())
@@ -472,9 +468,15 @@ def generate_report_section(session_id
   mlib.save_plot_filename(plot=crime_bump_chart_plot, filename=crime_bump_chart_plot_file, save_artefacts=True)
   report_context["crime_bump_chart_plot"] = crime_bump_chart_plot_file
   
+  
+  
+  crime_bump_chart_date_range = f"over the period {crime_year_from} to {crime_year_to}" if crime_year_from != crime_year_to else f"for {crime_year_to}"
+  crime_bump_chart_narrative = f"How {borough} ranks with the other {city} boroughs {crime_bump_chart_date_range} can be seen {{}}. Ranking is top to bottom, with the top representing the highest crime per person rate."
+
+  report_context["crime_bump_chart_narrative"] = crime_bump_chart_narrative
+  
   ##
   ##
-  print(">>>>>>>>>>>>>>>>>>>>>>>>>5")
   
   ## Change the order of unique years back to Descednding
   unique_years_bump = sorted(unique_years, reverse=True)
@@ -528,39 +530,43 @@ def generate_report_section(session_id
       
       crime_benchmark_data.append(crime_benchmark_data_row)
   
-  crime_benchmark_data_df = pd.DataFrame(data=crime_benchmark_data, columns=["Year", "Borough with Lowest Crime per Person", f"{borough} Crime per Person", "Borough with Highest Crime per Person"])
-  crime_benchmark_data_df = crime_benchmark_data_df.set_index("Year")
+  crime_benchmark_table = pd.DataFrame(data=crime_benchmark_data, columns=["Year", "Borough with Lowest Crime per Person", f"{borough} Crime per Person", "Borough with Highest Crime per Person"])
+  report_context["crime_benchmark_table"] = crime_benchmark_table
+
+  # crime_benchmark_data_df = crime_benchmark_data_df.set_index("Year")
   
-  
-  
-  from IPython.display import HTML
-  styles = [
-    dict(selector="tr", props=[("font-size", "120%"),
-                               ("text-align", "right")])
-  ]
-  
-  crime_benchmark_data_df_html = (crime_benchmark_data_df.style.set_table_styles(styles))
-  
-  
-  crime_benchmark_display_table_file_name = "{}/{}_crime_benchmark_display_table_{}_{}_{}.png".format(save_image_path, session_id, city, borough, ward_name) 
+  ####
+  #### DELETE 
+  ####
+  # from IPython.display import HTML
+  # styles = [
+  #   dict(selector="tr", props=[("font-size", "120%"),
+  #                              ("text-align", "right")])
+  # ]
+  #
+  # crime_benchmark_data_df_html = (crime_benchmark_data_df.style.set_table_styles(styles))
+  #
+  #
+  # crime_benchmark_display_table_file_name = "{}/{}_crime_benchmark_display_table_{}_{}_{}.png".format(save_image_path, session_id, city, borough, ward_name) 
   #mlib.save_df(crime_benchmark_data_df_html, crime_benchmark_display_table_file_name, save_artefacts=True)
+  ####
+  #### DELETE 
+  ####
   
   ###
   ### IF YOU USE THE RENDERED VERSION IT CAUSES AN EXCEPTION - SAME AS BELOW
   ### 
   
-  mlib.save_df(crime_benchmark_data_df, crime_benchmark_display_table_file_name, save_artefacts=True)
-  report_context["crime_benchmark_display_table"] = crime_benchmark_display_table_file_name
+  # mlib.save_df(crime_benchmark_data_df, crime_benchmark_display_table_file_name, save_artefacts=True)
+  # report_context["crime_benchmark_display_table"] = crime_benchmark_display_table_file_name
   
   ##
   ##
-  print(">>>>>>>>>>>>>>>>>>>>>>>>>6")
   
   borough_top_crime_per_by_year_df = dao_fac.crime_major_category_in_borough_years(db_conn, search_term)
 
   ##
   ##
-  print(">>>>>>>>>>>>>>>>>>>>>>>>>7")
 
   columns = ["Year", "1st", "2nd", "3rd", "4th", "5th"]
   borough_top_crime_data = []
@@ -584,31 +590,36 @@ def generate_report_section(session_id
   
       borough_top_crime_data.append(borough_top_crime_data_row)
   
-  borough_top_crime_data_df = pd.DataFrame(data=borough_top_crime_data, columns=columns)    
-  borough_top_crime_data_df = borough_top_crime_data_df.set_index("Year")
+  borough_top_crime_table = pd.DataFrame(data=borough_top_crime_data, columns=columns)
+  report_context["borough_top_crime_table"] = borough_top_crime_table
+  
+  borough_top_crime_table_narrative_date = "between {} and {}".format(year_from, year_to) if year_from != year_to else \
+                                           "in {}".format(year_to)
+  
+  borough_top_crime_table_narrative = f"The {{}} table shows the top 5 crimes in {borough} {borough_top_crime_table_narrative_date}. Bracketed values are the reported number of that crime."
+  report_context["borough_top_crime_table_narrative"] = borough_top_crime_table_narrative 
+    
+  # borough_top_crime_data_df = borough_top_crime_data_df.set_index("Year")
   
   ## Sort in descending date order
   # borough_top_crime_data_df.sort_index(ascending=False)
   
-  from IPython.display import HTML
-  styles = [
-    dict(selector="tr", props=[("font-size", "110%"),
-                               ("text-align", "right")])
-  ]
-  
-  borough_top_crime_data_df_html = (borough_top_crime_data_df.style.set_table_styles(styles))
-  crime_top_crimes_display_table_file_name = "{}/{}_crime_top_crimes_display_table_{}_{}_{}.png".format(save_image_path, session_id, city, borough, ward_name) 
-  mlib.save_df(borough_top_crime_data_df, crime_top_crimes_display_table_file_name, save_artefacts=True)
-  report_context["crime_top_crimes_display_table"] = crime_top_crimes_display_table_file_name
+  # from IPython.display import HTML
+  # styles = [
+  #   dict(selector="tr", props=[("font-size", "110%"),
+  #                              ("text-align", "right")])
+  # ]
+  #
+  # borough_top_crime_data_df_html = (borough_top_crime_data_df.style.set_table_styles(styles))
+  # crime_top_crimes_display_table_file_name = "{}/{}_crime_top_crimes_display_table_{}_{}_{}.png".format(save_image_path, session_id, city, borough, ward_name) 
+  # mlib.save_df(borough_top_crime_data_df, crime_top_crimes_display_table_file_name, save_artefacts=True)
+  # report_context["crime_top_crimes_display_table"] = crime_top_crimes_display_table_file_name
   
   ###
   ### IF YOU USE THE RENDERED VERSION IT CAUSES AN EXCEPTION - SAME AS ABOVE
   ### 
   ## Change this back 
   # mlib.save_df(borough_top_crime_data_df_html, crime_top_crimes_display_table_file_name, save_artefacts=True)
-  
-  
-  
   
   db_conn.close()
   

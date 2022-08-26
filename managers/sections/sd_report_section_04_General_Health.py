@@ -91,7 +91,7 @@ def generate_report_section(session_id
   health_search_range = f"of {health_year_from_orig} to {health_year_to_orig}" if health_year_from_orig != health_year_to_orig else f"{health_year_to_orig}"
   health_narrative_search_criters = f"Using the latest general health data from {health_year_to} which is {health_in_not_in} your search range {health_search_range}"
   
-  health_narrative_01 = f"{health_narrative_search_criters}. The table below ranks general health in {ward_name}, {borough} and {city}. " + \
+  health_narrative_01 = f"{health_narrative_search_criters}. The table {{}} ranks general health in {ward_name}, {borough} and {city}. " + \
   "The ranking is highest to lowest percentage from top to bottom. Where there is a difference in general health the cell is shaded, a darker " + \
   "shade denotes a difference between borough and ward. Values in [] give the percentage value." 
 
@@ -154,12 +154,12 @@ def generate_report_section(session_id
       health_city_pct_sorted.append(health_name_pct_fmt)
   
   health_ward_borough_city_pct_ranked_merged = [health_ward_pct_sorted, health_borough_pct_sorted, health_city_pct_sorted]
-  health_ward_borough_city_pct_ranked_merged_df = pd.DataFrame(data=health_ward_borough_city_pct_ranked_merged)
+  health_ranking_table = pd.DataFrame(data=health_ward_borough_city_pct_ranked_merged)
   
   ## Rotate 
-  health_ward_borough_city_pct_ranked_merged_df = health_ward_borough_city_pct_ranked_merged_df.T
-  health_ward_borough_city_pct_ranked_merged_df.columns = [f"{ward_name}",f"{borough}",f"{city}"]
-  health_ward_borough_city_pct_ranked_merged_df.index   = [str(rank) for rank in range(1, len(health_ward_borough_city_pct_ranked_merged_df.index)+1)]
+  health_ranking_table = health_ranking_table.T
+  health_ranking_table.columns = [f"{ward_name}",f"{borough}",f"{city}"]
+  health_ranking_table.index   = [str(rank) for rank in range(1, len(health_ranking_table.index)+1)]
 
   ###
   ### BUILD HEALTH RANKING DISPLAY TABLE
@@ -170,7 +170,7 @@ def generate_report_section(session_id
   ## 1 == shade 1 change
   ## 2 == shade 2 change
   
-  for index, row in health_ward_borough_city_pct_ranked_merged_df.iterrows():
+  for index, row in health_ranking_table.iterrows():
       colour_change_row =[]
       
       ## Borough to City Check
@@ -188,36 +188,48 @@ def generate_report_section(session_id
       colour_change_row.append(cityl_col)
       colour_change.append(colour_change_row)
   
-  def format_ranking_row(row):
+  def health_ranking_cell_shading(row, cell_shading):
       ## Borough to City Check
       ward_val    = row.iloc[0].split(' - [')[0].strip()
       borough_val = row.iloc[1].split(' - [')[0].strip()
       city_val    = row.iloc[2].split(' - [')[0].strip()
       # log.debug(f"{ward_val}-{borough_val}-{city_val}")
   
-      ward_val_cell_col = "" if ward_val     == city_val else "background-color: #EAFAF1" if ward_val == borough_val else "background-color: #D5F5E3"
-      borough_val_col   = "" if borough_val  == city_val else "background-color: #EAFAF1"
+      ward_val_cell_col = "" if ward_val     == city_val else "#EAFAF1" if ward_val == borough_val else "#D5F5E3"
+      borough_val_col   = "" if borough_val  == city_val else "#EAFAF1"
       # log.debug(r[1])
-      return [ward_val_cell_col] + [borough_val_col] + [""]
+      cell_shading.append([ward_val_cell_col, borough_val_col, ""])
   
   
-  from IPython.display import HTML
-  styles = [
-    dict(selector="tr", props=[("font-size", "110%"),
-                               ("text-align", "right")])
-  ]
+  health_ranking_table_shading = []
+  health_ranking_table.apply(lambda row: health_ranking_cell_shading(row, health_ranking_table_shading), axis=1)
   
-  health_ward_borough_city_pct_ranked_merged_df_html = (health_ward_borough_city_pct_ranked_merged_df.style.set_table_styles(styles).apply(format_ranking_row, axis=1))
+  ####
+  #### DELETE 
+  ####
+  # from IPython.display import HTML
+  # styles = [
+  #   dict(selector="tr", props=[("font-size", "110%"),
+  #                              ("text-align", "right")])
+  # ]
+  # health_ward_borough_city_pct_ranked_merged_df_html = (health_ward_borough_city_pct_ranked_merged_df.style.set_table_styles(styles).apply(general_health_ranking_cell_shading, axis=1))
+  # health_ranking_display_table_file_name = "{}/{}_health_ranking_display_table_{}_{}_{}.png".format(save_image_path, session_id, city, borough, ward_name) 
+  # mlib.save_df(health_ward_borough_city_pct_ranked_merged_df_html, health_ranking_display_table_file_name, save_artefacts=True)
+  # report_context["health_ranking_display_table"] = health_ranking_display_table_file_name
+  ####
+  #### DELETE 
+  ####
 
   #
   ##
   ### ADD ITEM TO REPORT CONTEXT - HEALTH RANKING DISPLAY TABLE
   ##
   #
+  ## ADD DATAFRAME
+  report_context["health_ranking_table"] = health_ranking_table
+  ## ADD DATAFRAME SHADING
+  report_context["health_ranking_table_shading"] = health_ranking_table_shading
   
-  health_ranking_display_table_file_name = "{}/{}_health_ranking_display_table_{}_{}_{}.png".format(save_image_path, session_id, city, borough, ward_name) 
-  mlib.save_df(health_ward_borough_city_pct_ranked_merged_df_html, health_ranking_display_table_file_name, save_artefacts=True)
-  report_context["health_ranking_display_table"] = health_ranking_display_table_file_name
   
   ###
   ### BUILD HEALTH COMPARISON TABLE
@@ -254,26 +266,33 @@ def generate_report_section(session_id
       health_city_name_sorted.append(health_pct_fmt)
   
   health_ward_borough_city_pct_name_merged = [health_ward_name_sorted, health_borough_name_sorted, health_city_name_sorted]
-  health_ward_borough_city_pct_name_merged_df = pd.DataFrame(data=health_ward_borough_city_pct_name_merged)
+  health_comparison_table = pd.DataFrame(data=health_ward_borough_city_pct_name_merged)
   
   ## Rotate 
-  health_ward_borough_city_pct_name_merged_df = health_ward_borough_city_pct_name_merged_df.T
-  health_ward_borough_city_pct_name_merged_df.columns = [f"{ward_name}",f"{borough}",f"{city}"]
-  health_ward_borough_city_pct_name_merged_df.index   = health_borough_ward_for_year_name_sorted.index
+  health_comparison_table = health_comparison_table.T
+  health_comparison_table.columns = [f"{ward_name}",f"{borough}",f"{city}"]
+  health_comparison_table.index   = health_borough_ward_for_year_name_sorted.index
+  health_comparison_table["Level"] = health_comparison_table.index
+
+  ## Reorder the columns
+  health_comparison_table = health_comparison_table[["Level", f"{ward_name}",f"{borough}",f"{city}"]]
 
   ###
   ### BUILD ETHNICITY COMPARISON DISPLAY TABLE
   ###
 
-  def format_pct_row(row):
+  def health_comparison_cell_shading(row, cell_shading):
       
+      inc_shades =["", "#EAFAF1", "#D5F5E3", "#ABEBC6", "#82E0AA", "#58D68D"]
+      dec_shades =["", "#F5EEF8", "#EBDEF0", "#D7BDE2", "#C39BD3", "#AF7AC5"]
+
       # log.debug(f"index:{row.name}")
       
       ## Borough to City Check
       name        = row.name
-      ward_val    = float(row.iloc[0].split("%")[0].strip())
-      borough_val = float(row.iloc[1].split("%")[0].strip())
-      city_val    = float(row.iloc[2].split("%")[0].strip())
+      ward_val    = float(row.iloc[1].split("%")[0].strip())
+      borough_val = float(row.iloc[2].split("%")[0].strip())
+      city_val    = float(row.iloc[3].split("%")[0].strip())
       
       if (name == "Very Good") or (name == "Good") or (name == "Fair"):
           # log.debug("Very Good, Good or Fair")
@@ -281,36 +300,36 @@ def generate_report_section(session_id
           if ward_val >= city_val:
               log.debug("Ward more so Green")
               diff = ward_val - city_val
-              ward_val_cell_col = ""                          if (diff) < 1.0 else \
-                                  "background-color: #EAFAF1" if (diff) < 2.0 else \
-                                  "background-color: #D5F5E3" if (diff) < 3.0 else \
-                                  "background-color: #ABEBC6" if (diff) < 4.0 else \
-                                  "background-color: #82E0AA" if (diff) < 5.0 else \
-                                  "background-color: #58D68D"
+              ward_val_cell_col = inc_shades[0] if (diff) < 1.0 else \
+                                  inc_shades[1] if (diff) < 2.0 else \
+                                  inc_shades[2] if (diff) < 3.0 else \
+                                  inc_shades[3] if (diff) < 4.0 else \
+                                  inc_shades[4] if (diff) < 5.0 else \
+                                  inc_shades[5] 
               
           ## It's less than, so should be red
           else:
               # log.debug("Ward less so Red")
               #-ve then red shades
               diff = city_val - ward_val
-              ward_val_cell_col = ""                          if (diff) < 1.0 else \
-                                  "background-color: #F5EEF8" if (diff) < 2.0 else \
-                                  "background-color: #EBDEF0" if (diff) < 3.0 else \
-                                  "background-color: #D7BDE2" if (diff) < 4.0 else \
-                                  "background-color: #C39BD3" if (diff) < 5.0 else \
-                                  "background-color: #AF7AC5"
+              ward_val_cell_col = dec_shades[0] if (diff) < 1.0 else \
+                                  dec_shades[0] if (diff) < 2.0 else \
+                                  dec_shades[0] if (diff) < 3.0 else \
+                                  dec_shades[0] if (diff) < 4.0 else \
+                                  dec_shades[0] if (diff) < 5.0 else \
+                                  dec_shades[0] 
              
           ## It's more than the city so should be green
           if borough_val >= city_val:
               log.debug("Borough more so Green")
               #+ve then green shades
               diff = borough_val - city_val
-              borough_val_col   = ""                          if (diff) < 1.0 else \
-                                  "background-color: #EAFAF1" if (diff) < 2.0 else \
-                                  "background-color: #D5F5E3" if (diff) < 3.0 else \
-                                  "background-color: #ABEBC6" if (diff) < 4.0 else \
-                                  "background-color: #82E0AA" if (diff) < 5.0 else \
-                                  "background-color: #58D68D"
+              borough_val_col   = inc_shades[0] if (diff) < 1.0 else \
+                                  inc_shades[1] if (diff) < 2.0 else \
+                                  inc_shades[2] if (diff) < 3.0 else \
+                                  inc_shades[3] if (diff) < 4.0 else \
+                                  inc_shades[4] if (diff) < 5.0 else \
+                                  inc_shades[5] 
               
   
           ## It's less than, so should be red
@@ -318,12 +337,12 @@ def generate_report_section(session_id
               # log.debug("Borough less so Red")
               #-ve then red shades
               diff = city_val - borough_val
-              borough_val_col   = ""                          if (diff) < 1.0 else \
-                                  "background-color: #F5EEF8" if (diff) < 2.0 else \
-                                  "background-color: #EBDEF0" if (diff) < 3.0 else \
-                                  "background-color: #D7BDE2" if (diff) < 4.0 else \
-                                  "background-color: #C39BD3" if (diff) < 5.0 else \
-                                  "background-color: #AF7AC5"
+              borough_val_col   = dec_shades[0] if (diff) < 1.0 else \
+                                  dec_shades[0] if (diff) < 2.0 else \
+                                  dec_shades[0] if (diff) < 3.0 else \
+                                  dec_shades[0] if (diff) < 4.0 else \
+                                  dec_shades[0] if (diff) < 5.0 else \
+                                  dec_shades[0] 
       
       ## It's Bad or Very Bad so opposite to the aboce
       else:
@@ -334,35 +353,35 @@ def generate_report_section(session_id
               # log.debug("Ward more so Red")
               #-ve then red shades
               diff = ward_val - city_val
-              ward_val_cell_col = ""                          if (diff) < 1.0 else \
-                                  "background-color: #F5EEF8" if (diff) < 2.0 else \
-                                  "background-color: #EBDEF0" if (diff) < 3.0 else \
-                                  "background-color: #D7BDE2" if (diff) < 4.0 else \
-                                  "background-color: #C39BD3" if (diff) < 5.0 else \
-                                  "background-color: #AF7AC5"
+              ward_val_cell_col = dec_shades[0] if (diff) < 1.0 else \
+                                  dec_shades[0] if (diff) < 2.0 else \
+                                  dec_shades[0] if (diff) < 3.0 else \
+                                  dec_shades[0] if (diff) < 4.0 else \
+                                  dec_shades[0] if (diff) < 5.0 else \
+                                  dec_shades[0] 
               
           ## It's less than, so should be green
           else:
               # log.debug("Ward less so Green")
               diff = city_val - ward_val
-              ward_val_cell_col = ""                          if (diff) < 1.0 else \
-                                  "background-color: #EAFAF1" if (diff) < 2.0 else \
-                                  "background-color: #D5F5E3" if (diff) < 3.0 else \
-                                  "background-color: #ABEBC6" if (diff) < 4.0 else \
-                                  "background-color: #82E0AA" if (diff) < 5.0 else \
-                                  "background-color: #58D68D"
+              ward_val_cell_col = inc_shades[0] if (diff) < 1.0 else \
+                                  inc_shades[1] if (diff) < 2.0 else \
+                                  inc_shades[2] if (diff) < 3.0 else \
+                                  inc_shades[3] if (diff) < 4.0 else \
+                                  inc_shades[4] if (diff) < 5.0 else \
+                                  inc_shades[5] 
              
           ## It's more than the city so should be red
           if borough_val >= city_val:
               # log.debug("Borough more so Red")
               #-ve then red shades
               diff = borough_val - city_val
-              borough_val_col   = ""                          if (diff) < 1.0 else \
-                                  "background-color: #F5EEF8" if (diff) < 2.0 else \
-                                  "background-color: #EBDEF0" if (diff) < 3.0 else \
-                                  "background-color: #D7BDE2" if (diff) < 4.0 else \
-                                  "background-color: #C39BD3" if (diff) < 5.0 else \
-                                  "background-color: #AF7AC5"
+              borough_val_col   = dec_shades[0] if (diff) < 1.0 else \
+                                  dec_shades[0] if (diff) < 2.0 else \
+                                  dec_shades[0] if (diff) < 3.0 else \
+                                  dec_shades[0] if (diff) < 4.0 else \
+                                  dec_shades[0] if (diff) < 5.0 else \
+                                  dec_shades[0] 
               
   
           ## It's less than, so should be green
@@ -370,40 +389,48 @@ def generate_report_section(session_id
               # log.debug("Borough less so Green")
               #+ve then green shades
               diff = city_val - borough_val
-              borough_val_col   = ""                          if (diff) < 1.0 else \
-                                  "background-color: #EAFAF1" if (diff) < 2.0 else \
-                                  "background-color: #D5F5E3" if (diff) < 3.0 else \
-                                  "background-color: #ABEBC6" if (diff) < 4.0 else \
-                                  "background-color: #82E0AA" if (diff) < 5.0 else \
-                                  "background-color: #58D68D"
-          
+              borough_val_col   = inc_shades[0] if (diff) < 1.0 else \
+                                  inc_shades[1] if (diff) < 2.0 else \
+                                  inc_shades[2] if (diff) < 3.0 else \
+                                  inc_shades[3] if (diff) < 4.0 else \
+                                  inc_shades[4] if (diff) < 5.0 else \
+                                  inc_shades[5] 
   
-      return [ward_val_cell_col] + [borough_val_col] + [""]
+      cell_shading.append(["", ward_val_cell_col, borough_val_col, ""])
   
-  
-  from IPython.display import HTML
-  styles = [
-    dict(selector="tr", props=[("font-size", "110%"),
-                               ("text-align", "right")])
-  ]
-  
-  health_ward_borough_city_pct_name_merged_df_html = (health_ward_borough_city_pct_name_merged_df.style.set_table_styles(styles).apply(format_pct_row, axis=1))
+  health_comparison_table_shading = []
+  health_comparison_table.apply(lambda row: health_comparison_cell_shading(row, health_comparison_table_shading), axis=1)
+
+  ####
+  #### DELETE 
+  ####
+  # from IPython.display import HTML
+  # styles = [
+  #   dict(selector="tr", props=[("font-size", "110%"),
+  #                              ("text-align", "right")])
+  # ]
+  # health_comparison_table_html = (health_comparison_table.style.set_table_styles(styles).apply(health_comparison_cell_shading, axis=1))
+  # health_comparison_display_table_file_name = "{}/{}_health_comparison_display_table_{}_{}_{}.png".format(save_image_path, session_id, city, borough, ward_name) 
+  # mlib.save_df(health_comparison_table_html, health_comparison_display_table_file_name, save_artefacts=True)
+  # report_context["health_comparison_display_table"] = health_comparison_display_table_file_name
+  ####
+  #### DELETE 
+  ####
 
   #
   ##
   ### ADD ITEM TO REPORT CONTEXT - HEALTH COMPARISON DISPLAY TABLE
   ##
   #
+  report_context["health_comparison_table"] = health_comparison_table
+  report_context["health_comparison_table_shading"] = health_comparison_table_shading
 
-  health_comparison_display_table_file_name = "{}/{}_health_comparison_display_table_{}_{}_{}.png".format(save_image_path, session_id, city, borough, ward_name) 
-  mlib.save_df(health_ward_borough_city_pct_name_merged_df_html, health_comparison_display_table_file_name, save_artefacts=True)
-  report_context["health_comparison_display_table"] = health_comparison_display_table_file_name
 
   ###
   ### ETHNICITY NARRATIVE 02 
   ###
 
-  health_narrative_02 = f"The table below shows the percentage levels of general health (Very Good - Very Bad) in {ward_name}, {borough} and {city} in the year {health_year_to}" + \
+  health_narrative_02 = f"The table {{}} shows the percentage levels of general health (Very Good - Very Bad) in {ward_name}, {borough} and {city} in the year {health_year_to}" + \
   ". Value shading indicates a difference from the city level from 1 to 5 percent in 1 percent intervals." + \
   " The shade darkens with an increase in difference. Increases and decreases use different colours for clarity. Increases in Fair to Very Good are coloured the same as " + \
   "decreases in Bad and Very Bad."

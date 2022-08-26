@@ -155,14 +155,14 @@ def generate_report_section(session_id
       education_city_pct_sorted.append(education_name_pct_fmt)
   
   education_ward_borough_city_pct_ranked_merged = [education_ward_pct_sorted, education_borough_pct_sorted, education_city_pct_sorted]
-  education_ranking_table_cell = pd.DataFrame(data=education_ward_borough_city_pct_ranked_merged)
+  education_ranking_table = pd.DataFrame(data=education_ward_borough_city_pct_ranked_merged)
   
   ## Rotate 
-  education_ranking_table_cell = education_ranking_table_cell.T
-  education_ranking_table_cell.columns = [f"{ward_name}",f"{borough}",f"{city}"]
-  education_ranking_table_cell.index   = [str(rank) for rank in range(1, len(education_ranking_table_cell.index)+1)]
+  education_ranking_table = education_ranking_table.T
+  education_ranking_table.columns = [f"{ward_name}",f"{borough}",f"{city}"]
+  education_ranking_table.index   = [str(rank) for rank in range(1, len(education_ranking_table.index)+1)]
   
-  education_ranking_table_cell
+  # education_ranking_table
   
   ##
   ##
@@ -173,19 +173,19 @@ def generate_report_section(session_id
   
   
   ## Level 4 - top 2 then high
-  level_4_education_ward_top_2    = "Level 4" in str(education_ranking_table_cell[0:2][ward_name])
-  level_4_education_borough_top_2 = "Level 4" in str(education_ranking_table_cell[0:2][borough])
-  level_4_education_city_top_2 = "Level 4" in str(education_ranking_table_cell[0:2][city])
+  level_4_education_ward_top_2    = "Level 4" in str(education_ranking_table[0:2][ward_name])
+  level_4_education_borough_top_2 = "Level 4" in str(education_ranking_table[0:2][borough])
+  level_4_education_city_top_2 = "Level 4" in str(education_ranking_table[0:2][city])
   
   ## None    - top 4 then high
-  none_education_ward_top_4     = "None" in str(education_ranking_table_cell[0:4][ward_name])
-  none_education_borough_top_4  = "None" in str(education_ranking_table_cell[0:4][borough])
-  none_education_city_top_4  = "None" in str(education_ranking_table_cell[0:4][city])
+  none_education_ward_top_4     = "None" in str(education_ranking_table[0:4][ward_name])
+  none_education_borough_top_4  = "None" in str(education_ranking_table[0:4][borough])
+  none_education_city_top_4  = "None" in str(education_ranking_table[0:4][city])
   
   ## FT Student 18+ top 3 then post school student area
-  student_education_ward_top_3     = "FT Student 18+" in str(education_ranking_table_cell[0:3][ward_name])
-  student_education_borough_top_3  = "FT Student 18+" in str(education_ranking_table_cell[0:3][borough])
-  student_education_city_top_3  = "FT Student 18+" in str(education_ranking_table_cell[0:3][city])
+  student_education_ward_top_3     = "FT Student 18+" in str(education_ranking_table[0:3][ward_name])
+  student_education_borough_top_3  = "FT Student 18+" in str(education_ranking_table[0:3][borough])
+  student_education_city_top_3  = "FT Student 18+" in str(education_ranking_table[0:3][city])
   
   ## Build the narrative
   
@@ -241,7 +241,7 @@ def generate_report_section(session_id
   ## 1 == shade 1 change
   ## 2 == shade 2 change
   
-  for index, row in education_ranking_table_cell.iterrows():
+  for index, row in education_ranking_table.iterrows():
       colour_change_row =[]
       
       ## Borough to City Check
@@ -274,13 +274,11 @@ def generate_report_section(session_id
       
       ## No index column, just ward and borough
       cell_shading.append([ward_val_cell_col, borough_val_col, ""])
-      
-      # return cell_shading
     
     
   ## Loop through each row in the dataframe to build up a cell shading list of lists    
   education_ranking_table_cell_shading = []
-  education_ranking_table_cell.apply(lambda row: education_ranking_cell_shading(row, education_ranking_table_cell_shading), axis=1)
+  education_ranking_table.apply(lambda row: education_ranking_cell_shading(row, education_ranking_table_cell_shading), axis=1)
   # log.debug(education_ranking_table_cell_shading)
  
   #
@@ -290,7 +288,7 @@ def generate_report_section(session_id
   #
 
   ## ADD DATAFRAME
-  report_context["education_ranking_table"] = education_ranking_table_cell
+  report_context["education_ranking_table"] = education_ranking_table
   ## ADD DATAFRAME SHADING
   report_context["education_ranking_table_shading"] = education_ranking_table_cell_shading
 
@@ -344,63 +342,119 @@ def generate_report_section(session_id
   ##
   
   def education_comparison_cell_shading(row, cell_shading):
+    
+      inc_shades =["", "#EAFAF1", "#D5F5E3", "#ABEBC6", "#82E0AA", "#58D68D"]
+      dec_shades =["", "#F5EEF8", "#EBDEF0", "#D7BDE2", "#C39BD3", "#AF7AC5"]
+
       
       # log.debug(f"index:{row.name}")
       
       ## Borough to City 
-      # name        = row.name
+      name        = row.name
       ward_val    = float(row.iloc[1].split("%")[0].strip())
       borough_val = float(row.iloc[2].split("%")[0].strip())
       city_val    = float(row.iloc[3].split("%")[0].strip())
       
-      ## It's more than the city so should be green
-      if ward_val >= city_val:
-          # log.debug("Ward more so Green")
-          diff = ward_val - city_val
-          ward_val_cell_col = ""        if (diff) < 1.0 else \
-                              "#EAFAF1" if (diff) < 2.0 else \
-                              "#D5F5E3" if (diff) < 3.0 else \
-                              "#ABEBC6" if (diff) < 4.0 else \
-                              "#82E0AA" if (diff) < 5.0 else \
-                              "#58D68D"
-  
-      ## It's less than, so should be red
+      if not "None" in name:
+        ## It's more than the city so should be green
+        if ward_val >= city_val:
+            # log.debug("Ward more so Green")
+            diff = ward_val - city_val
+            ward_val_cell_col = inc_shades[0] if (diff) < 1.0 else \
+                                inc_shades[1] if (diff) < 2.0 else \
+                                inc_shades[2] if (diff) < 3.0 else \
+                                inc_shades[3] if (diff) < 4.0 else \
+                                inc_shades[4] if (diff) < 5.0 else \
+                                inc_shades[5] 
+    
+        ## It's less than, so should be red
+        else:
+            # log.debug("Ward less so Red")
+            #-ve then red shades
+            diff = city_val - ward_val
+            ward_val_cell_col = dec_shades[0] if (diff) < 1.0 else \
+                                dec_shades[1] if (diff) < 2.0 else \
+                                dec_shades[2] if (diff) < 3.0 else \
+                                dec_shades[3] if (diff) < 4.0 else \
+                                dec_shades[4] if (diff) < 5.0 else \
+                                dec_shades[5] 
+    
+        ## It's more than the city so should be green
+        if borough_val >= city_val:
+            # log.debug("Borough more so Green")
+            #+ve then green shades
+            diff = borough_val - city_val
+            borough_val_col   = inc_shades[0] if (diff) < 1.0 else \
+                                inc_shades[1] if (diff) < 2.0 else \
+                                inc_shades[2] if (diff) < 3.0 else \
+                                inc_shades[3] if (diff) < 4.0 else \
+                                inc_shades[4] if (diff) < 5.0 else \
+                                inc_shades[5]
+    
+    
+        ## It's less than, so should be red
+        else:
+            # log.debug("Borough less so Red")
+            #-ve then red shades
+            diff = city_val - borough_val
+            borough_val_col   = dec_shades[0] if (diff) < 1.0 else \
+                                dec_shades[1] if (diff) < 2.0 else \
+                                dec_shades[2] if (diff) < 3.0 else \
+                                dec_shades[3] if (diff) < 4.0 else \
+                                dec_shades[4] if (diff) < 5.0 else \
+                                dec_shades[5] 
+      ## None education 
       else:
-          # log.debug("Ward less so Red")
-          #-ve then red shades
-          diff = city_val - ward_val
-          ward_val_cell_col = ""        if (diff) < 1.0 else \
-                              "#F5EEF8" if (diff) < 2.0 else \
-                              "#EBDEF0" if (diff) < 3.0 else \
-                              "#D7BDE2" if (diff) < 4.0 else \
-                              "#C39BD3" if (diff) < 5.0 else \
-                              "#AF7AC5"
-  
-      ## It's more than the city so should be green
-      if borough_val >= city_val:
-          # log.debug("Borough more so Green")
-          #+ve then green shades
-          diff = borough_val - city_val
-          borough_val_col   = ""        if (diff) < 1.0 else \
-                              "#EAFAF1" if (diff) < 2.0 else \
-                              "#D5F5E3" if (diff) < 3.0 else \
-                              "#ABEBC6" if (diff) < 4.0 else \
-                              "#82E0AA" if (diff) < 5.0 else \
-                              "#58D68D"
-  
-  
-      ## It's less than, so should be red
-      else:
-          # log.debug("Borough less so Red")
-          #-ve then red shades
-          diff = city_val - borough_val
-          borough_val_col   = ""        if (diff) < 1.0 else \
-                              "#F5EEF8" if (diff) < 2.0 else \
-                              "#EBDEF0" if (diff) < 3.0 else \
-                              "#D7BDE2" if (diff) < 4.0 else \
-                              "#C39BD3" if (diff) < 5.0 else \
-                              "#AF7AC5"
-  
+        ## It's more than the city so should be green
+        if ward_val >= city_val:
+            # log.debug("Ward more so Green")
+            diff = ward_val - city_val
+            ward_val_cell_col = dec_shades[0] if (diff) < 1.0 else \
+                                dec_shades[1] if (diff) < 2.0 else \
+                                dec_shades[2] if (diff) < 3.0 else \
+                                dec_shades[3] if (diff) < 4.0 else \
+                                dec_shades[4] if (diff) < 5.0 else \
+                                dec_shades[5] 
+    
+        ## It's less than, so should be red
+        else:
+            # log.debug("Ward less so Red")
+            #-ve then red shades
+            diff = city_val - ward_val
+            ward_val_cell_col = inc_shades[0] if (diff) < 1.0 else \
+                                inc_shades[1] if (diff) < 2.0 else \
+                                inc_shades[2] if (diff) < 3.0 else \
+                                inc_shades[3] if (diff) < 4.0 else \
+                                inc_shades[4] if (diff) < 5.0 else \
+                                inc_shades[5] 
+    
+        ## It's more than the city so should be green
+        if borough_val >= city_val:
+            # log.debug("Borough more so Green")
+            #+ve then green shades
+            diff = borough_val - city_val
+            borough_val_col   = dec_shades[0] if (diff) < 1.0 else \
+                                dec_shades[1] if (diff) < 2.0 else \
+                                dec_shades[2] if (diff) < 3.0 else \
+                                dec_shades[3] if (diff) < 4.0 else \
+                                dec_shades[4] if (diff) < 5.0 else \
+                                dec_shades[5]
+    
+    
+        ## It's less than, so should be red
+        else:
+            # log.debug("Borough less so Red")
+            #-ve then red shades
+            diff = city_val - borough_val
+            borough_val_col   = inc_shades[0] if (diff) < 1.0 else \
+                                inc_shades[1] if (diff) < 2.0 else \
+                                inc_shades[2] if (diff) < 3.0 else \
+                                inc_shades[3] if (diff) < 4.0 else \
+                                inc_shades[4] if (diff) < 5.0 else \
+                                inc_shades[5] 
+
+        
+    
       cell_shading.append(["", ward_val_cell_col, borough_val_col, ""])
 
   education_comparison_table_shading = []

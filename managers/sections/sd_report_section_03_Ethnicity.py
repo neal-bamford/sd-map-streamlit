@@ -88,7 +88,7 @@ def generate_report_section(session_id
   ethnicity_search_range = f"of {ethnicity_year_from_orig} to {ethnicity_year_to_orig}" if ethnicity_year_from_orig != ethnicity_year_to_orig else f"{ethnicity_year_to_orig}"
   ethnicity_narrative_search_criters = f"Using the latest ethnicity data from {ethnicity_year_to} which is {ethnicity_in_not_in} your search range {ethnicity_search_range}"
   
-  ethnicity_narrative_01 = f"{ethnicity_narrative_search_criters}. The table below ranks ethnicity in {ward_name}, {borough} and {city}. " + \
+  ethnicity_narrative_01 = f"{ethnicity_narrative_search_criters}. The table {{}} ranks ethnicity in {ward_name}, {borough} and {city}. " + \
   "The ranking is highest to lowest percentage from top to bottom. Where there is a difference in ethnicity the cell is shaded, a darker " + \
   "shade denotes a difference between borough and ward. Values in [] give the percentage value." 
   
@@ -152,12 +152,12 @@ def generate_report_section(session_id
       ethnicity_city_pct_sorted.append(ethnicity_name_pct_fmt)
   
   ethnicity_ward_borough_city_pct_ranked_merged = [ethnicity_ward_pct_sorted, ethnicity_borough_pct_sorted, ethnicity_city_pct_sorted]
-  ethnicity_ward_borough_city_pct_ranked_merged_df = pd.DataFrame(data=ethnicity_ward_borough_city_pct_ranked_merged)
+  ethnicity_pct_ranking_table = pd.DataFrame(data=ethnicity_ward_borough_city_pct_ranked_merged)
   
   ## Rotate 
-  ethnicity_ward_borough_city_pct_ranked_merged_df = ethnicity_ward_borough_city_pct_ranked_merged_df.T
-  ethnicity_ward_borough_city_pct_ranked_merged_df.columns = [f"{ward_name}",f"{borough}",f"{city}"]
-  ethnicity_ward_borough_city_pct_ranked_merged_df.index   = [str(rank) for rank in range(1, len(ethnicity_ward_borough_city_pct_ranked_merged_df.index)+1)]
+  ethnicity_pct_ranking_table = ethnicity_pct_ranking_table.T
+  ethnicity_pct_ranking_table.columns = [f"{ward_name}",f"{borough}",f"{city}"]
+  ethnicity_pct_ranking_table.index   = [str(rank) for rank in range(1, len(ethnicity_pct_ranking_table.index)+1)]
   
   ###
   ### BUILD ETHNICITY RANKING DISPLAY TABLE
@@ -168,7 +168,7 @@ def generate_report_section(session_id
   ## 1 == shade 1 change
   ## 2 == shade 2 change
   
-  for index, row in ethnicity_ward_borough_city_pct_ranked_merged_df.iterrows():
+  for index, row in ethnicity_pct_ranking_table.iterrows():
       colour_change_row =[]
       
       ## Borough to City Check
@@ -185,24 +185,47 @@ def generate_report_section(session_id
       colour_change_row.append(cityl_col)
       colour_change.append(colour_change_row)
   
-  def format_ranking_row(row):
+  def ethnicity_pct_ranking_cell_shading(row, cell_shading):
+    
       ## Borough to City Check
       ward_val    = row.iloc[0].split(' - [')[0].strip()
       borough_val = row.iloc[1].split(' - [')[0].strip()
       city_val    = row.iloc[2].split(' - [')[0].strip()
   
-      ward_val_cell_col = "" if ward_val     == city_val else "background-color: #EAFAF1" if ward_val == borough_val else "background-color: #D5F5E3"
-      borough_val_col   = "" if borough_val  == city_val else "background-color: #EAFAF1"
-      return [ward_val_cell_col] + [borough_val_col] + [""]
+      ward_val_cell_col = "" if ward_val     == city_val else "#EAFAF1" if ward_val == borough_val else "#D5F5E3"
+      borough_val_col   = "" if borough_val  == city_val else "#EAFAF1"
+
+      ## No index column, just ward and borough
+      cell_shading.append([ward_val_cell_col, borough_val_col, ""])
   
+  ethnicity_pct_ranking_table_shading = []
+  ethnicity_pct_ranking_table.apply(lambda row: ethnicity_pct_ranking_cell_shading(row, ethnicity_pct_ranking_table_shading), axis=1)
   
-  from IPython.display import HTML
-  styles = [
-    dict(selector="tr", props=[("font-size", "110%"),
-                               ("text-align", "right")])
-  ]
+  #
+  ##
+  ### ADD ITEM TO REPORT CONTEXT
+  ##
+  #
+
+  ## ADD DATAFRAME
+  report_context["ethnicity_pct_ranking_table"] = ethnicity_pct_ranking_table
+  ## ADD DATAFRAME SHADING
+  report_context["ethnicity_pct_ranking_table_shading"] = ethnicity_pct_ranking_table_shading
+
   
-  ethnicity_ward_borough_city_pct_ranked_merged_df_html = (ethnicity_ward_borough_city_pct_ranked_merged_df.style.set_table_styles(styles).apply(format_ranking_row, axis=1))
+  ####
+  #### DELETE 
+  ####
+  # from IPython.display import HTML
+  # styles = [
+  #   dict(selector="tr", props=[("font-size", "110%"),
+  #                              ("text-align", "right")])
+  # ]
+  #
+  # ethnicity_ward_borough_city_pct_ranked_merged_df_html = (ethnicity_pct_ranking_table.style.set_table_styles(styles).apply(ethnicity_ranking_cell_shading, axis=1))
+  ####
+  #### DELETE 
+  ####
   
   #
   ##
@@ -210,9 +233,15 @@ def generate_report_section(session_id
   ##
   #
     
-  ethnicity_ranking_display_table_file_name = "{}/{}_ethnicity_ranking_display_table_{}_{}_{}.png".format(save_image_path, session_id, city, borough, ward_name) 
-  mlib.save_df(ethnicity_ward_borough_city_pct_ranked_merged_df_html, ethnicity_ranking_display_table_file_name, save_artefacts=True)
-  report_context["ethnicity_ranking_display_table"] = ethnicity_ranking_display_table_file_name
+  ####
+  #### DELETE 
+  ####
+  # ethnicity_ranking_display_table_file_name = "{}/{}_ethnicity_ranking_display_table_{}_{}_{}.png".format(save_image_path, session_id, city, borough, ward_name) 
+  # mlib.save_df(ethnicity_ward_borough_city_pct_ranked_merged_df_html, ethnicity_ranking_display_table_file_name, save_artefacts=True)
+  # report_context["ethnicity_ranking_display_table"] = ethnicity_ranking_display_table_file_name
+  ####
+  #### DELETE 
+  ####
   
   ###
   ### BUILD ETHNICITY COMPARISSON TABLE
@@ -245,45 +274,72 @@ def generate_report_section(session_id
       ethnicity_city_name_sorted.append(ethnicity_pct_fmt)
   
   ethnicity_ward_borough_city_pct_name_merged = [ethnicity_ward_name_sorted, ethnicity_borough_name_sorted, ethnicity_city_name_sorted]
-  ethnicity_ward_borough_city_pct_name_merged_df = pd.DataFrame(data=ethnicity_ward_borough_city_pct_name_merged)
+  ethnicity_pct_comparison_table = pd.DataFrame(data=ethnicity_ward_borough_city_pct_name_merged)
   
   ## Rotate 
-  ethnicity_ward_borough_city_pct_name_merged_df = ethnicity_ward_borough_city_pct_name_merged_df.T
-  ethnicity_ward_borough_city_pct_name_merged_df.columns = [f"{ward_name}",f"{borough}",f"{city}"]
-  ethnicity_ward_borough_city_pct_name_merged_df.index   = ethnicity_borough_ward_for_year_name_sorted.index
+  ethnicity_pct_comparison_table = ethnicity_pct_comparison_table.T
+  ethnicity_pct_comparison_table.columns = [f"{ward_name}",f"{borough}",f"{city}"]
+  ethnicity_pct_comparison_table.index   = ethnicity_borough_ward_for_year_name_sorted.index
+  ethnicity_pct_comparison_table["Ethnicity"] = ethnicity_pct_comparison_table.index
   
-  ###
-  ### BUILD ETHNICITY COMPARISON DISPLAY TABLE
-  ###
-
-  def format_pct_row(row):
+  ## Reorder the columns
+  ethnicity_pct_comparison_table = ethnicity_pct_comparison_table[["Ethnicity", f"{ward_name}",f"{borough}",f"{city}"]]
+  # education_comparison_table
+  
+  ##
+  ##
+  
+  def ethnicity_pct_comparison_cell_shading(row, cell_shading):
+    
+      inc_dec_shades =["", "#EAFAF1", "#D5F5E3", "#ABEBC6", "#82E0AA", "#58D68D"]
+    
       ## Borough to City Check
-      ward_val    = float(row.iloc[0].split("%")[0].strip())
-      borough_val = float(row.iloc[1].split("%")[0].strip())
-      city_val    = float(row.iloc[2].split("%")[0].strip())
+      ward_val    = float(row.iloc[1].split("%")[0].strip())
+      borough_val = float(row.iloc[2].split("%")[0].strip())
+      city_val    = float(row.iloc[3].split("%")[0].strip())
       
-      ward_val_cell_col = ""                          if abs(city_val - ward_val) <  5.0 else \
-                          "background-color: #EAFAF1" if abs(city_val - ward_val) < 10.0 else \
-                          "background-color: #D5F5E3" if abs(city_val - ward_val) < 15.0 else \
-                          "background-color: #ABEBC6" if abs(city_val - ward_val) < 20.0 else \
-                          "background-color: #82E0AA"
+      ward_val_cell_col = inc_dec_shades[0] if abs(city_val - ward_val) <  5.0 else \
+                          inc_dec_shades[1] if abs(city_val - ward_val) < 10.0 else \
+                          inc_dec_shades[2] if abs(city_val - ward_val) < 15.0 else \
+                          inc_dec_shades[3] if abs(city_val - ward_val) < 20.0 else \
+                          inc_dec_shades[4]
       
-      borough_val_col   = ""                          if abs(city_val - borough_val) <  5.0 else \
-                          "background-color: #EAFAF1" if abs(city_val - borough_val) < 10.0 else \
-                          "background-color: #D5F5E3" if abs(city_val - borough_val) < 15.0 else \
-                          "background-color: #ABEBC6" if abs(city_val - borough_val) < 20.0 else \
-                          "background-color: #82E0AA"
+      borough_val_col   = inc_dec_shades[0] if abs(city_val - borough_val) <  5.0 else \
+                          inc_dec_shades[1] if abs(city_val - borough_val) < 10.0 else \
+                          inc_dec_shades[2] if abs(city_val - borough_val) < 15.0 else \
+                          inc_dec_shades[3] if abs(city_val - borough_val) < 20.0 else \
+                          inc_dec_shades[4] 
       
-      return [ward_val_cell_col] + [borough_val_col] + [""]
+      cell_shading.append(["", ward_val_cell_col, borough_val_col, ""])
   
+  ethnicity_pct_comparison_table_shading = []
+  ethnicity_pct_comparison_table.apply(lambda row: ethnicity_pct_comparison_cell_shading(row, ethnicity_pct_comparison_table_shading), axis=1)
+  #
+  ##
+  ### ADD ITEM TO REPORT CONTEXT
+  ##
+  #
+  report_context["ethnicity_pct_comparison_table"] = ethnicity_pct_comparison_table
+  report_context["ethnicity_pct_comparison_table_shading"] = ethnicity_pct_comparison_table_shading
   
-  from IPython.display import HTML
-  styles = [
-    dict(selector="tr", props=[("font-size", "110%"),
-                               ("text-align", "right")])
-  ]
+  ##
+  ##
   
-  ethnicity_ward_borough_city_pct_name_merged_df_html = (ethnicity_ward_borough_city_pct_name_merged_df.style.set_table_styles(styles).apply(format_pct_row, axis=1))
+  #### DELETE 
+  ####
+  # from IPython.display import HTML
+  # styles = [
+  #   dict(selector="tr", props=[("font-size", "110%"),
+  #                              ("text-align", "right")])
+  # ]
+  # ethnicity_ward_borough_city_pct_name_merged_df_html = (ethnicity_ward_borough_city_pct_name_merged_df.style.set_table_styles(styles).apply(ethnicity_comparison_cell_shading, axis=1))
+  #
+  # ethnicity_comparison_display_table_file_name = "{}/{}_ethnicity_comparison_display_table_{}_{}_{}.png".format(save_image_path, session_id, city, borough, ward_name) 
+  # mlib.save_df(ethnicity_ward_borough_city_pct_name_merged_df_html, ethnicity_comparison_display_table_file_name, save_artefacts=True)
+  # report_context["ethnicity_comparison_display_table"] = ethnicity_comparison_display_table_file_name
+  ####
+  #### DELETE 
+  ####
 
   #
   ##
@@ -291,15 +347,12 @@ def generate_report_section(session_id
   ##
   #
 
-  ethnicity_comparison_display_table_file_name = "{}/{}_ethnicity_comparison_display_table_{}_{}_{}.png".format(save_image_path, session_id, city, borough, ward_name) 
-  mlib.save_df(ethnicity_ward_borough_city_pct_name_merged_df_html, ethnicity_comparison_display_table_file_name, save_artefacts=True)
-  report_context["ethnicity_comparison_display_table"] = ethnicity_comparison_display_table_file_name
   
   ###
   ### ETHNICITY NARRATIVE 02 
   ###
   
-  ethnicity_narrative_02 = f"The table below shows the percentage levels of ethnicity in {ward_name}, {borough} and {city} in {ethnicity_year_to}." + \
+  ethnicity_narrative_02 = f"The table {{}} shows the percentage levels of ethnicity in {ward_name}, {borough} and {city} in {ethnicity_year_to}." + \
 " The order of ethnicity is alphabetical. Value shading indicates a difference from the city level from 5 to 20 percent in 5 percent intervals." + \
 " The shade darkens with an increase in difference. Indication of the direction of the difference is intentionally not made."
 
