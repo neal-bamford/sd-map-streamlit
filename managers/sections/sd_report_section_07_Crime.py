@@ -389,7 +389,7 @@ def generate_report_section(session_id
       
       
   ### Put them all together  [ ]
-  crime_narrative_02 = f"\n{part_01}{part_02}{part_03}{part_04}{part_05}{part_06}{part_07}"
+  crime_narrative_02 = f"{part_01}{part_02}{part_03}{part_04}{part_05}{part_06}{part_07}"
 
   report_context["crime_narrative_02"] = crime_narrative_02
 
@@ -532,6 +532,10 @@ def generate_report_section(session_id
   
   crime_benchmark_table = pd.DataFrame(data=crime_benchmark_data, columns=["Year", "Borough with Lowest Crime per Person", f"{borough} Crime per Person", "Borough with Highest Crime per Person"])
   report_context["crime_benchmark_table"] = crime_benchmark_table
+
+
+  crime_narrative_04 = f"The {{}} table shows the boroughs with the lowest and highest crimes per person in the same period. The middle column shows the crimes per person in {borough} for the same year."
+  report_context["crime_narrative_04"] = crime_narrative_04
 
   # crime_benchmark_data_df = crime_benchmark_data_df.set_index("Year")
   

@@ -478,7 +478,7 @@ def generate_report_section(session_id
     report_context["earnings_benchmark_table"] = earnings_benchmark_table
     
     
-  earnings_narrative_04 = f"The {{}} table shows the lowest and highest average earning boroughs in the same period. The middle shows the average earnings in {borough} for the same year."
+  earnings_narrative_04 = f"The {{}} table shows the boroughs with the lowest and highest average earning boroughs in the same period. The middle column shows the average earnings in {borough} for the same year."
   report_context["earnings_narrative_04"] = earnings_narrative_04
       
   ####
