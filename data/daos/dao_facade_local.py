@@ -145,3 +145,7 @@ def uk_earnings_year(db_conn, search_term):
 @cache.memoize()
 def population_year(db_conn, search_term):
   return dat_dao.population_year(db_conn, search_term) 
+
+@cache.memoize()
+def population_min_max_year(db_conn):
+  return dat_dao.population_min_max_year(db_conn) 

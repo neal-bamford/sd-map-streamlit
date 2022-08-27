@@ -968,7 +968,8 @@ def population_year(db_conn, search_term):
 ---
 --- UK EARNINGS - YEAR
 ---
-SELECT DISTINCT CAST(Year([LPO].[Date]) AS int)   AS [YEAR],
+WITH LONDON_POPULATION_BOROUGH_WARD_AGG AS(
+SELECT DISTINCT [LPO].[YEAR]                      AS [YEAR],
                 [LU_LAD_OA].[LAD]                 AS [LAD],  
                 [LU_LAD_OA].[LAD_NAME]            AS [BOROUGH],
                 [LU_WARD_OA].[WARD_CODE]          AS [WARD_CODE],
@@ -981,11 +982,40 @@ SELECT DISTINCT CAST(Year([LPO].[Date]) AS int)   AS [YEAR],
 FROM [LondonPopulation]                           AS [LPO],
      [LOOKUP_LAD_OA]                              AS [LU_LAD_OA],
      [LOOKUP_WARD_CODE_OA]                        AS [LU_WARD_OA]
-WHERE [LPO].[OAcode] = [LU_LAD_OA].[OA]
+WHERE  [LPO].[OAcode] = [LU_LAD_OA].[OA]
+--AND   [LU_LAD_OA].[LAD_NAME] = 'Barking and Dagenham'
 AND   [LU_LAD_OA].[OA] = [LU_WARD_OA].[OA]
-AND   CAST(Year([LPO].[Date]) AS int) BETWEEN {} AND {}
-""".format(year_from, year_to)  
+AND   [LPO].[YEAR] BETWEEN 2011 AND 2011
+)
+SELECT [LPAG].[YEAR] AS [YEAR] 
+     , [LPAG].[BOROUGH]           AS [BOROUGH]
+     , [LPAG].[WARD_NAME]         AS [WARD_NAME]
+     , SUM([LPAG].[ALL])               AS [ALL]
+     , SUM([LPAG].[MALE])    AS [MALE]
+     , SUM([LPAG].[FEMALE])  AS [FEMALE] 
+     , SUM([LPAG].[STUDENT]) AS [STUDENT]
+     , AVG([LPAG].[DENSITY_PPH])       AS [DENSITY_PPH]
+FROM [LONDON_POPULATION_BOROUGH_WARD_AGG] AS [LPAG]
+GROUP BY [YEAR], [BOROUGH], [WARD_NAME]
+ORDER BY [BOROUGH], [WARD_NAME]""".format(year_from, year_to)  
 
   london_population_year_df = pd.read_sql_query(london_population_year_sql, db_conn, index_col=None)
   return london_population_year_df
 
+###
+### POPULATION - MIN MAX YEAR
+###
+def population_min_max_year(db_conn):
+  logging.debug("Retrieving population min max year")
+  
+  population_min_max_year_sql = """
+---
+--- POPULATION - MIN MAX YEAR
+---
+SELECT DISTINCT MAX([LPO].[YEAR]) AS [MAX_YEAR]
+              , MIN([LPO].[YEAR]) AS [MIN_YEAR]
+FROM LondonPopulation AS [LPO]
+"""  
+
+  population_min_max_year_df = pd.read_sql_query(population_min_max_year_sql, db_conn, index_col=None)
+  return population_min_max_year_df

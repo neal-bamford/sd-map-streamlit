@@ -145,3 +145,7 @@ def uk_earnings_year(db_conn, search_term):
 @st.cache(hash_funcs={pyodbc.Connection: hash_db_conn})
 def population_year(db_conn, search_term):
   return dat_dao.population_year(db_conn, search_term) 
+
+@st.cache(hash_funcs={pyodbc.Connection: hash_db_conn})
+def population_min_max_year(db_conn):
+  return dat_dao.population_min_max_year(db_conn) 
