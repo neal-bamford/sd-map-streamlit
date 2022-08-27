@@ -218,7 +218,7 @@ def generate_report_section(session_id
   ## Student area narrative - ignored if not - End
   
   student_area         = "" if (not student_education_ward_top_3 and not student_education_borough_top_3) \
-                            else f"{student_area_both_01} have high levels of full time 18+ students. Indicating that {student_area_both_02} student area{student_area_both_03}."
+                            else f"{student_area_both_01} have high levels of full time 18+ students. Indicating that {student_area_both_02} college/university student area{student_area_both_03}."
   
   education_narrative_03 = f"For the borough {borough} and ward {ward_name}, the Level 4 education level (post secondary school including university) " + \
                            f"is{level_4_high} high, which is {level_4_high_similar} at the borough level." + \

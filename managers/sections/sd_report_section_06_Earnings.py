@@ -45,11 +45,11 @@ def generate_report_section(session_id
   ### FETCH THE DATA
   ###
   
-  # index = [2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021]
-  data = [[2010, 25370], [2011, 25896], [2012, 26312], [2013, 26884], [2014, 26936], [2015, 27404], [2016, 28028], \
-          [2017, 28600], [2018, 29536], [2019, 30420], [2020,30472], [2021, 31772]]
-  
-  average_country_earnings_df = pd.DataFrame(data=data, columns=["YEAR", "MEAN_INCOME_GBP_COUNTRY"])
+  # # index = [2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021]
+  # data = [[2010, 25370], [2011, 25896], [2012, 26312], [2013, 26884], [2014, 26936], [2015, 27404], [2016, 28028], \
+  #         [2017, 28600], [2018, 29536], [2019, 30420], [2020,30472], [2021, 31772]]
+  #
+  # average_country_earnings_df = pd.DataFrame(data=data, columns=["YEAR", "MEAN_INCOME_GBP_COUNTRY"])
 
   ##
   ##
@@ -85,7 +85,9 @@ def generate_report_section(session_id
                  "borough"  :borough,
                  "ward_name":ward_name}
   
-  
+  ## Get the UK Average Earnings
+  average_country_earnings_df = dao_fac.uk_earnings_year(db_conn, search_term)
+
   ## DATAFRAME
   borough_earnings_ranking_by_year_df = dao_fac.earnings_ranked_by_borough_years(db_conn, search_term)
   
@@ -127,7 +129,8 @@ def generate_report_section(session_id
                                                                (borough_earnings_ranking_by_year_df["BOROUGH"] == borough)]["MEAN_INCOME_GBP_BOROUGH"].values[0]
       borough_actual_estimate_in_year = borough_earnings_ranking_by_year_df[(borough_earnings_ranking_by_year_df["YEAR"] == year) &
                                                                (borough_earnings_ranking_by_year_df["BOROUGH"] == borough)]["MEAN_INCOME_ACTUAL_ESTIMATED"].values[0]
-      country_mean_in_year = average_country_earnings_df[average_country_earnings_df["YEAR"] == int(year)]["MEAN_INCOME_GBP_COUNTRY"].values[0]
+      # country_mean_in_year = average_country_earnings_df[average_country_earnings_df["YEAR"] == int(year)]["MEAN_INCOME_GBP_COUNTRY"].values[0]
+      country_mean_in_year = average_country_earnings_df[average_country_earnings_df["YEAR"].astype(int) == int(year)]["MEAN_INCOME_GBP_COUNTRY"].values[0]
           
       max_in_year_fmt          = "{}{:,.0f}".format(GBP_SYMBOL, city_max_in_year)
       mean_in_year_fmt         = "{}{:,.0f}".format(GBP_SYMBOL, city_mean_in_year)

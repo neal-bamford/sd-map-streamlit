@@ -930,3 +930,62 @@ FROM LONDON_EARNINGS_ON  AS [LEO]
 
   earnings_min_max_year_df = pd.read_sql_query(earnings_min_max_year_sql, db_conn, index_col=None)
   return earnings_min_max_year_df
+
+###
+### EARNINGS - UK
+###
+def uk_earnings_year(db_conn, search_term):
+  logging.debug("retrieving uk earnings year")
+
+  year_from = search_term["year_from"]
+  year_to = search_term["year_to"]
+  
+  uk_earnings_year_sql = """
+---
+--- UK EARNINGS - YEAR
+---
+SELECT CAST([UKEARN].[DATE] AS int)            AS [YEAR]
+     , [UKEARN].[MEAN_INCOME]                  AS [MEAN_INCOME_GBP_COUNTRY]
+     , [UKEARN].[MEAN_INCOME_ACTUAL_ESTIMATED] AS [ACTUAL_ESTIMATED]
+FROM UK_EARNINGS AS [UKEARN]   
+WHERE [UKEARN].[DATE] BETWEEN {} AND {}
+""".format(year_from, year_to)  
+
+  uk_earnings_year_df = pd.read_sql_query(uk_earnings_year_sql, db_conn, index_col=None)
+  return uk_earnings_year_df
+
+
+###
+### POPULATION
+###
+def population_year(db_conn, search_term):
+  logging.debug("retrieving london population year")
+
+  year_from = search_term["year_from"]
+  year_to = search_term["year_to"]
+  
+  london_population_year_sql = """
+---
+--- UK EARNINGS - YEAR
+---
+SELECT DISTINCT CAST(Year([LPO].[Date]) AS int)   AS [YEAR],
+                [LU_LAD_OA].[LAD]                 AS [LAD],  
+                [LU_LAD_OA].[LAD_NAME]            AS [BOROUGH],
+                [LU_WARD_OA].[WARD_CODE]          AS [WARD_CODE],
+                [LU_WARD_OA].[WARD_NAME]          AS [WARD_NAME],
+                CAST([LPO].[ALL] AS FLOAT)        AS [ALL],
+				CAST([LPO].[Males] AS FLOAT)      AS [MALE],
+				CAST([LPO].[Females] AS FLOAT)    AS [FEMALE],
+				CAST([LPO].[student] AS FLOAT)    AS [STUDENT],
+				CAST([LPO].[DensityPPH] AS FLOAT) AS [DENSITY_PPH]
+FROM [LondonPopulation]                           AS [LPO],
+     [LOOKUP_LAD_OA]                              AS [LU_LAD_OA],
+     [LOOKUP_WARD_CODE_OA]                        AS [LU_WARD_OA]
+WHERE [LPO].[OAcode] = [LU_LAD_OA].[OA]
+AND   [LU_LAD_OA].[OA] = [LU_WARD_OA].[OA]
+AND   CAST(Year([LPO].[Date]) AS int) BETWEEN {} AND {}
+""".format(year_from, year_to)  
+
+  london_population_year_df = pd.read_sql_query(london_population_year_sql, db_conn, index_col=None)
+  return london_population_year_df
+
