@@ -149,3 +149,7 @@ def population_year(db_conn, search_term):
 @cache.memoize()
 def population_min_max_year(db_conn):
   return dat_dao.population_min_max_year(db_conn) 
+
+@cache.memoize()
+def post_codes_coords(db_conn, search_term):
+  return dat_dao.post_codes_coords(db_conn, search_term) 

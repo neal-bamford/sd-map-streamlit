@@ -298,19 +298,25 @@ def generate_report_section(session_id
       borough_val = float(row.iloc[2].split("%")[0].strip())
       city_val    = float(row.iloc[3].split("%")[0].strip())
       
-      ward_val_cell_col = inc_dec_shades[0] if abs(city_val - ward_val) <  5.0 else \
-                          inc_dec_shades[1] if abs(city_val - ward_val) < 10.0 else \
-                          inc_dec_shades[2] if abs(city_val - ward_val) < 15.0 else \
-                          inc_dec_shades[3] if abs(city_val - ward_val) < 20.0 else \
+      ward_diff    = city_val - ward_val
+      borough_diff = city_val - borough_val
+      
+      ward_val_cell_col = inc_dec_shades[0] if abs(ward_diff) <  5.0 else \
+                          inc_dec_shades[1] if abs(ward_diff) < 10.0 else \
+                          inc_dec_shades[2] if abs(ward_diff) < 15.0 else \
+                          inc_dec_shades[3] if abs(ward_diff) < 20.0 else \
                           inc_dec_shades[4]
       
-      borough_val_col   = inc_dec_shades[0] if abs(city_val - borough_val) <  5.0 else \
-                          inc_dec_shades[1] if abs(city_val - borough_val) < 10.0 else \
-                          inc_dec_shades[2] if abs(city_val - borough_val) < 15.0 else \
-                          inc_dec_shades[3] if abs(city_val - borough_val) < 20.0 else \
+      borough_val_col   = inc_dec_shades[0] if abs(borough_diff) <  5.0 else \
+                          inc_dec_shades[1] if abs(borough_diff) < 10.0 else \
+                          inc_dec_shades[2] if abs(borough_diff) < 15.0 else \
+                          inc_dec_shades[3] if abs(borough_diff) < 20.0 else \
                           inc_dec_shades[4] 
+                          
+      ethnicity = row.iloc[0]
+      # log.debug(f"ethnicity:{ethnicity} - ward_diff:{ward_diff}[{ward_val_cell_col}] - borough_diff:{borough_diff}[{borough_val_col}]")
       
-      cell_shading.append(["", ward_val_cell_col, borough_val_col, ""])
+      cell_shading.append(["", ward_val_cell_col, borough_val_col, inc_dec_shades[0]])
   
   ethnicity_pct_comparison_table_shading = []
   ethnicity_pct_comparison_table.apply(lambda row: ethnicity_pct_comparison_cell_shading(row, ethnicity_pct_comparison_table_shading), axis=1)

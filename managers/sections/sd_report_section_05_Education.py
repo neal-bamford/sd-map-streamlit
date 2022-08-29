@@ -259,7 +259,7 @@ def generate_report_section(session_id
       colour_change_row.append(cityl_col)
       colour_change.append(colour_change_row)
   
-  ## Shades the ward_borough_city comparison table
+  ## Shades the ward_borough_city ranking table
   def education_ranking_cell_shading(row, cell_shading):
     
       ## Borough to City Check
@@ -338,6 +338,20 @@ def generate_report_section(session_id
   education_comparison_table = education_comparison_table[["Level", f"{ward_name}",f"{borough}",f"{city}"]]
   # education_comparison_table
   
+  ##Custom sort order the datafame
+  ##Sort by custom list https://www.codegrepper.com/code-examples/python/pandas+sort+by+list
+
+  ## Order in the 5 main groups
+  # list_to_sort_by = ["None", "Level 1", "Level 2", "Level 3", "Level 4", "Other", "FT Student 16 17", "FT Student 18+", "FT Student 18+ Employed", "FT Student 18+ Unemployed", "Apprenticeship"]
+  # education_comparison_table = education_comparison_table.set_index("Level").reindex(list_to_sort_by).reset_index()
+  # education_comparison_table["Level"] = education_comparison_table["Level"].astype("category")
+  # education_comparison_table["Level"].cat.set_categories(list_to_sort_by, inplace=True)
+  list_to_sort_by = ["None", "Level 1", "Level 2", "Level 3", "Level 4", "Other", "FT Student 16 17", "FT Student 18+", "FT Student 18+ Employed", "FT Student 18+ Unemployed", "Apprenticeship"]
+  education_comparison_table = education_comparison_table.set_index("Level").reindex(list_to_sort_by).reset_index()
+  education_comparison_table["Level"] = education_comparison_table["Level"].astype("category")
+  education_comparison_table["Level"].cat.set_categories(list_to_sort_by, inplace=True)
+
+  
   ##
   ##
   
@@ -350,7 +364,7 @@ def generate_report_section(session_id
       # log.debug(f"index:{row.name}")
       
       ## Borough to City 
-      name        = row.name
+      name        = row.iloc[0]
       ward_val    = float(row.iloc[1].split("%")[0].strip())
       borough_val = float(row.iloc[2].split("%")[0].strip())
       city_val    = float(row.iloc[3].split("%")[0].strip())

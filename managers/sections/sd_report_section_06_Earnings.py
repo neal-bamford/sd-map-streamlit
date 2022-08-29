@@ -100,12 +100,12 @@ def generate_report_section(session_id
   ##
   
   earnings_changed_search_date_dates     = f"The new date is {earnings_year_to}" if earnings_year_from == earnings_year_to else \
-                                         f"The new dates are {earnings_year_from} to {earnings_year_to}"
+                                           f"The new dates are {earnings_year_from} to {earnings_year_to}"
 
   earnings_changed_search_s              = f" was" if earnings_year_from == earnings_year_to else \
                                            f"s were"
   
-  earnings_narrative_01 = f"Your original search date{earnings_changed_search_s} changed to match the date range of the earnings data. {earnings_changed_search_date_dates}" \
+  earnings_narrative_01 = f"Your original search date{earnings_changed_search_s} changed to match the date range of the earnings data. {earnings_changed_search_date_dates}. " \
                                            if ((earnings_year_from != earnings_year_from_orig) or \
                                                (earnings_year_to   != earnings_year_to_orig)) else ""
   
@@ -293,8 +293,9 @@ def generate_report_section(session_id
   part_05 = f" and is {country_mean_explanation} the country average of {latest_country_mean_mean_salary_fmt}."
   
   from scipy import stats
-  y = [earning_ts_df["BOROUGH_MEAN_IN_YEAR"].tolist()]
-  x = earning_ts_df.index.astype(int).tolist()
+ 
+  y  = [earning_ts_df["BOROUGH_MEAN_IN_YEAR"].tolist()]
+  x  = earning_ts_df.index.astype(int).tolist()
   
   part_06 = ""
   
@@ -305,24 +306,19 @@ def generate_report_section(session_id
   
   
       slope, intercept, r, p, std_err = stats.linregress(x, y)
-  
-      if slope == 0:
-          rate = "has remained level"
-      elif slope > 0:    
-          if slope >= 0.1:
-              rate = "has slightly increased"
-          elif slope >=  0.5:
-              rate = "has moderatly increased"
-          else:
-              rate = "has greatly increased"
+      ## Round to nearest pound
+      # slope = round(slope,0)
+      log.debug(f"slope:{slope}")
+
+      ## Remained level
+      if slope == 0.0:
+          rate = "have remained level"
+      ## Decreased
+      elif slope < 0.0:
+          rate = "have decreased"
+      ## Increased
       else:
-          if slope <= - 0.1:
-              rate = "has slightly decreased"
-          elif slope <= - 0.5:
-              rate = "has moderatly decreased"
-          else:
-              rate = "has greatly decreasd"
-  
+          rate = "have risen"
   
       part_06 = f" Over the period {earnings_year_from} to {earnings_year_to} average earnings in {borough} {rate}."
   
@@ -337,7 +333,7 @@ def generate_report_section(session_id
       part_07 = f" Please note that the earnings for {year_prefix}year{year_suffix} {sd_formatting.series_format(estimated_list)} {estimated_prefix} estimated."
       
   ### Put them all together  [ ]
-  earnings_narrative_03 = f"{part_01}{part_02}{part_03}{part_04}{part_05}{part_06}{part_07}"
+  earnings_narrative_03 = f"{earnings_narrative_01}{part_01}{part_02}{part_03}{part_04}{part_05}{part_06}{part_07}"
 
   report_context["earnings_narrative_03"] = earnings_narrative_03
   

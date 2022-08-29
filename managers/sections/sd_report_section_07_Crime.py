@@ -67,8 +67,8 @@ def generate_report_section(session_id
   elif crime_year_to < int(crime_year_min):
       crime_year_to = int(crime_year_min)
   
-  log.debug(f"earnings orig_year_to    :{crime_year_to_orig}")
-  log.debug(f"earnings search_year_to  :{crime_year_to}")
+  log.debug(f"crime orig_year_to    :{crime_year_to_orig}")
+  log.debug(f"crime search_year_to  :{crime_year_to}")
   
   search_term = {"year_from":crime_year_from,
                  "year_to"  :crime_year_to,
@@ -277,28 +277,34 @@ def generate_report_section(session_id
   
   if len(x) >= 3:
   
-      # log.debug(y)
-      # log.debug(x)
+      log.debug(y)
+      log.debug(x)
   
       slope, intercept, r, p, std_err = stats.linregress(x, y)
-  
-      if slope == 0:
-          rate = "has remained level"
-      elif slope > 0:    
-          if slope >= 0.1:
-              rate = "has slightly increased"
-          elif slope >=  0.5:
-              rate = "has moderatly increased"
-          else:
-              rate = "has greatly increased"
+      log.debug(f"slope:{slope}")
+      
+      ## We're going to use this to grade the slope
+      rounded_slope = round(slope,3)
+      
+      if abs(rounded_slope)    <= 0.01: 
+        inc_dec_mag = "slightly " 
+      elif  abs(rounded_slope) <= 0.03:
+        inc_dec_mag = "mildly " 
       else:
-          if slope <= - 0.1:
-              rate = "has slightly decreased"
-          elif slope <= - 0.5:
-              rate = "has moderatly decreased"
-          else:
-              rate = "has greatly decreased"
-  
+        inc_dec_mag = "sharply "
+         
+      
+      ## Remained level
+      if abs(slope) < 0.001:
+          log.debug("abs(slope) < 0.001")
+          rate = "has remained level"
+      ## Decreased
+      elif slope < 0.0:
+          rate = f"has {inc_dec_mag}decreased"
+      ## Increased
+      else:
+          rate = f"has {inc_dec_mag}increased"
+
       part_05 = f". Over the period {year_from} to {year_to} crimes per person in {borough} {rate}."
   
   ## Borough population trend 
@@ -530,7 +536,7 @@ def generate_report_section(session_id
       
       crime_benchmark_data.append(crime_benchmark_data_row)
   
-  crime_benchmark_table = pd.DataFrame(data=crime_benchmark_data, columns=["Year", "Borough with Lowest Crime per Person", f"{borough} Crime per Person", "Borough with Highest Crime per Person"])
+  crime_benchmark_table = pd.DataFrame(data=crime_benchmark_data, columns=["Year", "Borough with Lowest Crimes per Person", f"{borough} Crimes per Person", "Borough with Highest Crimes per Person"])
   report_context["crime_benchmark_table"] = crime_benchmark_table
 
 

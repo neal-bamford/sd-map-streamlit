@@ -31,6 +31,9 @@ def generate_report_section(session_id
   ## Create a DB Connection at the manager level.
   db_conn = db_tools.get_db_conn(database_props)
 
+  log.debug("<<<<<<<<<<<<<<<<<<")
+  log.debug(search_term)
+  log.debug("<<<<<<<<<<<<<<<<<<")
   ## Get the search terms
   city      = search_term["city"]
   borough   = search_term["borough"]

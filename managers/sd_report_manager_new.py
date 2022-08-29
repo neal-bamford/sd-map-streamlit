@@ -1,6 +1,7 @@
 from docx import Document
 from docx.enum.table import WD_TABLE_ALIGNMENT
 from docx.enum.text import WD_PARAGRAPH_ALIGNMENT
+from docx.enum.table import WD_TABLE_ALIGNMENT
 
 from docx.oxml.ns import nsdecls
 from docx.oxml import parse_xml
@@ -25,7 +26,6 @@ log = logging.getLogger(__name__)
 
 
 def map_alignment(alignment):
-  log.debug(f"alignment:{alignment}")
   if alignment.lower() == "center" or alignment.lower() == "centre":
     return WD_TABLE_ALIGNMENT.CENTER
   elif alignment.lower() == "right":
@@ -48,6 +48,14 @@ def map_text_alignment(text_alignment):
   else:
     # log.debug(f"Default Left")
     return WD_PARAGRAPH_ALIGNMENT.LEFT
+  
+def map_table_alignment(table_alignment):
+  if table_alignment.lower() == "center" or table_alignment.lower() == "centre":
+    return WD_TABLE_ALIGNMENT.CENTER
+  elif table_alignment.lower() == "right":
+    return WD_TABLE_ALIGNMENT.RIGHT
+  else:
+    return WD_TABLE_ALIGNMENT.LEFT
   
 def clear_cell():
   """
@@ -143,7 +151,7 @@ def include_error(error_content, text_alignment='left'):
     run = paragraph.add_run(error_content)
     run.font.color.rgb = RGBColor(255, 0, 0)
 
-def include_table(data, shading=None, style=None, columns=None):
+def include_table(data, shading=None, style=None, columns=None, table_alignment=None):
   """
   Include a Pandas DataFrame as a Word Table
   Apply a style to it - the style MUST exist in the template document
@@ -195,11 +203,16 @@ def include_table(data, shading=None, style=None, columns=None):
     ### add the header rows.
     for j in range(data.shape[-1]):
         dataframe_table.cell(0,j).text = data.columns[j]
+        if table_alignment != None:
+          dataframe_table.cell(0,j).paragraphs[0].paragraph_format.alignment = map_table_alignment(table_alignment[j])
+        
 
     ### add the rest of the data frame
     for i in range(data.shape[0]):
         for j in range(data.shape[-1]):
             dataframe_table.cell(i+1,j).text = str(data.values[i,j])    
+            if table_alignment != None:
+              dataframe_table.cell(i+1,j).paragraphs[0].paragraph_format.alignment = map_table_alignment(table_alignment[j])
 
     ## Add any cell colouring
     if shading != None:
@@ -304,7 +317,6 @@ def generate_report(session_id
     ## Save the template and reference it for the merge to happen in the next part
     stage_02_template = "{}/{}_stage_02_template_{}".format(report_generation_folder, session_id, template_name)
     table_document.save(stage_02_template)
-    
     
     # Merge text
     merge_document = mm.MailMerge(stage_02_template)

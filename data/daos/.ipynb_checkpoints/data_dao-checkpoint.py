@@ -2,6 +2,7 @@ import numpy as np
 import logging
 import numpy as np
 import pandas as pd
+from lib import masters_data_analytics_lib as mlib
 
 # db_conn = db_tools.get_db_conn(properties[properties["database"]["flavour"]] )
 
@@ -1019,3 +1020,18 @@ FROM LondonPopulation AS [LPO]
 
   population_min_max_year_df = pd.read_sql_query(population_min_max_year_sql, db_conn, index_col=None)
   return population_min_max_year_df
+
+
+###
+### POST_CODES_LAT_LONG_EAST_NORTH
+###
+def post_codes_coords(db_conn, search_term):
+  logging.debug("retrieving post_code")
+  
+  ### THIS IS LOADING A STATIC FILE. IF YOU GET A CHANCE TO MOVE IT TO THE
+  ### DATABASE THEN DO.
+  postcodes_df = mlib.csv_to_dataframe("./data/streamlit_london_postcodes_oa.csv")
+
+  return postcodes_df
+
+
