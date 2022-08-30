@@ -1,5 +1,8 @@
 from docx import Document
 from docx.enum.table import WD_TABLE_ALIGNMENT
+from docx.enum.text import WD_PARAGRAPH_ALIGNMENT
+from docx.enum.table import WD_TABLE_ALIGNMENT
+
 from docx.oxml.ns import nsdecls
 from docx.oxml import parse_xml
 from docx.shared import Inches
@@ -17,6 +20,7 @@ import logging
 import mailmerge as mm
 import os
 import pandas as pd
+import sys
 
 log = logging.getLogger(__name__)
 
@@ -25,6 +29,30 @@ def map_alignment(alignment):
   if alignment.lower() == "center" or alignment.lower() == "centre":
     return WD_TABLE_ALIGNMENT.CENTER
   elif alignment.lower() == "right":
+    return WD_TABLE_ALIGNMENT.RIGHT
+  else:
+    return WD_TABLE_ALIGNMENT.LEFT
+
+def map_text_alignment(text_alignment):
+  # log.debug(f"text_alignment:{text_alignment}")
+  
+  if (text_alignment.lower() == "center") or (text_alignment.lower() == "centre"):
+    # log.debug(f"Matched Center")
+    return WD_PARAGRAPH_ALIGNMENT.CENTER
+  elif (text_alignment.lower() == "right") or (text_alignment.lower() == "RIGHT (2)".lower()):
+    # log.debug(f"Matched Right")
+    return WD_PARAGRAPH_ALIGNMENT.RIGHT
+  elif (text_alignment.lower() == "justify") or (text_alignment.lower() == "JUSTIFY (3)".lower()):
+    # log.debug(f"Matched Jusity")
+    return WD_PARAGRAPH_ALIGNMENT.JUSTIFY
+  else:
+    # log.debug(f"Default Left")
+    return WD_PARAGRAPH_ALIGNMENT.LEFT
+  
+def map_table_alignment(table_alignment):
+  if table_alignment.lower() == "center" or table_alignment.lower() == "centre":
+    return WD_TABLE_ALIGNMENT.CENTER
+  elif table_alignment.lower() == "right":
     return WD_TABLE_ALIGNMENT.RIGHT
   else:
     return WD_TABLE_ALIGNMENT.LEFT
@@ -70,27 +98,39 @@ def include_image(image_name_in_context, image_alignment="left", image_width=6):
     paragraph.alignment = map_alignment(image_alignment)
     paragraph_run.add_picture(image_location, width=Inches(image_width))
   
-def include_text(text_content, text_alignment='left'):
+def include_text(text_content, text_alignment='left', format_tokens=None):
   """
   Add text to a table cell - copies the attributes of the text font name, color and size 
   and re-applies after changing the text. 
   """
+
   if "table_cell" not in globals():
     log.error("Can not reference table_cell")
   else:
     table_cell = globals()["table_cell"]
     text_content = globals()["report_context"][text_content]
+    
+    ##format if format_tokens
+    if format_tokens != None:
+      text_content = text_content.replace("{{", "{")
+      text_content = text_content.replace("}}", "}")
+      text_content = text_content.format(format_tokens)
 
     ## Copy the for name, size and color before changing the text
     font_name = table_cell.paragraphs[0].runs[0].font.name
     font_size = table_cell.paragraphs[0].runs[0].font.size
     font_color = table_cell.paragraphs[0].runs[0].font.color
-
+    ## take existing alignment and map it
+    
     ## Change the text
     table_cell.text = text_content
-    ## Set the alignment
-    table_cell.paragraphs[0].alignment = map_alignment(text_alignment)
     
+    ## Set the alignment if we pass it in
+    if text_alignment != None:
+      log.debug(f"text_alignment:{text_alignment}")
+      alignment = map_text_alignment(str(text_alignment))
+      table_cell.paragraphs[0].alignment = alignment
+
     ## Reference the new
     font = table_cell.paragraphs[0].runs[0].font
     ## Set the values
@@ -111,7 +151,7 @@ def include_error(error_content, text_alignment='left'):
     run = paragraph.add_run(error_content)
     run.font.color.rgb = RGBColor(255, 0, 0)
 
-def include_table(data, shading=None, style=None, columns=None):
+def include_table(data, shading=None, style=None, columns=None, table_alignment=None):
   """
   Include a Pandas DataFrame as a Word Table
   Apply a style to it - the style MUST exist in the template document
@@ -153,9 +193,8 @@ def include_table(data, shading=None, style=None, columns=None):
 
     ## Add any table style - the table style MUST exist in the word doc being used
     if style != None:
-      for style in document_styles:
-        log.debug(style.name)
-
+      # for style in document_styles:
+        # log.debug(style.name)
       dataframe_table.style = style
         
 
@@ -164,11 +203,16 @@ def include_table(data, shading=None, style=None, columns=None):
     ### add the header rows.
     for j in range(data.shape[-1]):
         dataframe_table.cell(0,j).text = data.columns[j]
+        if table_alignment != None:
+          dataframe_table.cell(0,j).paragraphs[0].paragraph_format.alignment = map_table_alignment(table_alignment[j])
+        
 
     ### add the rest of the data frame
     for i in range(data.shape[0]):
         for j in range(data.shape[-1]):
             dataframe_table.cell(i+1,j).text = str(data.values[i,j])    
+            if table_alignment != None:
+              dataframe_table.cell(i+1,j).paragraphs[0].paragraph_format.alignment = map_table_alignment(table_alignment[j])
 
     ## Add any cell colouring
     if shading != None:
@@ -264,16 +308,15 @@ def generate_report(session_id
           try:
             response = exec(table_cell_text, globals() ,locals())
           except Exception as response_error:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            log.error(exc_type, exc_obj, exc_tb)
             include_error(str(response_error))
-            log.error(str(response_error))
-            print(f"error:{str(response_error)}")
         else:
           log.warn("Not a Command")            
     
     ## Save the template and reference it for the merge to happen in the next part
     stage_02_template = "{}/{}_stage_02_template_{}".format(report_generation_folder, session_id, template_name)
     table_document.save(stage_02_template)
-    
     
     # Merge text
     merge_document = mm.MailMerge(stage_02_template)

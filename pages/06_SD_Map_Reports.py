@@ -7,7 +7,10 @@ import config_logging
 import controllers.sd_report_type_passed_controller as sd_report_controller
 import logging
 import managers.sd_report_type_crime as sd_report_man_crime
-import managers.sd_report_type_general as sd_report_man_general
+
+## TIDY
+import managers.sd_report_type_general_new as sd_report_man_general
+
 import managers.sd_report_type_health as sd_report_man_health
 import managers.sd_report_type_income as sd_report_man_income
 import streamlit as st
@@ -71,7 +74,7 @@ def x(borough_wards, borough_ward_name=None):
       for ward_name in borough_wards_reduced[borough_name]['WARD_NAMES']:
         # print(f"\t{ward_name}")
         search_terms_options.append(ward_name)
-    
+
   elif borough_ward_name != None:
     # print("Not None")
     if len(borough_ward_name) == 1:
@@ -79,35 +82,35 @@ def x(borough_wards, borough_ward_name=None):
       # print(f"x:ward_name:{borough_ward_name[0]}")
       borough_wards_reduced = borough_wards[borough_ward_name[0]] 
       print(borough_wards_reduced )
-      
+
       for ward_name in borough_wards_reduced['WARD_NAMES']:
         # print(f"\t{ward_name}")
         search_terms_options.append(ward_name)
-  
+
   return search_terms_options
 
   
-def search_options_on_change():
-  print("here")
-  if "search_terms" in st.session_state:
-    print(f"st.session_state.search_terms:{st.session_state.search_terms}")
-    
-    if st.session_state.search_terms != None:
-      print("then then here ")
-      _search_terms = st.session_state.search_terms
-      print(_search_terms)
-      st.session_state.search_terms_options = x(search_boroughs_wards, borough_ward_name=_search_terms)
-      print(f"st.session_state.search_terms_options:{st.session_state.search_terms_options}")
+# def search_options_on_change():
+#   print("here")
+#   if "search_terms" in st.session_state:
+#     print(f"st.session_state.search_terms:{st.session_state.search_terms}")
+#
+#     if st.session_state.search_terms != None:
+#       print("then then here ")
+#       _search_terms = st.session_state.search_terms
+#       print(_search_terms)
+#       st.session_state.search_terms_options = x(search_boroughs_wards, borough_ward_name=_search_terms)
+#       print(f"st.session_state.search_terms_options:{st.session_state.search_terms_options}")
 
 # search_boroughs = ["Hackney", "Hounslow", "Newham", "Richmond upon Thames", "Tower Hamlets"]
 
-search_boroughs_wards = {"Hackney":{"WARD_NAMES":["Brownswood", "Hoxton West", "Woodberry Down"]},
-                         "Hounslow":{"WARD_NAMES":["Bedfont", "Heston Central", "Turnham Green"]},
-                         "Newham":{"WARD_NAMES":["Beckton", "Forest Gate South", "West Ham"]},
-                         "Richmond upon Thames":{"WARD_NAMES":["Barnes", "Kew", "Whitton"]},
-                         "Tower Hamlets":{"WARD_NAMES":["Bethnal Green", "Limehouse", "Whitechapel"]}}
-
-search_terms_options = x(search_boroughs_wards)
+# search_boroughs_wards = {"Hackney":{"WARD_NAMES":["Brownswood", "Hoxton West", "Woodberry Down"]},
+#                          "Hounslow":{"WARD_NAMES":["Bedfont", "Heston Central", "Turnham Green"]},
+#                          "Newham":{"WARD_NAMES":["Beckton", "Forest Gate South", "West Ham"]},
+#                          "Richmond upon Thames":{"WARD_NAMES":["Barnes", "Kew", "Whitton"]},
+#                          "Tower Hamlets":{"WARD_NAMES":["Bethnal Green", "Limehouse", "Whitechapel"]}}
+#
+# search_terms_options = x(search_boroughs_wards)
 
 # for borough_name in search_boroughs_wards.keys():
 #   # print(f"{borough_name}")
@@ -116,18 +119,18 @@ search_terms_options = x(search_boroughs_wards)
 #   for ward_name in search_boroughs_wards[borough_name]['WARD_NAMES']:
 #     # print(f"\t{ward_name}")
 #     search_terms_options.append(ward_name)
-st.session_state.search_terms_options = search_terms_options
-print(f"st.session_state.search_terms_options:{st.session_state.search_terms_options}")
+# st.session_state.search_terms_options = search_terms_options
+# print(f"st.session_state.k:{st.session_state.search_terms_options}")
 
-#   st.session_state.search_terms_options = search_terms_options
+# st.session_state.search_terms_options = search_terms_options
 
                          
 
-search_terms = st.multiselect(label = "search_terms", 
-                              options = st.session_state.search_terms_options,
-                              key="search_terms", 
-                              help="Search Options" , 
-                              on_change=search_options_on_change())
+# search_terms = st.multiselect(label = "search_terms", 
+#                               options = st.session_state.search_terms_options,
+#                               key="search_terms", 
+#                               help="Search Options" , 
+#                               on_change=search_options_on_change())
 
 # options = st.selectbox(label='What are your favorite colors',
 #      options = ['Green', 'Yellow', 'Red', 'Blue'])
@@ -225,6 +228,9 @@ if generate_report_link:
             rep_man = sd_report_man_crime
         elif report_type == "General":
             rep_man = sd_report_man_general
+            template_processor_file_name = "./reports/processors/sd_general_report_template_processor_dev.json"
+            report_context["template_processor_file_name"] = template_processor_file_name
+            
         elif report_type == "Health":
             rep_man = sd_report_man_health
         elif report_type == "Earnings":

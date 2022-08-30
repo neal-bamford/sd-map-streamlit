@@ -2,6 +2,7 @@ import numpy as np
 import logging
 import numpy as np
 import pandas as pd
+from lib import masters_data_analytics_lib as mlib
 
 # db_conn = db_tools.get_db_conn(properties[properties["database"]["flavour"]] )
 
@@ -930,3 +931,107 @@ FROM LONDON_EARNINGS_ON  AS [LEO]
 
   earnings_min_max_year_df = pd.read_sql_query(earnings_min_max_year_sql, db_conn, index_col=None)
   return earnings_min_max_year_df
+
+###
+### EARNINGS - UK
+###
+def uk_earnings_year(db_conn, search_term):
+  logging.debug("retrieving uk earnings year")
+
+  year_from = search_term["year_from"]
+  year_to = search_term["year_to"]
+  
+  uk_earnings_year_sql = """
+---
+--- UK EARNINGS - YEAR
+---
+SELECT CAST([UKEARN].[DATE] AS int)            AS [YEAR]
+     , [UKEARN].[MEAN_INCOME]                  AS [MEAN_INCOME_GBP_COUNTRY]
+     , [UKEARN].[MEAN_INCOME_ACTUAL_ESTIMATED] AS [ACTUAL_ESTIMATED]
+FROM UK_EARNINGS AS [UKEARN]   
+WHERE [UKEARN].[DATE] BETWEEN {} AND {}
+""".format(year_from, year_to)  
+
+  uk_earnings_year_df = pd.read_sql_query(uk_earnings_year_sql, db_conn, index_col=None)
+  return uk_earnings_year_df
+
+
+###
+### POPULATION
+###
+def population_year(db_conn, search_term):
+  logging.debug("retrieving london population year")
+
+  year_from = search_term["year_from"]
+  year_to = search_term["year_to"]
+  
+  london_population_year_sql = """
+---
+--- UK EARNINGS - YEAR
+---
+WITH LONDON_POPULATION_BOROUGH_WARD_AGG AS(
+SELECT DISTINCT [LPO].[YEAR]                      AS [YEAR],
+                [LU_LAD_OA].[LAD]                 AS [LAD],  
+                [LU_LAD_OA].[LAD_NAME]            AS [BOROUGH],
+                [LU_WARD_OA].[WARD_CODE]          AS [WARD_CODE],
+                [LU_WARD_OA].[WARD_NAME]          AS [WARD_NAME],
+                CAST([LPO].[ALL] AS FLOAT)        AS [ALL],
+				CAST([LPO].[Males] AS FLOAT)      AS [MALE],
+				CAST([LPO].[Females] AS FLOAT)    AS [FEMALE],
+				CAST([LPO].[student] AS FLOAT)    AS [STUDENT],
+				CAST([LPO].[DensityPPH] AS FLOAT) AS [DENSITY_PPH]
+FROM [LondonPopulation]                           AS [LPO],
+     [LOOKUP_LAD_OA]                              AS [LU_LAD_OA],
+     [LOOKUP_WARD_CODE_OA]                        AS [LU_WARD_OA]
+WHERE  [LPO].[OAcode] = [LU_LAD_OA].[OA]
+--AND   [LU_LAD_OA].[LAD_NAME] = 'Barking and Dagenham'
+AND   [LU_LAD_OA].[OA] = [LU_WARD_OA].[OA]
+AND   [LPO].[YEAR] BETWEEN 2011 AND 2011
+)
+SELECT [LPAG].[YEAR] AS [YEAR] 
+     , [LPAG].[BOROUGH]           AS [BOROUGH]
+     , [LPAG].[WARD_NAME]         AS [WARD_NAME]
+     , SUM([LPAG].[ALL])               AS [ALL]
+     , SUM([LPAG].[MALE])    AS [MALE]
+     , SUM([LPAG].[FEMALE])  AS [FEMALE] 
+     , SUM([LPAG].[STUDENT]) AS [STUDENT]
+     , AVG([LPAG].[DENSITY_PPH])       AS [DENSITY_PPH]
+FROM [LONDON_POPULATION_BOROUGH_WARD_AGG] AS [LPAG]
+GROUP BY [YEAR], [BOROUGH], [WARD_NAME]
+ORDER BY [BOROUGH], [WARD_NAME]""".format(year_from, year_to)  
+
+  london_population_year_df = pd.read_sql_query(london_population_year_sql, db_conn, index_col=None)
+  return london_population_year_df
+
+###
+### POPULATION - MIN MAX YEAR
+###
+def population_min_max_year(db_conn):
+  logging.debug("Retrieving population min max year")
+  
+  population_min_max_year_sql = """
+---
+--- POPULATION - MIN MAX YEAR
+---
+SELECT DISTINCT MAX([LPO].[YEAR]) AS [MAX_YEAR]
+              , MIN([LPO].[YEAR]) AS [MIN_YEAR]
+FROM LondonPopulation AS [LPO]
+"""  
+
+  population_min_max_year_df = pd.read_sql_query(population_min_max_year_sql, db_conn, index_col=None)
+  return population_min_max_year_df
+
+
+###
+### POST_CODES_LAT_LONG_EAST_NORTH
+###
+def post_codes_coords(db_conn, search_term):
+  logging.debug("retrieving post_code")
+  
+  ### THIS IS LOADING A STATIC FILE. IF YOU GET A CHANCE TO MOVE IT TO THE
+  ### DATABASE THEN DO.
+  postcodes_df = mlib.csv_to_dataframe("./data/streamlit_london_postcodes_oa.csv")
+
+  return postcodes_df
+
+

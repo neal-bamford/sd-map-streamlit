@@ -137,3 +137,19 @@ def qualifications_min_max_year(db_conn):
 @st.cache(hash_funcs={pyodbc.Connection: hash_db_conn})
 def earnings_min_max_year(db_conn):
   return dat_dao.earnings_min_max_year(db_conn)  
+
+@st.cache(hash_funcs={pyodbc.Connection: hash_db_conn})
+def uk_earnings_year(db_conn, search_term):
+  return dat_dao.uk_earnings_year(db_conn, search_term) 
+
+@st.cache(hash_funcs={pyodbc.Connection: hash_db_conn})
+def population_year(db_conn, search_term):
+  return dat_dao.population_year(db_conn, search_term) 
+
+@st.cache(hash_funcs={pyodbc.Connection: hash_db_conn})
+def population_min_max_year(db_conn):
+  return dat_dao.population_min_max_year(db_conn) 
+
+@st.cache(hash_funcs={pyodbc.Connection: hash_db_conn})
+def post_codes_coords(db_conn, search_term):
+  return dat_dao.post_codes_coords(db_conn, search_term) 

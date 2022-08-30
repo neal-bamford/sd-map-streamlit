@@ -1,0 +1,12 @@
+{ 
+  "report_options":
+  [
+    {   
+    "report_option":1,
+    "report_description": "05 Education Section Report Generation Testing",
+    "report_template":"./reports/templates/test_generation_05_education.docx",
+    "report_generation_folder":"./reports/generation/documents/"
+   }
+  ]
+} 
+
