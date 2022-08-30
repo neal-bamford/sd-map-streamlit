@@ -189,8 +189,8 @@ report_option = st.selectbox(key="report_option",
 st.session_state["report_option_obj"] = report_option
 
 
-log.debug("Here")
-year_from_to = st.slider("Date Range", min_value=2001, max_value=2022, value=[2001,2022], step=1)
+year_from_to = st.slider("Date Range", min_value=2010, max_value=2022, value=[2010,2022], step=1)
+# year_from_to = st.slider("Date Range", min_value=2001, max_value=2022, value=[2001,2022], step=1)
 
 
 ## Capture the input and run generate_report
