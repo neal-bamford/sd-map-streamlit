@@ -16,7 +16,7 @@ from lib import db_tools as db_tools
 ## This comes from Streamlit so fake here
 properties = st.secrets
 database_props = properties[properties["database"]["flavour"]] 
-db_conn = None
+# db_conn = None
 db_conn = db_tools.get_db_conn(database_props)
 
 import uuid
