@@ -33,7 +33,7 @@ url_search_city = ""
 url_search_borough = ""
 url_search_ward_name = ""
 url_search_post_code = ""
-url_report_type = "General"
+url_report_type = "Full Report"
 url_report_auto_generate = ""
 
 if "search_city" in  query_params:
@@ -146,7 +146,8 @@ search_post_code = st.text_input("Post Code", value=url_search_post_code, key="s
 
 ## Clear input text
 st.button("Clear", on_click=clear_text)
-report_type_idx = {"Crime":0, "General":1, "Health":2, "Earnings":3}
+#report_type_idx = {"Crime":0, "General":1, "Health":2, "Earnings":3}
+report_type_idx = {"General":1}
 
 # print(f"url_report_type:{url_report_type}")
 # print(report_type_idx[url_report_type])
@@ -154,7 +155,8 @@ report_type_idx = {"Crime":0, "General":1, "Health":2, "Earnings":3}
 # report_type = None
 
 ## These will come from a json file I think, but for now, we'll hard code them
-report_type_options = {"Crime":{"Full Report"}, "General":{"Full Report", "Condensed Report"}, "Health":{"Full Report"}, "Earnings":{"Full Report"}}
+# report_type_options = {"Crime":{"Full Report"}, "General":{"Full Report", "Condensed Report"}, "Health":{"Full Report"}, "Earnings":{"Full Report"}}
+report_type_options = {"General":{"Full Report"}}
 ## Choose the initial set to dispaly as options   
 report_type_option = report_type_options[url_report_type]
 ## Stick it into the streamlit session
