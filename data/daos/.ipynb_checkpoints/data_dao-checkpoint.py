@@ -1035,3 +1035,31 @@ def post_codes_coords(db_conn, search_term):
   return postcodes_df
 
 
+###
+### POPULATION - MIN MAX YEAR
+###
+def boroughs_and_wards(db_conn, search_term):
+  logging.debug("Retrieving boroughs and wards")
+  
+  boroughs_and_wards_sql = """
+---
+--- BOROUGHS AND WARDS
+---
+-- DISTINCT London BOROUGHS and WARD_NAMES
+WITH DISTINCT_BOROUGH_WARD AS(
+SELECT DISTINCT [LPC].[LAD]       AS [BOROUGH_CODE]
+               ,[LPC].[LAD_NAME]  AS [BOROUGH]
+              , [LPC].[WARD_CODE] AS [WARD_CODE] 
+              , [LPC].[WARD_NAME] AS [WARD_NAME]
+FROM [IDX_LONDONPOSTCODES] AS [LPC]
+)
+SELECT [DBW].[BOROUGH]
+     , [DBW].[WARD_NAME]
+FROM [DISTINCT_BOROUGH_WARD] AS [DBW]
+ORDER BY [BOROUGH] ASC, [WARD_NAME] ASC 
+"""  
+
+  boroughs_and_wards_df = pd.read_sql_query(boroughs_and_wards_sql, db_conn, index_col=None)
+  return boroughs_and_wards_df
+
+

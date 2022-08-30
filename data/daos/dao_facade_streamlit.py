@@ -153,3 +153,8 @@ def population_min_max_year(db_conn):
 @st.cache(hash_funcs={pyodbc.Connection: hash_db_conn})
 def post_codes_coords(db_conn, search_term):
   return dat_dao.post_codes_coords(db_conn, search_term) 
+
+@st.cache(hash_funcs={pyodbc.Connection: hash_db_conn})
+def boroughs_and_wards(db_conn, search_term):
+  return dat_dao.boroughs_and_wards(db_conn, search_term) 
+
