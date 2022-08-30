@@ -14,246 +14,127 @@ import streamlit as st
 
 import uuid
 
-# log = logging.getLogger(__name__)
-#
-# def clear_text():
-#     st.session_state["search_borough"] = ""
-#     st.session_state["search_ward_name"] = ""
-#     st.session_state["search_post_code"] = ""
-#
-# session_id = str(uuid.uuid4())[:8]
-#
-# query_params = st.experimental_get_query_params()
-# log.debug(f"query_params:{query_params}")
-#
-# url_search_city = ""
-# url_search_borough = ""
-# url_search_ward_name = ""
-# url_search_post_code = ""
-# url_report_type = "General"
-# url_report_auto_generate = ""
-#
-# if "search_city" in  query_params:
-#     url_search_city = query_params["search_city"][0]
-#
-# if "search_borough" in  query_params:
-#     url_search_borough = query_params["search_borough"][0]
-#
-# if "search_ward_name" in  query_params:
-#     url_search_ward_name = query_params["search_ward_name"][0]
-#
-# if "search_post_code" in  query_params:
-#     url_search_post_code = query_params["search_post_code"][0]
-#
-# if "report_type" in  query_params:
-#     url_report_type = query_params["report_type"][0]
-#
-# if "report_auto_generate" in  query_params:
-#     url_report_auto_generate = query_params["report_auto_generate"][0]
-#
-#
-# ##
-# ## Start of Streamlit
-# ##
-# st.markdown("# SD Map Reports")
-# st.sidebar.markdown("#  SD Map Reports")
-#
-#
-# def x(borough_wards, borough_ward_name=None):
-#   # print("in x")
-#   search_terms_options = []
-#   if borough_ward_name == None:
-#     borough_wards_reduced = borough_wards
-#     for borough_name in borough_wards_reduced.keys():
-#       # print(f"{borough_name}")
-#       search_terms_options.append(borough_name)
-#
-#       for ward_name in borough_wards_reduced[borough_name]['WARD_NAMES']:
-#         # print(f"\t{ward_name}")
-#         search_terms_options.append(ward_name)
-#
-#   elif borough_ward_name != None:
-#     # print("Not None")
-#     if len(borough_ward_name) == 1:
-#       # print("1")
-#       # print(f"x:ward_name:{borough_ward_name[0]}")
-#       borough_wards_reduced = borough_wards[borough_ward_name[0]] 
-#       print(borough_wards_reduced )
-#
-#       for ward_name in borough_wards_reduced['WARD_NAMES']:
-#         # print(f"\t{ward_name}")
-#         search_terms_options.append(ward_name)
-#
-#   return search_terms_options
-#
-#
-def search_options_on_change():
-  if "search_terms" in st.session_state:
-    print(f"st.session_state.search_terms:{st.session_state.search_terms}")
-
-    if st.session_state.search_terms != None:
-      print("then then here ")
-      _search_terms = st.session_state.search_terms
-      print(_search_terms)
-      st.session_state.search_terms_options = x(search_boroughs_wards, borough_ward_name=_search_terms)
-      print(f"st.session_state.search_terms_options:{st.session_state.search_terms_options}")
-#
-# # search_boroughs = ["Hackney", "Hounslow", "Newham", "Richmond upon Thames", "Tower Hamlets"]
-#
-# search_boroughs_wards = {"Hackney":{"WARD_NAMES":["Brownswood", "Hoxton West", "Woodberry Down"]},
-#                          "Hounslow":{"WARD_NAMES":["Bedfont", "Heston Central", "Turnham Green"]},
-#                          "Newham":{"WARD_NAMES":["Beckton", "Forest Gate South", "West Ham"]},
-#                          "Richmond upon Thames":{"WARD_NAMES":["Barnes", "Kew", "Whitton"]},
-#                          "Tower Hamlets":{"WARD_NAMES":["Bethnal Green", "Limehouse", "Whitechapel"]}}
-#
-# search_terms_options = x(search_boroughs_wards)
-#
-# # for borough_name in search_boroughs_wards.keys():
-# #   # print(f"{borough_name}")
-# #   search_terms_options.append(borough_name)
-# #
-# #   for ward_name in search_boroughs_wards[borough_name]['WARD_NAMES']:
-# #     # print(f"\t{ward_name}")
-# #     search_terms_options.append(ward_name)
-# st.session_state.search_terms_options = search_terms_options
-# print(f"st.session_state.search_terms_options:{st.session_state.search_terms_options}")
-#
-# #   st.session_state.search_terms_options = search_terms_options
-#
-#
+log = logging.getLogger(__name__)
 
 
-search_terms = st.multiselect(label = "search_terms", 
-                              options = st.session_state.search_terms_options,
-                              key="search_terms", 
-                              help="Search Options" , 
-                              on_change=search_options_on_change())
 
-# # options = st.selectbox(label='What are your favorite colors',
-# #      options = ['Green', 'Yellow', 'Red', 'Blue'])
-# #
-# # st.write('You selected:', options)
-#
-# ## Input the post code to search with
-# ## City
-# search_city = url_search_city if url_search_city != "" else "London"
-# search_borough   = st.text_input("Borough", value=url_search_borough, key="search_borough", help="Borough you want to analyse")
-# search_ward_name = st.text_input("Ward Name", value=url_search_ward_name, key="search_ward_name", help="Ward in the borough you want to analyse")
-# search_post_code = st.text_input("Post Code", value=url_search_post_code, key="search_post_code", help="Post Code in the City you want to analyse")
-#
-# ## Clear input text
-# st.button("Clear", on_click=clear_text)
-# report_type_idx = {"Crime":0, "General":1, "Health":2, "Earnings":3}
-#
-# # print(f"url_report_type:{url_report_type}")
-# # print(report_type_idx[url_report_type])
-#
-# # report_type = None
-#
-# ## These will come from a json file I think, but for now, we'll hard code them
-# report_type_options = {"Crime":{"Full Report"}, "General":{"Full Report", "Condensed Report"}, "Health":{"Full Report"}, "Earnings":{"Full Report"}}
-# ## Choose the initial set to dispaly as options   
-# report_type_option = report_type_options[url_report_type]
-# ## Stick it into the streamlit session
-# st.session_state.report_type_option = report_type_option
-#
-# def report_type_on_chage():
-#   """
-#   When the report_type selectbox chnages we need to set the
-#   value for the options
-#   """
-#   if "report_type" in st.session_state:
-#     if st.session_state.report_type != None:
-#         ## Update the available options for the report_type
-#         report_type_option = report_type_options[st.session_state.report_type]
-#         ## Stick it into the streamlit session
-#         st.session_state.report_type_option = report_type_option
-#
-# ## This is the report type
-# report_type = st.selectbox(key="report_type",
-#                            label="Report Type",
-#                            options=["Crime", "General", "Health", "Earnings"], 
-#                            index=report_type_idx[url_report_type],
-#                            on_change = report_type_on_chage())
-#
-# ## And the options of the report we can choose from
-# report_option = st.selectbox(key="report_option",
-#                              label="Report Option",
-#                              options=st.session_state.report_type_option)
-#
-# st.session_state["report_option_obj"] = report_option
-#
-#
-# log.debug("Here")
-# year_from_to = st.slider("Date Range", min_value=2001, max_value=2022, value=[2001,2022], step=1)
-#
-#
-# ## Capture the input and run generate_report
-# if url_report_auto_generate != "" and url_report_auto_generate.lower() == "true":
-#     generate_report_link = True
+# if "X" in st.session_state:
+#   print("X in st.session")
+#   st.session_state.borough_search_term = st.session_state.pop("X")
 # else:
-#     generate_report_link = st.button("Generate Report")
-#
-# ##
-# ## Generate Link
-# ##
-# if generate_report_link:
-#
-#
-#     search_term = {"city"      : search_city
-#                  , "borough"   : search_borough
-#                  , "ward_name" : search_ward_name
-#                  , "post_code" : search_post_code
-#                  , "year_from" : year_from_to[0]
-#                  , "year_to"   : year_from_to[1]}
-#
-#
-#     ## Generate a context to place items in which is used when generating the report in the final step
-#     report_context = {}
-#     # report_context["template_processor_file_name"] = "./reports/processors/sd_general_report_data_manager.json"
-#     ### This should come from another drop down
-#     report_context["report_option"] = report_option
-#
-#     ## This comes from Streamlit so fake here
-#     properties = st.secrets
-#
-#     try:
-#         log.debug(f"report_type:{report_type}")
-#
-#         rep_man = None
-#         if report_type == "Crime":
-#             rep_man = sd_report_man_crime
-#         elif report_type == "General":
-#             rep_man = sd_report_man_general
-#         elif report_type == "Health":
-#             rep_man = sd_report_man_health
-#         elif report_type == "Earnings":
-#             rep_man = sd_report_man_income
-#
-#         generated_report = rep_man.generate_report(session_id=session_id, search_term=search_term, report_context=report_context, properties=properties, lib=mlib, dao_fac=dao_fac)    
-#
-#         ### 
-#         ### Read in the document to send out on the link
-#         ###    
-#         for file in [generated_report]:
-#                 with open(file, "rb") as report:
-#                     encoded = report.read()
-#
-#         city      = report_context["city"]
-#         borough   = report_context["borough"]
-#         ward_name = report_context["ward_name"]
-#         post_code = report_context["post_code"]
-#
-#
-#
-#         gernerated_report_download = "sd_{}_report_{}_{}_{}{}{}.docx".format(report_type.lower(), city, borough, ward_name, ("_" if post_code != "" else ""), post_code).replace(" ", "_")
-#
-#
-#         html_link = mlib.create_download_link(encoded , gernerated_report_download, f"[{report_type} - {report_option}]")
-#
-#
-#
-#
-#         st.markdown(html_link, unsafe_allow_html=True)
-#     except Exception as e:
-#         st.error(e)
+#   print("X not st.session")
+
+if "ms_borough_default" not in st.session_state:
+  print("initialising st.session_state.ms_borough_default")
+  st.session_state.ms_borough_default = None
+  
+if "ms_borough_default_run" not in st.session_state:
+  st.session_state.ms_borough_default_run = False
+
+
+def create_list(dict):
+    ret_list = []
+    for key in dict:
+        log.debug(key)
+        for item in dict[key]["WARD_NAMES"]:
+            if item not in ret_list:
+                ret_list.append(item)
+    
+    return ret_list
+  
+  
+
+
+## List -- this will come from a DAO
+ms_borough_list = ["Hackney", "Hounslow", "Newham", "Richmond upon Thames", "Tower Hamlets"]
+ms_borough_wards = {"Hackney":{"WARD_NAMES":["Brownswood", "Hoxton West", "Woodberry Down"]},
+                    "Hounslow":{"WARD_NAMES":["Bedfont", "Heston Central", "Turnham Green"]},
+                    "Newham":{"WARD_NAMES":["Beckton", "Forest Gate South", "West Ham"]},
+                    "Richmond upon Thames":{"WARD_NAMES":["Barnes", "Kew", "Whitton", "Bedfont"]},
+                    "Tower Hamlets":{"WARD_NAMES":["Bethnal Green", "Limehouse", "Whitechapel"]}}
+
+ms_ward_list = create_list(ms_borough_wards) 
+
+def set_ms_borough_list(ward=None):
+  
+  ## We're not restricting with values from the ward_list
+  if ward == None:
+    ## Stick it in the session
+    st.session_state.ms_borough_list = ms_borough_list 
+  else:
+    log.debug("Some other action borough list")
+    
+def set_ms_ward_list(borough=None):
+  
+  if borough == None:
+    st.session_state.ms_ward_list = ms_ward_list
+  else:
+    print(f"restricting the ward option with borough:{borough}")
+    st.session_state.ms_ward_list = ms_borough_wards[borough]["WARD_NAMES"]
+    # log.debug("Some other action ward list")
+        
+
+def ms_borough_on_change():
+  st.session_state.ms_borough_default_run = None
+  if "borough_search_term" in st.session_state:
+    print(f"borough:{st.session_state.borough_search_term}")
+    ## Only process if there's something in the borough multiselect
+    if st.session_state.borough_search_term != None:
+      if len(st.session_state.borough_search_term) >1:
+        st.error("Select only one borough")
+      elif len(st.session_state.borough_search_term) == 1:
+        selected_borough = st.session_state.borough_search_term[0]
+        print(f"selected_borough:{selected_borough}")
+        set_ms_ward_list(selected_borough)
+
+def ms_ward_on_change():
+  st.session_state.ms_borough_default_run = None
+  if "ward_search_term" in st.session_state:
+    print(f"ward:{st.session_state.ward_search_term}")
+    ## Only process if there's something in the borough multiselect
+    if st.session_state.ward_search_term != None:
+      if len(st.session_state.ward_search_term) >1:
+        st.error("Select only one ward")
+      elif len(st.session_state.ward_search_term) == 1:
+        selected_ward = st.session_state.ward_search_term[0]
+        print(f"selected_ward:{selected_ward}")
+        print(len(st.session_state.borough_search_term))
+        ## If we started by selecting a ward then set the borough
+        if len(st.session_state.borough_search_term) == 0:
+          print("you set a ward and no borough -> setting borough")
+          st.session_state.ms_borough_default = "Newham"
+          st.session_state.ms_borough_default_run = True
+          print(st.session_state.ms_borough_default_run)
+          
+          
+          # st.session_state["X"] = "Newham"
+          #set_ms_borough_list(selected_ward)
+          # del st.session_state.borough_search_term
+          
+
+set_ms_borough_list()
+set_ms_ward_list()
+
+container = st.container()
+
+
+ms_borough = container.multiselect(label = "Borough", 
+                            options = st.session_state.ms_borough_list,
+                            default = st.session_state.ms_borough_default, 
+                            key="borough_search_term", 
+                            help="Borough Search Term" , 
+                            on_change=ms_borough_on_change())
+  
+
+ms_ward    = container.multiselect(label = "Ward", 
+                            options = st.session_state.ms_ward_list,
+                            key="ward_search_term",
+                            on_change=ms_ward_on_change())
+                            
+
+if "ms_borough_default_run" in st.session_state:
+  print("In Here")
+  
+  if st.session_state.ms_borough_default_run == True:
+    st.session_state["ms_borough_default_run"] = False
+    st.experimental_rerun()
