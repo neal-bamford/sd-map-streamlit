@@ -1,3 +1,5 @@
+import logging
+
 import folium
 import numpy as np
 import pandas as pd
@@ -6,9 +8,11 @@ import time
 from selenium import webdriver
 from lib import file_tools as ft
 
+log = logging.getLogger(__name__)
+
 def generate_map(file, **kwargs):
     """
-    Uses Selenium, chromium_driver and chrome executables on host to take the folium generated
+    Uses Selenium, chromium_driver and Chrome executables on host to take the folium generated
     html file, render it then take a snapshot of the page, save it as a .png then return its 
     location to the caller.
     """
@@ -129,7 +133,7 @@ def generate_map(file, **kwargs):
     
     html_file_abs =  "file:///" + os.path.abspath(html_file)
     
-    print("Browser is loading {}".format(html_file))
+    log.debug("Browser is loading {}".format(html_file))
     browser.get(html_file_abs)
 
     time.sleep(browser_pause_s)
