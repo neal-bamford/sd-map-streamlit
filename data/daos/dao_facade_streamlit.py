@@ -58,6 +58,10 @@ def crime_ranked_by_borough_years(db_conn, search_term):
 def crime_major_category_in_borough_years(db_conn, search_term):
   return dat_dao.crime_major_category_in_borough_years(db_conn, search_term)
 
+@st.cache(hash_funcs={pyodbc.Connection: hash_db_conn})
+def crime_major_category_in_borough_ward_years(db_conn, search_term):
+  return dat_dao.crime_major_category_in_borough_ward_years(db_conn, search_term)
+
 ###
 ### Earnings
 ###

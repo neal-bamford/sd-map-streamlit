@@ -363,10 +363,12 @@ def generate_report_section(session_id
                                (population_year_to <= population_year_to)) else "outside"
   
   population_search_range = f"of {population_year_from_orig} to {population_year_to_orig}" if population_year_from_orig != population_year_to_orig else f"{population_year_to_orig}"
-  population_narrative_search_criters = f"Using the latest population data from {population_year_to} which is {population_in_not_in} your search range {population_search_range}"
+  population_narrative_search_criters = f"Using the latest population data available from {population_year_to} which is {population_in_not_in} your search range {population_search_range}"
+  ## Change suggested by Qicheng 2022.08.31
+  population_narrative_search_criters = f"Using the latest population data from {population_year_to}"
   
   ward_borough_population_level = pph_population_by_borough_ward_year_filtered["POPULATION_STATUS"].values[0]
-  population_narrative_01 = f"{population_narrative_search_criters}. The table {{}} shows that {ward_name} in {borough} is {ward_borough_population_level} compared to other {city} wards."
+  population_narrative_01 = f"{population_narrative_search_criters}, the table {{}} shows that {ward_name} in {borough} is {ward_borough_population_level} compared to other {city} wards."
   
   ###
   ### POPULATON NARRATIVE 02 
@@ -374,7 +376,7 @@ def generate_report_section(session_id
   
   borough_population_level = pph_population_by_borough_year_df_sorted.loc[pph_population_by_borough_year_df_sorted["BOROUGH"] == borough]["POPULATION_STATUS"].values[0]
   borough_to_ward_population_level = "are the same" if ward_borough_population_level == borough_population_level else "are at different levels"
-  population_narrative_02 = f"The table {{}} shows that {borough} is {borough_population_level} compared to other {city} boroughs and where it ranks in persons per hectars." + \
+  population_narrative_02 = f"The table {{}} shows that {borough} is {borough_population_level} compared to other {city} boroughs and where it ranks in persons per hectares." + \
                             f" The population level at ward and borough {borough_to_ward_population_level}."
   
   

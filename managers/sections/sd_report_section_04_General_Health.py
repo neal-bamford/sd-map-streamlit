@@ -90,8 +90,10 @@ def generate_report_section(session_id
   
   health_search_range = f"of {health_year_from_orig} to {health_year_to_orig}" if health_year_from_orig != health_year_to_orig else f"{health_year_to_orig}"
   health_narrative_search_criters = f"Using the latest general health data from {health_year_to} which is {health_in_not_in} your search range {health_search_range}"
-  
-  health_narrative_01 = f"{health_narrative_search_criters}. The table {{}} ranks general health in {ward_name}, {borough} and {city}. " + \
+  ## Change suggested by Qicheng 2022.08.31
+  health_narrative_search_criters = f"Using the latest general health data available from {health_year_to}"
+
+  health_narrative_01 = f"{health_narrative_search_criters}, the table {{}} ranks general health in {ward_name}, {borough} and {city}. " + \
   "The ranking is highest to lowest percentage from top to bottom. Where there is a difference in general health the cell is shaded, a darker " + \
   "shade denotes a difference between borough and ward. Values in [] give the percentage value." 
 

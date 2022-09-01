@@ -95,8 +95,10 @@ def generate_report_section(session_id
   
   education_search_range = f"of {education_year_from_orig} to {education_year_to_orig}" if education_year_from_orig != education_year_to_orig else f"{education_year_to_orig}"
   education_narrative_search_criteria = f"Using the latest qualifications data from {education_year_to} which is {education_in_not_in} your search range {education_search_range}"
+  ## Change suggested by Qicheng 2022.08.31
+  education_narrative_search_criteria = f"Using the latest qualifications data available from {education_year_to}"
   
-  education_narrative_01 = f"{education_narrative_search_criteria}. The table {{}} ranks qualifications in {ward_name}, {borough} and {city}. " + \
+  education_narrative_01 = f"{education_narrative_search_criteria}, the table {{}} ranks qualifications in {ward_name}, {borough} and {city}. " + \
   "The ranking is highest to lowest percentage from top to bottom. Where there is a difference in qualification the cell is shaded, a darker " + \
   "shade denotes a difference between borough and ward. Values in [] give the percentage value."  
 

@@ -8,6 +8,9 @@ from lib import masters_data_analytics_lib as mlib
 
 log = logging.getLogger(__name__)
 
+######
+###### CRIME QUERIES START
+######
 
 ###
 ### CRIME - MIN MAX YEAR
@@ -30,42 +33,42 @@ FROM LONDON_CRIME_LDS AS [LCLDS]
 ###
 ### CRIME - BOROUGH RANKING
 ###
-def crime_ranked_by_borough_years(db_conn):
-  logging.debug("Retrieving Crime Ranked By Borough Years")
+# def crime_ranked_by_borough_years(db_conn):
+#   logging.debug("Retrieving Crime Ranked By Borough Years")
   
-  crime_ranked_by_borough_years_sql = """
----
---- CRIME - RANKED BY BOROUGH - ALL YEARS
----
-WITH SUMMED_CRIME_BOROUGH AS (
-  SELECT [LCR].[YEAR]       AS [YEAR], 
-         [LCR].[LAD_CODE]   AS [LAD_CODE],
-         [LCR].[LAD_NAME]   AS [LAD_NAME],
-         SUM([LCR].[COUNT]) AS [BOROUGH_TOTAL_CRIME]
-  FROM LONDON_CRIME_LDS            LCR
---  WHERE CONVERT(int,[LCR].[YEAR]) BETWEEN 2001 AND 2022
-  GROUP BY [LCR].[YEAR], [LCR].[LAD_CODE], [LCR].[LAD_NAME]
-)
-SELECT [LCR].[YEAR]                                            AS [YEAR],
-       [LCR].[LAD_CODE]                                        AS [LAD_CODE],
-       [LCR].[LAD_NAME]                                        AS [LAD_NAME],
-       [LCR].[BOROUGH_TOTAL_CRIME]                             AS [BOROUGH_TOTAL_CRIME],
-       [LPE].[COUNT]                                           AS [BOROUGH_POPULATION],
-       ROUND(([LCR].[BOROUGH_TOTAL_CRIME] / [LPE].[COUNT]), 5) AS [CRIMES_PER_PERSON],
-       ROW_NUMBER() OVER(
-               PARTITION BY [LCR].[YEAR]                              -- RESET WHEN YEAR CHANGES
-               ORDER     BY [LCR].[YEAR] DESC                         -- ORDER BY YEAR DESCENDING
-                          , ROUND(([LCR].[BOROUGH_TOTAL_CRIME] / [LPE].[COUNT]), 5) DESC) AS [RANK] -- RANKING COLUMN HIGHEST -> LOWEST
-FROM SUMMED_CRIME_BOROUGH        [LCR],
-     LONDON_POPULATION_ESTIMATED [LPE]
-WHERE [LPE].[YEAR] = [LCR].[YEAR]
-AND   [LPE].[LAD] = [LCR].[LAD_CODE]
--- AND   CONVERT(int,[LPE].[YEAR]) BETWEEN 2001 AND 2022
-ORDER BY [LPE].[YEAR] DESC, [CRIMES_PER_PERSON] DESC, [LCR].[LAD_NAME] ASC     
-"""  
+#   crime_ranked_by_borough_years_sql = """
+# ---
+# --- CRIME - RANKED BY BOROUGH - ALL YEARS
+# ---
+# WITH SUMMED_CRIME_BOROUGH AS (
+#   SELECT [LCR].[YEAR]       AS [YEAR], 
+#          [LCR].[LAD_CODE]   AS [LAD_CODE],
+#          [LCR].[LAD_NAME]   AS [LAD_NAME],
+#          SUM([LCR].[COUNT]) AS [BOROUGH_TOTAL_CRIME]
+#   FROM LONDON_CRIME_LDS            LCR
+# --  WHERE CONVERT(int,[LCR].[YEAR]) BETWEEN 2001 AND 2022
+#   GROUP BY [LCR].[YEAR], [LCR].[LAD_CODE], [LCR].[LAD_NAME]
+# )
+# SELECT [LCR].[YEAR]                                            AS [YEAR],
+#        [LCR].[LAD_CODE]                                        AS [LAD_CODE],
+#        [LCR].[LAD_NAME]                                        AS [LAD_NAME],
+#        [LCR].[BOROUGH_TOTAL_CRIME]                             AS [BOROUGH_TOTAL_CRIME],
+#        [LPE].[COUNT]                                           AS [BOROUGH_POPULATION],
+#        ROUND(([LCR].[BOROUGH_TOTAL_CRIME] / [LPE].[COUNT]), 5) AS [CRIMES_PER_PERSON],
+#        ROW_NUMBER() OVER(
+#                PARTITION BY [LCR].[YEAR]                              -- RESET WHEN YEAR CHANGES
+#                ORDER     BY [LCR].[YEAR] DESC                         -- ORDER BY YEAR DESCENDING
+#                           , ROUND(([LCR].[BOROUGH_TOTAL_CRIME] / [LPE].[COUNT]), 5) DESC) AS [RANK] -- RANKING COLUMN HIGHEST -> LOWEST
+# FROM SUMMED_CRIME_BOROUGH        [LCR],
+#      LONDON_POPULATION_ESTIMATED [LPE]
+# WHERE [LPE].[YEAR] = [LCR].[YEAR]
+# AND   [LPE].[LAD] = [LCR].[LAD_CODE]
+# -- AND   CONVERT(int,[LPE].[YEAR]) BETWEEN 2001 AND 2022
+# ORDER BY [LPE].[YEAR] DESC, [CRIMES_PER_PERSON] DESC, [LCR].[LAD_NAME] ASC     
+# """  
 
-  crime_ranked_by_borough_year_df = pd.read_sql_query(crime_ranked_by_borough_years_sql, db_conn, index_col=None)
-  return crime_ranked_by_borough_year_df
+#   crime_ranked_by_borough_year_df = pd.read_sql_query(crime_ranked_by_borough_years_sql, db_conn, index_col=None)
+#   return crime_ranked_by_borough_year_df
 
 def crime_ranked_by_borough_years(db_conn, search_term):
   logging.debug("Retrieving Crime Ranked By Borough Years")
@@ -107,7 +110,9 @@ ORDER BY [LPE].[YEAR] DESC, [CRIMES_PER_PERSON] DESC, [LCR].[LAD_NAME] ASC
   crime_ranked_by_borough_year_df = pd.read_sql_query(crime_ranked_by_borough_years_sql, db_conn, index_col=None)
   return crime_ranked_by_borough_year_df
 
-
+##
+## Top 5 Crimes in a borough for a given date range
+##
 def crime_major_category_in_borough_years(db_conn, search_term):
   logging.debug("Retrieving Crim Major categories top 5 for borough in year")
   
@@ -148,9 +153,63 @@ WHERE [NBYMCRTF].[RANK] <= 5
 ORDER BY [NBYMCRTF].[YEAR] DESC
 """.format(borough, year_from, year_to)
 
-  crime_major_category_by_borough_years_sql_df = pd.read_sql_query(crime_major_category_by_borough_years_sql, db_conn, index_col=None)
-  return crime_major_category_by_borough_years_sql_df
+  crime_major_category_by_borough_years_df = pd.read_sql_query(crime_major_category_by_borough_years_sql, db_conn, index_col=None)
+  return crime_major_category_by_borough_years_df
 
+##
+## Top 5 Crimes in a ward for a given borough and date range
+##
+def crime_major_category_in_borough_ward_years(db_conn, search_term):
+  logging.debug("Retrieving Crim Major categories for a ward top 5 for borough in year")
+  
+  borough   = search_term["borough"]
+  ward_name = search_term["ward_name"]
+  year_from = search_term["year_from"]
+  year_to   = search_term["year_to"]
+  
+  crime_major_category_by_borough_ward_years_sql = """
+WITH NAMED_BOROUGH_WARD_YEAR_MAJOR_CATEGORY_RANKING AS(
+SELECT [LCR].[YEAR_I]         AS [YEAR_I],
+       [LCR].[YEAR]           AS [YEAR],
+       [LCR].[LAD_CODE]       AS [LAD_CODE],
+       [LCR].[LAD_NAME]       AS [LAD_NAME],
+       [LCR].[WARD_CODE]      AS [WARD_CODE],
+       [LCR].[WARD_NAME]      AS [WARD_NAME],
+       [LCR].[MAJOR_CATEGORY] AS [MAJOR_CATEGORY],
+       SUM([LCR].[COUNT])     AS [WARD_TOTAL_CRIME]
+FROM LONDON_CRIME_LDS         AS [LCR]
+WHERE [LCR].[LAD_NAME] = '{}'
+AND [LCR].[WARD_NAME] = '{}'
+AND   [LCR].[YEAR_I] BETWEEN {} AND {}
+GROUP BY [LCR].[YEAR_I], [LCR].[YEAR], [LCR].[LAD_CODE], [LCR].[LAD_NAME], [LCR].[WARD_CODE], [LCR].[WARD_NAME], [LCR].[MAJOR_CATEGORY]
+), NAMED_BOROUGH_WARD_YEAR_MAJOR_CATEGORY_RANKING_TOP_FIVE AS(
+SELECT [NBYMCR].[YEAR]             AS [YEAR]
+     , [NBYMCR].[MAJOR_CATEGORY]   AS [MAJOR_CATEGORY]
+     , [NBYMCR].[LAD_NAME]         AS [BOROUGH]
+     , [NBYMCR].[WARD_NAME]        AS [WARD_NAME]
+     , [NBYMCR].[WARD_TOTAL_CRIME] AS [WARD_TOTAL_CRIME]
+     , ROW_NUMBER() OVER(PARTITION BY [NBYMCR].[YEAR]                                -- RESET WHEN YEAR CHANGES
+               			 ORDER     BY [NBYMCR].[YEAR] DESC                           -- ORDER BY YEAR DESCENDING
+                                    , [NBYMCR].[WARD_TOTAL_CRIME] DESC) AS [RANK]    -- RANKING COLUMN HIGHEST -> LOWEST
+FROM NAMED_BOROUGH_WARD_YEAR_MAJOR_CATEGORY_RANKING AS [NBYMCR]
+)
+SELECT [NBYMCRTF].[YEAR]
+--     , [NBYMCRTF].[BOROUGH]
+     , [NBYMCRTF].[WARD_NAME] 
+     , [NBYMCRTF].[MAJOR_CATEGORY]
+     , [NBYMCRTF].[WARD_TOTAL_CRIME]
+     , [NBYMCRTF].[RANK]
+FROM [NAMED_BOROUGH_WARD_YEAR_MAJOR_CATEGORY_RANKING_TOP_FIVE] AS [NBYMCRTF]
+WHERE [NBYMCRTF].[RANK] <= 5
+ORDER BY [NBYMCRTF].[YEAR] DESC
+""".format(borough, ward_name, year_from, year_to)
+
+  crime_major_category_by_borough_ward_years_df = pd.read_sql_query(crime_major_category_by_borough_ward_years_sql, db_conn, index_col=None)
+  return crime_major_category_by_borough_ward_years_df
+
+######
+###### CRIME QUERIES END
+######
 
 
 ###
@@ -967,7 +1026,7 @@ def population_year(db_conn, search_term):
   
   london_population_year_sql = """
 ---
---- UK EARNINGS - YEAR
+--- UK POPULATION - YEAR
 ---
 WITH LONDON_POPULATION_BOROUGH_WARD_AGG AS(
 SELECT DISTINCT [LPO].[YEAR]                      AS [YEAR],
@@ -1038,7 +1097,7 @@ def post_codes_coords(db_conn, search_term):
 ###
 ### POPULATION - MIN MAX YEAR
 ###
-def boroughs_and_wards(db_conn, search_term):
+def boroughs_and_wards(db_conn, search_critera):
   logging.debug("Retrieving boroughs and wards")
   
   boroughs_and_wards_sql = """

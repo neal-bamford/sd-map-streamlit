@@ -158,6 +158,7 @@ def generate_report_section(session_id
   ax.set_title(plot_title, fontsize=20)
   ax.set_ylabel("Crimes per Person", fontsize=20)
   ax.set_xlabel("Year", fontsize=20)
+  ax.tick_params(axis="x", labelrotation=90)
   
   ax.legend(title="legend")
   ax.legend(loc="upper right")
@@ -570,15 +571,18 @@ def generate_report_section(session_id
   # mlib.save_df(crime_benchmark_data_df, crime_benchmark_display_table_file_name, save_artefacts=True)
   # report_context["crime_benchmark_display_table"] = crime_benchmark_display_table_file_name
   
-  ##
-  ##
+  ####
+  #### TOP 5 CRIMES
+  ####
+  
+  #
+  ## BOROUGH
+  #
   
   borough_top_crime_per_by_year_df = dao_fac.crime_major_category_in_borough_years(db_conn, search_term)
-
-  ##
-  ##
-
+  
   columns = ["Year", "1st", "2nd", "3rd", "4th", "5th"]
+  
   borough_top_crime_data = []
   
   unique_years_cat = sorted(unique_years, reverse=True)
@@ -609,27 +613,45 @@ def generate_report_section(session_id
   borough_top_crime_table_narrative = f"The {{}} table shows the top 5 crimes in {borough} {borough_top_crime_table_narrative_date}. Bracketed values are the reported number of that crime."
   report_context["borough_top_crime_table_narrative"] = borough_top_crime_table_narrative 
     
-  # borough_top_crime_data_df = borough_top_crime_data_df.set_index("Year")
-  
-  ## Sort in descending date order
-  # borough_top_crime_data_df.sort_index(ascending=False)
-  
-  # from IPython.display import HTML
-  # styles = [
-  #   dict(selector="tr", props=[("font-size", "110%"),
-  #                              ("text-align", "right")])
-  # ]
+    
   #
-  # borough_top_crime_data_df_html = (borough_top_crime_data_df.style.set_table_styles(styles))
-  # crime_top_crimes_display_table_file_name = "{}/{}_crime_top_crimes_display_table_{}_{}_{}.png".format(save_image_path, session_id, city, borough, ward_name) 
-  # mlib.save_df(borough_top_crime_data_df, crime_top_crimes_display_table_file_name, save_artefacts=True)
-  # report_context["crime_top_crimes_display_table"] = crime_top_crimes_display_table_file_name
+  ## WARD
+  #
   
-  ###
-  ### IF YOU USE THE RENDERED VERSION IT CAUSES AN EXCEPTION - SAME AS ABOVE
-  ### 
-  ## Change this back 
-  # mlib.save_df(borough_top_crime_data_df_html, crime_top_crimes_display_table_file_name, save_artefacts=True)
+  ward_top_crime_per_by_year_df = dao_fac.crime_major_category_in_borough_ward_years(db_conn, search_term)
+  
+  columns = ["Year", "1st", "2nd", "3rd", "4th", "5th"]
+  
+  ward_top_crime_data = []
+  
+  unique_years_cat = sorted(unique_years, reverse=True)
+  
+  for year in unique_years_cat:
+      ward_top_crime_data_row = []
+      ward_top_crime_per_by_year = ward_top_crime_per_by_year_df[ward_top_crime_per_by_year_df["YEAR"] == year]
+  
+      ward_top_crime_data_row.append(str(year))
+      for i in range(0,5):
+          try:
+              major_category = ward_top_crime_per_by_year[i:i+1]["MAJOR_CATEGORY"].values[0]
+              ward_total_crime = ward_top_crime_per_by_year[i:i+1]["WARD_TOTAL_CRIME"].values[0]
+              ward_total_crime_fmt = "{:,.0f}".format(ward_total_crime)
+              maj_cat_tot = f"{major_category} - [{ward_total_crime_fmt}]"
+              ward_top_crime_data_row.append(maj_cat_tot)
+          except:
+              ward_top_crime_data_row.append("-NA-")
+  
+      ward_top_crime_data.append(ward_top_crime_data_row)
+  
+  ward_top_crime_table = pd.DataFrame(data=ward_top_crime_data, columns=columns)
+  report_context["ward_top_crime_table"] = ward_top_crime_table
+  
+  ward_top_crime_table_narrative_date = "between {} and {}".format(year_from, year_to) if year_from != year_to else \
+                                           "in {}".format(year_to)
+  
+  ward_top_crime_table_narrative = f"The {{}} table shows the top 5 crimes in {ward_name} {ward_top_crime_table_narrative_date}. Bracketed values are the reported number of that crime."
+  report_context["ward_top_crime_table_narrative"] = ward_top_crime_table_narrative 
+    
   
   db_conn.close()
   

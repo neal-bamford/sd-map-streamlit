@@ -87,8 +87,11 @@ def generate_report_section(session_id
   
   ethnicity_search_range = f"of {ethnicity_year_from_orig} to {ethnicity_year_to_orig}" if ethnicity_year_from_orig != ethnicity_year_to_orig else f"{ethnicity_year_to_orig}"
   ethnicity_narrative_search_criters = f"Using the latest ethnicity data from {ethnicity_year_to} which is {ethnicity_in_not_in} your search range {ethnicity_search_range}"
+
+  ## Change suggested by Qicheng 2022.08.31
+  ethnicity_narrative_search_criters = f"Using the latest ethnicity data available from {ethnicity_year_to}"
   
-  ethnicity_narrative_01 = f"{ethnicity_narrative_search_criters}. The table {{}} ranks ethnicity in {ward_name}, {borough} and {city}. " + \
+  ethnicity_narrative_01 = f"{ethnicity_narrative_search_criters}, the table {{}} ranks ethnicity in {ward_name}, {borough} and {city}. " + \
   "The ranking is highest to lowest percentage from top to bottom. Where there is a difference in ethnicity the cell is shaded, a darker " + \
   "shade denotes a difference between borough and ward. Values in [] give the percentage value." 
   
