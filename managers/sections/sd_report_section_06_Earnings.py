@@ -426,7 +426,7 @@ def generate_report_section(session_id
   earnings_bump_chart_date_range = f"over the period {earnings_year_from} to {earnings_year_to}" if earnings_year_from != earnings_year_to else f"for {earnings_year_to}"
   earnings_bump_chart_narrative_01 = f"How {borough} ranks with the other {city} boroughs {earnings_bump_chart_date_range} can be seen {{}}. Ranking is top to bottom, with the top representing the highest earnings."
 
-  report_context["earnings_bump_chart_narrative_01"] = earnings_bump_chart_narrative_01
+  report_context["earnings_bump_chart_narrative_01"] = earnings_bump_chart_narrative_01 
   
   ##
   ##
