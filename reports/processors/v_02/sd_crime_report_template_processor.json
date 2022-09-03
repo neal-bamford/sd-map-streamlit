@@ -1,0 +1,12 @@
+{ 
+  "report_options":
+  [
+    {   
+    "report_option":"Full Report",
+    "report_description": "Full version of the Crime Report",
+    "report_template":"./reports/templates/sd_crime_report_template.new.01.docx",
+    "report_generation_folder":"./reports/generation/documents/"
+   }
+  ]
+} 
+

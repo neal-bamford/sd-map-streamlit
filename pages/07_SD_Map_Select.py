@@ -6,10 +6,10 @@ from data.daos import dao_facade_streamlit as dao_fac
 import config_logging
 import controllers.sd_report_type_passed_controller as sd_report_controller
 import logging
-import managers.sd_report_type_crime as sd_report_man_crime
-import managers.sd_report_type_general_new as sd_report_man_general
-import managers.sd_report_type_health as sd_report_man_health
-import managers.sd_report_type_income as sd_report_man_income
+# import managers.sd_report_type_crime as sd_report_man_crime
+import managers.sd_report_type_general as sd_report_man_general
+# import managers.sd_report_type_health as sd_report_man_health
+# import managers.sd_report_type_income as sd_report_man_income
 import streamlit as st
 from lib import db_tools as db_tools
 
@@ -157,11 +157,16 @@ def ms_ward_on_change():
       elif len(st.session_state.ward_search_term) == 1:
         selected_ward = st.session_state.ward_search_term[0]
         print(f"selected_ward:{selected_ward}")
+        
         print(len(st.session_state.borough_search_term))
+        if len(st.session_state.borough_search_term) > 1:
+          st.error("Select only one borough")
+        
         ## If we started by selecting a ward then set the borough
         if len(st.session_state.borough_search_term) == 0:
           print("you set a ward and no borough -> setting borough")
           st.session_state.ms_borough_default = borough_from_ward(selected_ward, ms_borough_wards)
+          
           st.session_state.ms_borough_default_run = True
           print(st.session_state.ms_borough_default_run)
           
@@ -278,62 +283,66 @@ if generate_report_link:
     print(f"year_from_to[0]:{year_from_to[0]}")
     print(f"year_from_to[1]:{year_from_to[1]}")
     
-    search_borough   = ms_borough[0]
-    search_ward_name = ms_ward[0]
-    search_post_code = s_post_code
-    year_from        = year_from_to[0]
-    year_to          = year_from_to[1]
     
-    search_term = {"city"      : search_city
-                 , "borough"   : search_borough
-                 , "ward_name" : search_ward_name
-                 , "post_code" : search_post_code
-                 , "year_from" : year_from
-                 , "year_to"   : year_to}
-    
-
-    ## Generate a context to place items in which is used when generating the report in the final step
-    report_context = {}
-    # report_context["template_processor_file_name"] = "./reports/processors/sd_general_report_data_manager.json"
-    ### This should come from another drop down
-    report_context["report_option"] = report_option
-    
-    
-    try:
-        print(f"report_type:{report_type}")
-        
-        rep_man = None
-        if report_type == "Crime":
-            rep_man = sd_report_man_crime
-        elif report_type == "General":
-            rep_man = sd_report_man_general
-            template_processor_file_name = "./reports/processors/sd_general_report_template_processor_dev.json"
-            report_context["template_processor_file_name"] = template_processor_file_name
-            
-        elif report_type == "Health":
-            rep_man = sd_report_man_health
-        elif report_type == "Earnings":
-            rep_man = sd_report_man_income
-
-        generated_report = rep_man.generate_report(session_id=session_id, search_term=search_term, report_context=report_context, properties=properties, lib=mlib, dao_fac=dao_fac)    
-        ### 
-        ### Read in the document to send out on the link
-        ###    
-        for file in [generated_report]:
-                with open(file, "rb") as report:
-                    encoded = report.read()
-        
-        city      = report_context["city"]
-        borough   = report_context["borough"]
-        ward_name = report_context["ward_name"]
-        post_code = report_context["post_code"]
-        
-        gernerated_report_download = "sd_{}_report_{}_{}_{}{}{}_{}_{}.docx".format(report_type.lower(), city, borough, ward_name, ("_" if post_code != "" else ""), post_code, year_from, year_to).replace(" ", "_")
-        html_link = mlib.create_download_link(encoded , gernerated_report_download, f"[{report_type} - {report_option}]")
-        st.markdown(html_link, unsafe_allow_html=True)
-    
-    except Exception as e:
-        st.error(e)
+    if (not ms_borough) or (not ms_ward):
+      st.error("Enter ward and borough search terms")
+    else:
+      search_borough   = ms_borough[0]
+      search_ward_name = ms_ward[0]
+      search_post_code = s_post_code
+      year_from        = year_from_to[0]
+      year_to          = year_from_to[1]
+      
+      search_term = {"city"      : search_city
+                   , "borough"   : search_borough
+                   , "ward_name" : search_ward_name
+                   , "post_code" : search_post_code
+                   , "year_from" : year_from
+                   , "year_to"   : year_to}
+      
+  
+      ## Generate a context to place items in which is used when generating the report in the final step
+      report_context = {}
+      # report_context["template_processor_file_name"] = "./reports/processors/sd_general_report_data_manager.json"
+      ### This should come from another drop down
+      report_context["report_option"] = report_option
+      
+      
+      try:
+          print(f"report_type:{report_type}")
+          
+          rep_man = None
+          if report_type == "Crime":
+              rep_man = sd_report_man_crime
+          elif report_type == "General":
+              rep_man = sd_report_man_general
+              template_processor_file_name = "./reports/processors/sd_general_report_template_processor.json"
+              report_context["template_processor_file_name"] = template_processor_file_name
+              
+          elif report_type == "Health":
+              rep_man = sd_report_man_health
+          elif report_type == "Earnings":
+              rep_man = sd_report_man_income
+  
+          generated_report = rep_man.generate_report(session_id=session_id, search_term=search_term, report_context=report_context, properties=properties, lib=mlib, dao_fac=dao_fac)    
+          ### 
+          ### Read in the document to send out on the link
+          ###    
+          for file in [generated_report]:
+                  with open(file, "rb") as report:
+                      encoded = report.read()
+          
+          city      = report_context["city"]
+          borough   = report_context["borough"]
+          ward_name = report_context["ward_name"]
+          post_code = report_context["post_code"]
+          
+          gernerated_report_download = "sd_{}_report_{}_{}_{}{}{}_{}_{}.docx".format(report_type.lower(), city, borough, ward_name, ("_" if post_code != "" else ""), post_code, year_from, year_to).replace(" ", "_")
+          html_link = mlib.create_download_link(encoded , gernerated_report_download, f"[{report_type} - {report_option}]")
+          st.markdown(html_link, unsafe_allow_html=True)
+      
+      except Exception as e:
+          st.error(e)
         
 #### GENERATE THE REPORT END
                             

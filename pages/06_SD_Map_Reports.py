@@ -6,13 +6,13 @@ from data.daos import dao_facade_streamlit as dao_fac
 import config_logging
 import controllers.sd_report_type_passed_controller as sd_report_controller
 import logging
-import managers.sd_report_type_crime as sd_report_man_crime
+# import managers.sd_report_type_crime as sd_report_man_crime
 
 ## TIDY
-import managers.sd_report_type_general_new as sd_report_man_general
+import managers.sd_report_type_general as sd_report_man_general
 
-import managers.sd_report_type_health as sd_report_man_health
-import managers.sd_report_type_income as sd_report_man_income
+# import managers.sd_report_type_health as sd_report_man_health
+# import managers.sd_report_type_income as sd_report_man_income
 import streamlit as st
 
 import uuid
@@ -100,7 +100,7 @@ search_post_code = st.text_input("Post Code", value=url_search_post_code, key="s
 st.button("Clear", on_click=clear_text)
 #report_type_idx = {"Crime":0, "General":1, "Health":2, "Earnings":3}
 
-report_type_idx = {"General":1}
+report_type_idx = {"General":0}
 
 # print(f"url_report_type:{url_report_type}")
 # print(report_type_idx[url_report_type])
@@ -130,7 +130,8 @@ def report_type_on_chage():
 ## This is the report type
 report_type = st.selectbox(key="report_type",
                            label="Report Type",
-                           options=["Crime", "General", "Health", "Earnings"], 
+                           # options=["Crime", "General", "Health", "Earnings"], 
+                           options=["General"], 
                            index=report_type_idx[url_report_type],
                            on_change = report_type_on_chage())
 
@@ -183,7 +184,7 @@ if generate_report_link:
             rep_man = sd_report_man_crime
         elif report_type == "General":
             rep_man = sd_report_man_general
-            template_processor_file_name = "./reports/processors/sd_general_report_template_processor_dev.json"
+            template_processor_file_name = "./reports/processors/sd_general_report_template_processor.json"
             report_context["template_processor_file_name"] = template_processor_file_name
             
         elif report_type == "Health":

@@ -4,13 +4,7 @@
     {   
     "report_option":"Full Report",
     "report_description": "Full version of the General Report",
-    "report_template":"./reports/templates/sd_general_report_template.new.01.docx",
-    "report_generation_folder":"./reports/generation/documents/"
-   },
-    {   
-    "report_option":"Condensed Report",
-    "report_description": "Condensed version of the General Report",
-    "report_template":"./reports/templates/sd_general_report_template.new.02.docx",
+    "report_template":"./reports/templates/sd_general_report_template_01.docx",
     "report_generation_folder":"./reports/generation/documents/"
    }
   ]

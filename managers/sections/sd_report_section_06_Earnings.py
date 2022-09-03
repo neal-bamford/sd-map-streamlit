@@ -195,7 +195,7 @@ def generate_report_section(session_id
   ax.set_title(plot_title, fontsize=20)
   ax.set_ylabel("Earnings (GBP)", fontsize=20)
   ax.set_xlabel("Year", fontsize=20)
-  ax.tick_params(axis="x", labelrotation=90)
+  ax.tick_params(axis="x", labelrotation=45)
   
   ax.legend(title="legend")
   ax.legend(loc="upper right")
