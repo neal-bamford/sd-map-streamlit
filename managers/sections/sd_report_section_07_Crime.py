@@ -457,7 +457,7 @@ def generate_report_section(session_id
   plt.yticks(fontsize=15)
   
   ## Secondary Y axis to show top middle and bottom
-  ax2 = ax.secondary_yaxis('right')
+  ax2 = ax.secondary_yaxis("right")
   ax2.tick_params(labelsize = 20, length=0)
   ax2.set_yticks(ax.get_yticks().tolist())
   ax2.set_yticklabels(["Top", "", "", "", "", "", "", "", "", "", "", "Middle", "", "", "", "", "", "", "", "", "", "", "Bottom", "", "", "", "", "", "", "", "", "",""])
@@ -647,7 +647,7 @@ def generate_report_section(session_id
       bottom = 0
 
       above = 0
-      same  = 1
+      same  = 0
       below = 0
       start_rank = None
 
@@ -683,8 +683,8 @@ def generate_report_section(session_id
 
       def place(pct, list=["never", "occasionally", "frequently", "constantly", "always"]):
           ret_val = list[0] if pct ==  0 else \
-                    list[1] if pct <  33 else \
-                    list[2] if pct <  66 else \
+                    list[1] if pct <  25 else \
+                    list[2] if pct <  50 else \
                     list[3] if pct < 100 else \
                     list[4]
           
@@ -734,7 +734,7 @@ def generate_report_section(session_id
       # log.debug(crime_vertical_narrative)
       # log.debug(crime_horizontal_narrative)
 
-      crime_bump_chart_narrative_02 = f"{crime_vertical_narrative}. Where it {crime_horizontal_narrative}."  
+      crime_bump_chart_narrative_02 = f"{crime_vertical_narrative}. Where it {crime_horizontal_narrative} with respect to its starting rank."  
       
   report_context["crime_bump_chart_narrative_02"] = crime_bump_chart_narrative_02
 

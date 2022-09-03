@@ -394,6 +394,13 @@ def generate_report_section(session_id
   plt.yticks(range(1, len(borough_sort_order)+1), [borough_sort_order.iloc[i] for i in range(len(borough_sort_order))])
   plt.yticks(fontsize=15)
   
+  ## Secondary Y axis to show top middle and bottom
+  ax2 = ax.secondary_yaxis("right")
+  ax2.tick_params(labelsize = 20, length=0)
+  ax2.set_yticks(ax.get_yticks().tolist())
+  ax2.set_yticklabels(["Top", "", "", "", "", "", "", "", "", "", "", "Middle", "", "", "", "", "", "", "", "", "", "", "Bottom", "", "", "", "", "", "", "", "", "",""])
+  ax2.minorticks_off()
+
   plt.gca().invert_yaxis()
   plt.gca().get_legend().remove()
   
@@ -417,9 +424,9 @@ def generate_report_section(session_id
   ##
   
   earnings_bump_chart_date_range = f"over the period {earnings_year_from} to {earnings_year_to}" if earnings_year_from != earnings_year_to else f"for {earnings_year_to}"
-  earnings_bump_chart_narrative = f"How {borough} ranks with the other {city} boroughs {earnings_bump_chart_date_range} can be seen {{}}. Ranking is top to bottom, with the top representing the highest earnings."
+  earnings_bump_chart_narrative_01 = f"How {borough} ranks with the other {city} boroughs {earnings_bump_chart_date_range} can be seen {{}}. Ranking is top to bottom, with the top representing the highest earnings."
 
-  report_context["earnings_bump_chart_narrative"] = earnings_bump_chart_narrative
+  report_context["earnings_bump_chart_narrative_01"] = earnings_bump_chart_narrative_01
   
   ##
   ##
@@ -481,23 +488,112 @@ def generate_report_section(session_id
   earnings_narrative_04 = f"The {{}} table shows the boroughs with the lowest and highest average earning boroughs in the same period. The middle column shows the average earnings in {borough} for the same year."
   report_context["earnings_narrative_04"] = earnings_narrative_04
       
-  ####
-  #### DELETE 
-  ####
-  # from IPython.display import HTML
-  # styles = [
-  #   dict(selector="tr", props=[("font-size", "120%"),
-  #                              ("text-align", "right")])
-  # ]
-  
-  # earnings_benchmark_data_df_html = (earnings_benchmark_table.style.set_table_styles(styles))
   #
-  # earnings_benchmark_display_table_file_name = "{}/{}_earnings_benchmark_display_table_{}_{}_{}.png".format(save_image_path, session_id, city, borough, ward_name) 
-  # mlib.save_df(earnings_benchmark_data_df_html, earnings_benchark_display_table_file_name, save_artefacts=True)
-  # report_context["earnings_benchmark_display_table"] = earnings_benchmark_display_table_file_name
-  ####
-  #### DELETE 
-  ####
+  ## BUMP CHART NARRATIVE TO EXPLAIN WHERE IT RANKS IN THE THREE BANDS
+  #
+
+  ## Leave it blank if only one year's worth of data
+  earnings_bump_chart_narrative_02 = "" 
+  
+  ## Can only analyse if we have at least two years
+  if year_from != year_to:
+      borough_yearly_rankings = all_borough_ranking_by_year_df[all_borough_ranking_by_year_df.index == borough]
+      
+      top = 0
+      middle = 0
+      bottom = 0
+
+      above = 0
+      same  = 0
+      below = 0
+      start_rank = None
+
+      for column in borough_yearly_rankings:
+          rank = borough_yearly_rankings[column].values[0]
+          if rank <= 11:
+              top += 1
+          elif rank >= 23:
+              bottom +=1
+          else:
+              middle += 1
+
+
+          if start_rank == None:
+              start_rank = rank
+          else:    
+              if rank > start_rank:
+                  below += 1
+              elif rank < start_rank:
+                  above += 1
+              else:
+                  same +=1
+
+      all = top + middle + bottom
+      top_pct = round((top/all*100),0)
+      middle_pct = round((middle/all*100),0)
+      bottom_pct = round((bottom/all*100),0)
+
+      all = above + same + below
+      above_pct = round((above/all*100),0)
+      same_pct  = round((same/all*100),0)
+      below_pct  = round((below/all*100),0)
+
+      def place(pct, list=["never", "occasionally", "frequently", "constantly", "always"]):
+          ret_val = list[0] if pct ==  0 else \
+                    list[1] if pct <  25 else \
+                    list[2] if pct <  50 else \
+                    list[3] if pct < 100 else \
+                    list[4]
+          
+          return ret_val
+
+      def not_empty_count(list_items):
+          not_empty_count = 0
+          for item in list_items:
+              if not item:
+                  not_empty_count +=1
+          return not_empty_count
+
+      def stf(str_list):
+          ret_val = 0
+          ret_val += 4 if str_list[0] else 0
+          ret_val += 2 if str_list[1] else 0
+          ret_val += 1 if str_list[2] else 0
+
+          return ret_val
+
+      earnings_vertical_narrative_top    = "" if top_pct == 0 else f" {place(top_pct)} in the higher earning boroughs"
+      middle_inc_earnings_rate_borough   = "" if "earning boroughs" in earnings_vertical_narrative_top else " earning boroughs" 
+      earnings_vertical_narrative_middle = "" if middle_pct == 0 else f" {place(middle_pct)} in the middle{middle_inc_earnings_rate_borough}"
+      bottom_inc_earnings_rate_borough   = "" if ("earning boroughs" in earnings_vertical_narrative_middle) or ("earning boroughs" in earnings_vertical_narrative_top) else " earning boroughs" 
+      earnings_vertical_narrative_bottom = "" if bottom_pct == 0 else f" {place(bottom_pct)} in the bottom{bottom_inc_earnings_rate_borough}"
+      
+      ## The sentance has the same set of punctuations, but with differening needs for spaces 
+      v_punct_list_pos_1 = ["", "", "", "", "", " and", ", "]
+      v_punct_list_pos_2 = ["", "", " and", "", " and is ", "", " and"]
+      
+      h_punct_list_pos_1 = ["", "", "", "", "", " and ", ", "]
+      h_punct_list_pos_2 = ["", "", " and ", "", " and ", "", " and "]
+
+      comma_or_and_1_v = v_punct_list_pos_1[stf([earnings_vertical_narrative_top,earnings_vertical_narrative_middle, earnings_vertical_narrative_bottom])-1]
+      comma_or_and_2_v = v_punct_list_pos_2[stf([earnings_vertical_narrative_top,earnings_vertical_narrative_middle, earnings_vertical_narrative_bottom])-1]
+
+      earnings_vertical_narrative = f"{borough} is{earnings_vertical_narrative_top}{comma_or_and_1_v}{earnings_vertical_narrative_middle}{comma_or_and_2_v}{earnings_vertical_narrative_bottom}"
+
+      earnings_horizontal_up   = "" if "never" in place(above_pct) else f"{place(above_pct, list=['never', 'sometimes', 'frequently', 'very frequently', 'always'])} moves up"
+      earnings_horizontal_same = "" if "never" in place(same_pct)  else f"{place(same_pct,  list=['never', 'sometimes', 'frequently', 'very frequently', 'always'])} stays level"
+      earnings_horizontal_down = "" if "never" in place(below_pct) else f"{place(below_pct, list=['never', 'sometimes', 'frequently', 'very frequently', 'always'])} moves down"
+
+      comma_or_and_1_h = h_punct_list_pos_1[stf([earnings_horizontal_up, earnings_horizontal_same, earnings_horizontal_down])-1]
+      comma_or_and_2_h = h_punct_list_pos_2[stf([earnings_horizontal_up, earnings_horizontal_same, earnings_horizontal_down])-1]
+
+      earnings_horizontal_narrative = f"{earnings_horizontal_up}{comma_or_and_1_h}{earnings_horizontal_same}{comma_or_and_2_h}{earnings_horizontal_down}"
+      # log.debug(earnings_vertical_narrative)
+      # log.debug(earnings_horizontal_narrative)
+
+      earnings_bump_chart_narrative_02 = f"{earnings_vertical_narrative}. Where it {earnings_horizontal_narrative} with respect to its starting rank."  
+      
+  report_context["earnings_bump_chart_narrative_02"] = earnings_bump_chart_narrative_02
   
   db_conn.close()
   
