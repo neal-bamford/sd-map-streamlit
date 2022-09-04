@@ -3,7 +3,7 @@ channels:
   - conda-forge
 dependencies:
   - python>=3.8
-  - python-chromedriver-binary=105
+  - python-chromedriver-binary>=105
   - pip
   - pip:
     - statsmodels==0.13.2

@@ -12,6 +12,16 @@ The code has been developed in the form of the controller to manager service pat
 
 ## Python
 
+## Streamlit
+
+### Local
+
+### Deployed
+
+#### Known issues
+
+The chromium version can get out of sinc with the library and will stop execution as it can't render the Folium map.
+
 # Report Generation
 
 To create a report based on a template you need the following
