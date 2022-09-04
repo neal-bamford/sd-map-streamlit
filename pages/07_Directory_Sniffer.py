@@ -19,7 +19,7 @@ from selenium import webdriver
 # from selenium.webdriver.chrome.service import Service
 # from webdriver_manager.firefox import GeckoDriverManager
 
-from selenium.webdriver.chrome.service import Service as ChromeService
+
 
 from lib import masters_data_analytics_lib as mlib
 import numpy as np
@@ -43,7 +43,15 @@ directory_file = st.text_input("directory/file")
 sniff_file_directory = st.button("SNIFF")
 
 from chromedriver_binary.utils import print_chromedriver_path
+from selenium.webdriver.chrome.service import Service as ChromeService
+import chromedriver_binary
 
+print(">>>>>>>>>>>>>print_chromedriver_path>>>>>>>>>>>")
+print_chromedriver_path
+print(">>>>>>>>>>>>>>>>>>>>>>>>")
+print(">>>>>>>>>>>>>chromedriver_binary>>>>>>>>>>>")
+print(chromedriver_binary.chromedriver_filename)
+print(">>>>>>>>>>>>>>>>>>>>>>>>")
 
 ##
 ## Generate Link
