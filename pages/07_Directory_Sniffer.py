@@ -41,8 +41,8 @@ directory_file = st.text_input("directory/file")
  
 ## Capture the input and run generate_report
 sniff_file_directory = st.button("SNIFF")
-
-from chromedriver_binary.utils import print_chromedriver_path, get_chrome_major_version
+import chromedriver_binary.utils as chromedriver_binary_utils
+from chromedriver_binary.utils import print_chromedriver_path
 from selenium.webdriver.chrome.service import Service as ChromeService
 import chromedriver_binary
 
@@ -53,7 +53,7 @@ print(">>>>>>>>>>>>>chromedriver_binary>>>>>>>>>>>")
 print(chromedriver_binary.chromedriver_filename)
 print(">>>>>>>>>>>>>>>>>>>>>>>>")
 print(">>>>>>>>>>>>>get_chrome_major_version>>>>>>>>>>>")
-print(str(get_chrome_major_version))
+print(chromedriver_binary_utils.get_chrome_major_version())
 print(">>>>>>>>>>>>>>>>>>>>>>>>")
 
 
