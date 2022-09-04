@@ -62,10 +62,18 @@ print(chromedriver_binary_utils.find_binary_in_path(chromedriver_binary_utils.ge
 
 
 old_path = os.environ['PATH']
+print(">>>>>>>>old_path>>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
+print(old_path)
+print(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
 try:
     os.environ['PATH'] = "{}{}{}".format('/home/appuser/venv/lib/python3.9/site-packages/chromedriver_binary/chromedriver', os.pathsep, old_path)
 finally:
     os.environ['PATH'] = old_path
+
+new_path = os.environ['PATH']
+print(">>>>>>>>new_path>>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
+print(new_path)
+print(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
 
 import chromedriver_autoinstaller as chromedriver
 chromedriver.install()
