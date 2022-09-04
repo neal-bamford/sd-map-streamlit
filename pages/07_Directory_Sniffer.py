@@ -75,8 +75,11 @@ print(">>>>>>>>new_path>>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
 print(new_path)
 print(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
 
+import platform
+print(platform.platform())
+
 import chromedriver_autoinstaller as chromedriver
-chromedriver.install()
+# chromedriver.install()
 
 ##
 ## Generate Link
