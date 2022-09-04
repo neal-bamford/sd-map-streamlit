@@ -95,11 +95,12 @@ def generate_report(session_id
     ##
     ### GENERATE CRIME SECTION
     ##
-    report_section_crime.generate_report_section(session_id     = session_id
-                                               , search_term    = validated_search_term
-                                               , report_context = report_context
-                                               , properties     = properties 
-                                               , dao_fac        = dao_fac)  
+    
+    # report_section_crime.generate_report_section(session_id     = session_id
+    #                                            , search_term    = validated_search_term
+    #                                            , report_context = report_context
+    #                                            , properties     = properties 
+    #                                            , dao_fac        = dao_fac)  
 
     
     ##
