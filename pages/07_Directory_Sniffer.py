@@ -58,6 +58,10 @@ print(">>>>>>>>>>>>>get_chrome_major_version>>>>>>>>>>>")
 print(chromedriver_binary_utils.get_latest_release_for_version())
 print(">>>>>>>>>>>>>>>>>>>>>>>>")
 
+print(chromedriver_binary_utils.find_binary_in_path(chromedriver_binary_utils.get_chromedriver_filename()))
+
+import chromedriver_autoinstaller as chromedriver
+chromedriver.install()
 
 ##
 ## Generate Link
