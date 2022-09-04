@@ -3,7 +3,7 @@ channels:
   - conda-forge
 dependencies:
   - python>=3.10
-  - python-chromedriver-binary=105
+  - python-chromedriver-binary=104
   - pip
   - pip:
     - statsmodels==0.13.2
@@ -12,7 +12,7 @@ dependencies:
     - docx_mailmerge==0.5.0
     - folium==0.12.1.post1
     - fpdf==1.7.2
-    - selenium==4.3.0
+    - selenium==4.4.0
     - pandas==1.4.1
     - webdriver_manager==3.8.1
     - pyodbc==4.0.34
