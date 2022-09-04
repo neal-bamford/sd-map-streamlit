@@ -227,9 +227,9 @@ st.button("Clear", on_click=clear_text)
 ## These will come from a json file I think, but for now, we'll hard code them
 # report_type_options = {"Crime":{"Full Report"}, "General":{"Full Report", "Condensed Report"}, "Health":{"Full Report"}, "Earnings":{"Full Report"}}
 
-report_type_idx = {"General":0, "X":1}
+report_type_idx = {"General":0}
 report_type_options = report_type_idx.keys() 
-report_type_options = {"General":{"Full Report"}, "X":{"A", "B"}}
+report_type_options = {"General":{"Full Report", "Full Report - New Style"}}
 ## Choose the initial set to dispaly as options   
 report_type_option = report_type_options[url_report_type]
 ## Stick it into the streamlit session

@@ -6,6 +6,12 @@
     "report_description": "Full version of the General Report",
     "report_template":"./reports/templates/sd_general_report_template_01.docx",
     "report_generation_folder":"./reports/generation/documents/"
+   },
+    {   
+    "report_option":"Full Report - New Style",
+    "report_description": "Full version of the General Report",
+    "report_template":"./reports/templates/sd_general_report_template_01.new.style.docx",
+    "report_generation_folder":"./reports/generation/documents/"
    }
   ]
 } 
