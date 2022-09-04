@@ -1,7 +1,7 @@
 from . import location_dao as loc_dao
 from . import data_dao as dat_dao
 import streamlit as st
-import pyodbc as pyodbc 
+import pyodbc as pyodbc
 
 import logging
 
