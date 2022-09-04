@@ -2,8 +2,8 @@ name: sd_maps_reports
 channels:
   - conda-forge
 dependencies:
-  - python>=3.8
-  - python-chromedriver-binary=103
+  - python>=3.10
+  - python-chromedriver-binary=105
   - pip
   - pip:
     - statsmodels==0.13.2
