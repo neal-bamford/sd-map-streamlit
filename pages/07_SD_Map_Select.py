@@ -229,7 +229,7 @@ st.button("Clear", on_click=clear_text)
 
 report_type_idx = {"General":0}
 report_type_options = report_type_idx.keys() 
-report_type_options = {"General":{"Full Report", "Full Report - New Style"}}
+report_type_options = {"General":{"Full Report - New Style", "Full Report" }}
 ## Choose the initial set to dispaly as options   
 report_type_option = report_type_options[url_report_type]
 ## Stick it into the streamlit session
