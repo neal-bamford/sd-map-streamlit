@@ -20,7 +20,7 @@ The code has been developed in the form of the controller to manager service pat
 
 #### Known issues
 
-The chromium version can get out of sinc with the library and will stop execution as it can't render the Folium map.
+The chromium version can get out of sinc with the library and will stop execution as it can't render the Folium map. This is usually fixed by changing the version of 
 
 # Report Generation
 
