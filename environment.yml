@@ -3,6 +3,7 @@ channels:
   - conda-forge
 dependencies:
   - python>=3.10
+  - chromium
   - python-chromedriver-binary=105
   - pip
   - pip:
