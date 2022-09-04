@@ -118,7 +118,7 @@ def generate_map(file, **kwargs):
     ## Load it
     from selenium.webdriver.chrome.options import Options as ChromiumOptions
     from selenium.webdriver.chrome.service import Service as ChromeService
-    
+    location_png_file = ""
     if 1 == 2:    
       print("Before chrome_options")
       chrome_options = ChromiumOptions()

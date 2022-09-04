@@ -27,5 +27,4 @@ dependencies:
     - cacheout==0.13.1
     - chromedriver-install==1.0.3
     - chromedriver-autoinstaller==0.4.0
-    - mailmerge==2.2.1
     
