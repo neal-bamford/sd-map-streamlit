@@ -133,6 +133,7 @@ def generate_map(file, **kwargs):
     cdb.add_chromedriver_to_path()
 
     # chrome_service = ChromeService(executable_path = chrome_binary_location)
+    chrome_service = ChromeService()
     print("Before ChromeService()")
     chrome_service = ChromeService()
     # browser = webdriver.Chrome(service=chrome_service,
@@ -140,7 +141,7 @@ def generate_map(file, **kwargs):
     #                            ) 
     print(">>>>>>>>>>>>>>>>>>>>>>>")
     print("before browser")
-    browser = webdriver.Chrome(options = chrome_options) 
+    browser = webdriver.Chrome(service=chrome_service, options = chrome_options) 
     print("after browser")
     print(">>>>>>>>>>>>>>>>>>>>>>>")
     
