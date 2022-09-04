@@ -49,11 +49,13 @@ import chromedriver_binary
 print(">>>>>>>>>>>>>print_chromedriver_path>>>>>>>>>>>")
 print_chromedriver_path
 print(">>>>>>>>>>>>>>>>>>>>>>>>")
+
 print(">>>>>>>>>>>>>chromedriver_binary>>>>>>>>>>>")
 print(chromedriver_binary.chromedriver_filename)
 print(">>>>>>>>>>>>>>>>>>>>>>>>")
+
 print(">>>>>>>>>>>>>get_chrome_major_version>>>>>>>>>>>")
-print(chromedriver_binary_utils.get_chrome_major_version())
+print(chromedriver_binary_utils.get_latest_release_for_version())
 print(">>>>>>>>>>>>>>>>>>>>>>>>")
 
 
