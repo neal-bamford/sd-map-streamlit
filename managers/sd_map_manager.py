@@ -141,7 +141,7 @@ def generate_map(file, **kwargs):
     #                            ) 
     print(">>>>>>>>>>>>>>>>>>>>>>>")
     print("before browser")
-    browser = webdriver.Chrome(service=chrome_service, options = chrome_options) 
+    browser = webdriver.Chrome(service=chrome_service, options = chrome_options, service_args=['--verbose', '--log-path=/home/chromedriver.log']) 
     print("after browser")
     print(">>>>>>>>>>>>>>>>>>>>>>>")
     
