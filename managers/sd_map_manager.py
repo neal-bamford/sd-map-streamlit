@@ -141,10 +141,10 @@ def generate_map(file, **kwargs):
       #                            ) 
     print(">>>>>>>>>>>>>>>>>>>>>>>")
     print("before browser")
+    browser = webdriver.Chrome(service=chrome_service, options = chrome_options, service_args=['--verbose', '--log-path=/home/chromedriver.log']) 
+    print("after browser")
+    print(">>>>>>>>>>>>>>>>>>>>>>>")
     if 1 == 2:    
-      browser = webdriver.Chrome(service=chrome_service, options = chrome_options, service_args=['--verbose', '--log-path=/home/chromedriver.log']) 
-      print("after browser")
-      print(">>>>>>>>>>>>>>>>>>>>>>>")
       
       html_file_abs =  "file:///" + os.path.abspath(html_file)
       

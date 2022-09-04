@@ -192,7 +192,7 @@ def clear_text():
 
 ## PAGE START
 
-st.markdown("# SD Map Reports X")
+st.markdown("# SD Map Reports XX")
 st.sidebar.markdown("#  SD Map Reports")
 
 ## INPUT FIELDS START
