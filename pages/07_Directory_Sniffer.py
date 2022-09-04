@@ -81,6 +81,12 @@ print(platform.platform())
 # import chromedriver_autoinstaller as chromedriver
 # chromedriver.install()
 
+import sys
+print("Python version")
+print (sys.version)
+print("Version info.")
+print (sys.version_info)
+
 ##
 ## Generate Link
 ##
