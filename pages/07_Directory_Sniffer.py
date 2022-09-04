@@ -53,7 +53,7 @@ print(">>>>>>>>>>>>>chromedriver_binary>>>>>>>>>>>")
 print(chromedriver_binary.chromedriver_filename)
 print(">>>>>>>>>>>>>>>>>>>>>>>>")
 print(">>>>>>>>>>>>>get_chrome_major_version>>>>>>>>>>>")
-print(get_chrome_major_version)
+print(str(get_chrome_major_version))
 print(">>>>>>>>>>>>>>>>>>>>>>>>")
 
 
