@@ -119,44 +119,45 @@ def generate_map(file, **kwargs):
     from selenium.webdriver.chrome.options import Options as ChromiumOptions
     from selenium.webdriver.chrome.service import Service as ChromeService
     
-    print("Before chrome_options")
-    chrome_options = ChromiumOptions()
-    # chrome_options.headless = True
+    if 1 == 2:    
+      print("Before chrome_options")
+      chrome_options = ChromiumOptions()
+      # chrome_options.headless = True
+      
+      print("Before add_argument")
+      chrome_options.add_argument("--headless")
+      # chrome_options.add_argument("-no-sandbox")
+      # chrome_options.add_argument("--disable-dev-shm-usage")
     
-    print("Before add_argument")
-    chrome_options.add_argument("--headless")
-    # chrome_options.add_argument("-no-sandbox")
-    # chrome_options.add_argument("--disable-dev-shm-usage")
-
-    import chromedriver_binary as cdb
-    print("Before add_chromedriver_to_path")
-    cdb.add_chromedriver_to_path()
-
-    # chrome_service = ChromeService(executable_path = chrome_binary_location)
-    chrome_service = ChromeService()
-    print("Before ChromeService()")
-    chrome_service = ChromeService()
-    # browser = webdriver.Chrome(service=chrome_service,
-    #                            options = chrome_options
-    #                            ) 
-    print(">>>>>>>>>>>>>>>>>>>>>>>")
-    print("before browser")
-    browser = webdriver.Chrome(service=chrome_service, options = chrome_options, service_args=['--verbose', '--log-path=/home/chromedriver.log']) 
-    print("after browser")
-    print(">>>>>>>>>>>>>>>>>>>>>>>")
+      import chromedriver_binary as cdb
+      print("Before add_chromedriver_to_path")
+      cdb.add_chromedriver_to_path()
     
-    html_file_abs =  "file:///" + os.path.abspath(html_file)
+      # chrome_service = ChromeService(executable_path = chrome_binary_location)
+      chrome_service = ChromeService()
+      print("Before ChromeService()")
+      chrome_service = ChromeService()
+      # browser = webdriver.Chrome(service=chrome_service,
+      #                            options = chrome_options
+      #                            ) 
+      print(">>>>>>>>>>>>>>>>>>>>>>>")
+      print("before browser")
+      browser = webdriver.Chrome(service=chrome_service, options = chrome_options, service_args=['--verbose', '--log-path=/home/chromedriver.log']) 
+      print("after browser")
+      print(">>>>>>>>>>>>>>>>>>>>>>>")
+      
+      html_file_abs =  "file:///" + os.path.abspath(html_file)
+      
+      log.debug("Browser is loading {}".format(html_file))
+      browser.get(html_file_abs)
     
-    log.debug("Browser is loading {}".format(html_file))
-    browser.get(html_file_abs)
-
-    time.sleep(browser_pause_s)
-    
-    ## Save the map graphic
-    location_png_file = file + ".png"
-    browser.save_screenshot(location_png_file)
-    browser.quit()   
-    
-    ft.remove_temp_file(html_file, remove_temp_files)
-    
-    return location_png_file
+      time.sleep(browser_pause_s)
+      
+      ## Save the map graphic
+      location_png_file = file + ".png"
+      browser.save_screenshot(location_png_file)
+      browser.quit()   
+      
+      ft.remove_temp_file(html_file, remove_temp_files)
+      
+      return location_png_file
