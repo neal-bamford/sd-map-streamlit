@@ -126,7 +126,11 @@ def generate_map(file, **kwargs):
     chrome_options.add_argument("-no-sandbox")
     chrome_options.add_argument("--disable-dev-shm-usage")
 
-    chrome_service = ChromeService(executable_path = chrome_binary_location)
+    import chromedriver_binary as cdb
+    cdb.add_chromedriver_to_path()
+
+    # chrome_service = ChromeService(executable_path = chrome_binary_location)
+    chrome_service = ChromeService()
     browser = webdriver.Chrome(service=chrome_service,
                                options = chrome_options
                                ) 
