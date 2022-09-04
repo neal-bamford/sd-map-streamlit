@@ -120,20 +120,25 @@ def generate_map(file, **kwargs):
     from selenium.webdriver.chrome.service import Service as ChromeService
     
     chrome_options = ChromiumOptions()
-    chrome_options.headless = True
+    # chrome_options.headless = True
     
     chrome_options.add_argument("--headless")
-    chrome_options.add_argument("-no-sandbox")
-    chrome_options.add_argument("--disable-dev-shm-usage")
+    # chrome_options.add_argument("-no-sandbox")
+    # chrome_options.add_argument("--disable-dev-shm-usage")
 
     import chromedriver_binary as cdb
     cdb.add_chromedriver_to_path()
 
     # chrome_service = ChromeService(executable_path = chrome_binary_location)
     chrome_service = ChromeService()
-    browser = webdriver.Chrome(service=chrome_service,
-                               options = chrome_options
-                               ) 
+    # browser = webdriver.Chrome(service=chrome_service,
+    #                            options = chrome_options
+    #                            ) 
+    print(">>>>>>>>>>>>>>>>>>>>>>>")
+    print("before browser")
+    browser = webdriver.Chrome(options = chrome_options) 
+    print("after browser")
+    print(">>>>>>>>>>>>>>>>>>>>>>>")
     
     html_file_abs =  "file:///" + os.path.abspath(html_file)
     
