@@ -1,7 +1,7 @@
 from __future__ import print_function
 from lib import file_tools as ft
 from lib import streamlit_wrapper as mlib
-# from data.daos import dao_facade_streamlit as dao_fac
+from data.daos import dao_facade_streamlit as dao_fac
 
 import config_logging
 import controllers.sd_report_type_passed_controller as sd_report_controller
@@ -98,8 +98,12 @@ def df_to_dict_of_lists(df, df_key, df_child_key, list_key_name):
   
   
 ### Retrieve the boroughs and wards
-boroughs_and_wards_df = dao_fac.boroughs_and_wards(db_conn, None)
 
+try:
+  boroughs_and_wards_df = dao_fac.boroughs_and_wards(db_conn, None)
+except Exception as e:
+  log.error(str(e)) 
+  
 ## List -- this will come from a DAO
 # ms_borough_list = ["Hackney", "Hounslow", "Newham", "Richmond upon Thames", "Tower Hamlets"]
 #
