@@ -76,7 +76,7 @@ print(new_path)
 print(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
 
 import chromedriver_autoinstaller as chromedriver
-# chromedriver.install()
+chromedriver.install()
 
 ##
 ## Generate Link
