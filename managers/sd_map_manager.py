@@ -125,14 +125,14 @@ def generate_map(file, **kwargs):
       
     print("Before add_argument")
     chrome_options.add_argument("--headless")
+    # chrome_options.add_argument("-no-sandbox")
+    # chrome_options.add_argument("--disable-dev-shm-usage")
+    
+    import chromedriver_binary as cdb
+    print("Before add_chromedriver_to_path")
+    cdb.add_chromedriver_to_path()
+    
     if 1 == 2:    
-      # chrome_options.add_argument("-no-sandbox")
-      # chrome_options.add_argument("--disable-dev-shm-usage")
-    
-      import chromedriver_binary as cdb
-      print("Before add_chromedriver_to_path")
-      cdb.add_chromedriver_to_path()
-    
       # chrome_service = ChromeService(executable_path = chrome_binary_location)
       chrome_service = ChromeService()
       print("Before ChromeService()")
