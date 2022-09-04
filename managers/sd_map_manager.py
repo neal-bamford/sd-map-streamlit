@@ -123,9 +123,9 @@ def generate_map(file, **kwargs):
     chrome_options = ChromiumOptions()
     # chrome_options.headless = True
       
+    print("Before add_argument")
+    chrome_options.add_argument("--headless")
     if 1 == 2:    
-      print("Before add_argument")
-      chrome_options.add_argument("--headless")
       # chrome_options.add_argument("-no-sandbox")
       # chrome_options.add_argument("--disable-dev-shm-usage")
     
