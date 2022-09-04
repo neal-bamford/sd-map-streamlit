@@ -132,16 +132,16 @@ def generate_map(file, **kwargs):
     print("Before add_chromedriver_to_path")
     cdb.add_chromedriver_to_path()
     
-    if 1 == 2:    
-      # chrome_service = ChromeService(executable_path = chrome_binary_location)
-      chrome_service = ChromeService()
-      print("Before ChromeService()")
-      chrome_service = ChromeService()
+    # chrome_service = ChromeService(executable_path = chrome_binary_location)
+    chrome_service = ChromeService()
+    print("Before ChromeService()")
+    chrome_service = ChromeService()
       # browser = webdriver.Chrome(service=chrome_service,
       #                            options = chrome_options
       #                            ) 
-      print(">>>>>>>>>>>>>>>>>>>>>>>")
-      print("before browser")
+    print(">>>>>>>>>>>>>>>>>>>>>>>")
+    print("before browser")
+    if 1 == 2:    
       browser = webdriver.Chrome(service=chrome_service, options = chrome_options, service_args=['--verbose', '--log-path=/home/chromedriver.log']) 
       print("after browser")
       print(">>>>>>>>>>>>>>>>>>>>>>>")
