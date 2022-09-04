@@ -78,7 +78,7 @@ print(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
 import platform
 print(platform.platform())
 
-import chromedriver_autoinstaller as chromedriver
+# import chromedriver_autoinstaller as chromedriver
 # chromedriver.install()
 
 ##
