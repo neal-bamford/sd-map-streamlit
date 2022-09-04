@@ -78,6 +78,10 @@ print(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
 import platform
 print(platform.platform())
 
+import chromedriver_binary as cdb
+print(dir(cdb))
+cdb.add_chromedriver_to_path()
+
 # import chromedriver_autoinstaller as chromedriver
 # chromedriver.install()
 
