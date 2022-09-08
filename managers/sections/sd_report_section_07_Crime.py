@@ -14,7 +14,7 @@ import pyodbc
 import toml
 import urllib.request
 
-log = logging.getLogger(__name__)
+log = logging.getLogger("sd_report_section_07_Crime")
 
 def generate_report_section(session_id
                           , search_term
@@ -22,6 +22,12 @@ def generate_report_section(session_id
                           , properties
                           , dao_fac=dao_fac
                           , **kwargs):  
+  
+  """
+  Retrieves, analyses and generates the visualisations and text for the crime data.
+  """
+
+  log.info("Generating Crime Section")
 
   ## Retrieve values from properties
   save_image_path = properties["save_image"]["path"]
@@ -635,13 +641,7 @@ def generate_report_section(session_id
   ## BUMP CHART NARRATIVE TO EXPLAIN WHERE IT RANKS IN THE THREE BANDS
   #
 
-  ## Leave it blank if only one year's worth of data
-  crime_bump_chart_narrative_02 = "" 
-  
-  ## Can only analyse if we have at least two years
-  if year_from != year_to:
-      borough_yearly_rankings = all_borough_ranking_by_year_df[all_borough_ranking_by_year_df.index == borough]
-      
+  def generate_crime_bump_chart_narrative(borough_name, borough_data):
       top = 0
       middle = 0
       bottom = 0
@@ -651,8 +651,8 @@ def generate_report_section(session_id
       below = 0
       start_rank = None
 
-      for column in borough_yearly_rankings:
-          rank = borough_yearly_rankings[column].values[0]
+      for column in borough_data:
+          rank = borough_data[column].values[0]
           if rank <= 11:
               top += 1
           elif rank >= 23:
@@ -721,7 +721,7 @@ def generate_report_section(session_id
       comma_or_and_1_v = v_punct_list_pos_1[stf([crime_vertical_narrative_top,crime_vertical_narrative_middle, crime_vertical_narrative_bottom])-1]
       comma_or_and_2_v = v_punct_list_pos_2[stf([crime_vertical_narrative_top,crime_vertical_narrative_middle, crime_vertical_narrative_bottom])-1]
 
-      crime_vertical_narrative = f"{borough} is{crime_vertical_narrative_top}{comma_or_and_1_v}{crime_vertical_narrative_middle}{comma_or_and_2_v}{crime_vertical_narrative_bottom}"
+      crime_vertical_narrative = f"{borough_name} is{crime_vertical_narrative_top}{comma_or_and_1_v}{crime_vertical_narrative_middle}{comma_or_and_2_v}{crime_vertical_narrative_bottom}"
 
       crime_horizontal_up   = "" if "never" in place(above_pct) else f"{place(above_pct, list=['never', 'sometimes', 'frequently', 'very frequently', 'always'])} moves up"
       crime_horizontal_same = "" if "never" in place(same_pct)  else f"{place(same_pct,  list=['never', 'sometimes', 'frequently', 'very frequently', 'always'])} stays level"
@@ -734,7 +734,24 @@ def generate_report_section(session_id
       # log.debug(crime_vertical_narrative)
       # log.debug(crime_horizontal_narrative)
 
-      crime_bump_chart_narrative_02 = f"{crime_vertical_narrative}. Where it {crime_horizontal_narrative} with respect to its starting rank."  
+      crime_bump_chart_narrative = f"{crime_vertical_narrative}. Where it {crime_horizontal_narrative} with respect to its starting rank."      
+      return crime_bump_chart_narrative 
+    
+    
+  ## Leave it blank if only one year's worth of data
+  crime_bump_chart_narrative_02 = "" 
+  
+  ## Can only analyse if we have at least two years
+  if year_from != year_to:
+      borough_yearly_rankings = all_borough_ranking_by_year_df[all_borough_ranking_by_year_df.index == borough]
+      crime_bump_chart_narrative_02 = generate_crime_bump_chart_narrative(borough, borough_yearly_rankings)
+      
+      if ("test_list_all_borough_narrative" in report_context) & (report_context["test_list_all_borough_narrative"]):
+        log.debug("-- All borough Crime Ranking Narratives Start --")
+        for test_borough_yearly_rankings in all_borough_ranking_by_year_df.index.to_list():
+          log.debug(generate_crime_bump_chart_narrative(test_borough_yearly_rankings, all_borough_ranking_by_year_df[all_borough_ranking_by_year_df.index == test_borough_yearly_rankings]))
+        
+        log.debug("-- All borough Crime Ranking Narratives End --")
       
   report_context["crime_bump_chart_narrative_02"] = crime_bump_chart_narrative_02
 

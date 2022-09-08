@@ -6,7 +6,7 @@ from lib import masters_data_analytics_lib as mlib
 
 # db_conn = db_tools.get_db_conn(properties[properties["database"]["flavour"]] )
 
-log = logging.getLogger(__name__)
+log = logging.getLogger("data_dao")
 
 ######
 ###### CRIME QUERIES START

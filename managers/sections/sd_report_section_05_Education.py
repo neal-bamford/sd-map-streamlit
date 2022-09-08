@@ -14,7 +14,7 @@ import pyodbc
 import toml
 import urllib.request
 
-log = logging.getLogger(__name__)
+log = logging.getLogger("sd_report_section_05_Education")
 
 def generate_report_section(session_id
                           , search_term
@@ -22,6 +22,12 @@ def generate_report_section(session_id
                           , properties
                           , dao_fac=dao_fac
                           , **kwargs):  
+  
+  """
+  Retrieves, analyses and generates the visualisations and text for the education data.
+  """
+  
+  log.info("Generating Education Section")
 
   ## Retrieve values from properties
   save_image_path = properties["save_image"]["path"]

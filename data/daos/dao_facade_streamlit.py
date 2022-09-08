@@ -5,7 +5,7 @@ import pyodbc as pyodbc
 
 import logging
 
-log = logging.getLogger(__name__)
+log = logging.getLogger("dao_facade_streamlit")
 
 ### LOCATION DAO
 ###

@@ -2,7 +2,7 @@ import config_logging
 import streamlit as st
 import logging
 
-log = logging.getLogger(__name__)
+log = logging.getLogger("SD_Map_Dev")
 
 st.title("Main page Changed")
 st.sidebar.markdown("# Main page")

@@ -16,7 +16,7 @@ from managers.sections import sd_report_section_05_Education as report_section_e
 from managers.sections import sd_report_section_06_Earnings as report_section_earnings
 from managers.sections import sd_report_section_07_Crime as report_section_crime
 
-log = logging.getLogger(__name__)
+log = logging.getLogger("sd_report_type_general")
 
 def generate_report(session_id
                   , search_term
@@ -24,10 +24,13 @@ def generate_report(session_id
                   , properties
                   , lib=mlib
                   , dao_fac=dao_fac):
+    """
+    Orchestrates the the creation of the general report by calling the sections after validating the 
+    search terms, also makes use of the map manager to create the map image for use in the document.
+    """
     
-    ### TO DO - Change this to a DAO    
-    # sd_london_postcodes_file        = "./data/streamlit_{}_postcodes_oa.csv".format(city.lower())
-    # sd_london_postcodes_df        = lib.csv_to_dataframe(sd_london_postcodes_file)
+    log.info("Generating General Report")
+
     
     ###
     ### VALIDATE THE SEARCH TERMS
@@ -142,3 +145,5 @@ def generate_report(session_id
     
     log.debug(f"returning generated_report:{generated_report}")
     return generated_report
+
+

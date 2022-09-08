@@ -22,7 +22,7 @@ import os
 import pandas as pd
 import sys
 
-log = logging.getLogger(__name__)
+log = logging.getLogger("sd_report_manager")
 
 
 def map_alignment(alignment):
@@ -87,6 +87,9 @@ def delete_row():
       parent._tbl.remove(row_to_delete._tr)
   
 def include_image(image_name_in_context, image_alignment="left", image_width=6):
+  """
+  Includes an image from a given location into the table cell being processed
+  """
   if "table_cell" not in globals():
     log.error("Can not reference table_cell")
   else:
@@ -98,7 +101,7 @@ def include_image(image_name_in_context, image_alignment="left", image_width=6):
     paragraph.alignment = map_alignment(image_alignment)
     paragraph_run.add_picture(image_location, width=Inches(image_width))
   
-def include_text(text_content, text_alignment='left', format_tokens=None):
+def include_text(text_content_in_context, text_alignment='left', format_tokens=None):
   """
   Add text to a table cell - copies the attributes of the text font name, color and size 
   and re-applies after changing the text. 
@@ -108,13 +111,13 @@ def include_text(text_content, text_alignment='left', format_tokens=None):
     log.error("Can not reference table_cell")
   else:
     table_cell = globals()["table_cell"]
-    text_content = globals()["report_context"][text_content]
+    text_content_in_context = globals()["report_context"][text_content_in_context]
     
     ##format if format_tokens
     if format_tokens != None:
-      text_content = text_content.replace("{{", "{")
-      text_content = text_content.replace("}}", "}")
-      text_content = text_content.format(format_tokens)
+      text_content_in_context = text_content_in_context.replace("{{", "{")
+      text_content_in_context = text_content_in_context.replace("}}", "}")
+      text_content_in_context = text_content_in_context.format(format_tokens)
 
     ## Copy the for name, size and color before changing the text
     font_name = table_cell.paragraphs[0].runs[0].font.name
@@ -123,7 +126,7 @@ def include_text(text_content, text_alignment='left', format_tokens=None):
     ## take existing alignment and map it
     
     ## Change the text
-    table_cell.text = text_content
+    table_cell.text = text_content_in_context
     
     ## Set the alignment if we pass it in
     if text_alignment != None:
@@ -151,7 +154,7 @@ def include_error(error_content, text_alignment='left'):
     run = paragraph.add_run(error_content)
     run.font.color.rgb = RGBColor(255, 0, 0)
 
-def include_table(data, shading=None, style=None, columns=None, table_alignment=None):
+def include_table(data_table_in_context, shading=None, style=None, columns=None, table_alignment=None):
   """
   Include a Pandas DataFrame as a Word Table
   Apply a style to it - the style MUST exist in the template document
@@ -170,16 +173,16 @@ def include_table(data, shading=None, style=None, columns=None, table_alignment=
     existing_paragraphs = table_cell.paragraphs
 
     ## If we want shading then make a dataframe with the 
-    ## original data column
+    ## original data_table_in_context column
     if shading != None:
-        shading_df = pd.DataFrame(shading, columns=data.columns.tolist())
+        shading_df = pd.DataFrame(shading, columns=data_table_in_context.columns.tolist())
         
     ## make a frame from the columns - should be able to re-order here too
     if columns != None:
-        data = data[columns]
+        data_table_in_context = data_table_in_context[columns]
         
-    ## Create the new table to populate with our data
-    dataframe_table = table_cell.add_table(data.shape[0]+1, data.shape[1])
+    ## Create the new table to populate with our data_table_in_context
+    dataframe_table = table_cell.add_table(data_table_in_context.shape[0]+1, data_table_in_context.shape[1])
 
     ## Remove the existing paragraph so it fits properly
     for paragraph in existing_paragraphs:
@@ -201,16 +204,16 @@ def include_table(data, shading=None, style=None, columns=None, table_alignment=
     ## Populate the table with our dataframe
     
     ### add the header rows.
-    for j in range(data.shape[-1]):
-        dataframe_table.cell(0,j).text = data.columns[j]
+    for j in range(data_table_in_context.shape[-1]):
+        dataframe_table.cell(0,j).text = data_table_in_context.columns[j]
         if table_alignment != None:
           dataframe_table.cell(0,j).paragraphs[0].paragraph_format.alignment = map_table_alignment(table_alignment[j])
         
 
-    ### add the rest of the data frame
-    for i in range(data.shape[0]):
-        for j in range(data.shape[-1]):
-            dataframe_table.cell(i+1,j).text = str(data.values[i,j])    
+    ### add the rest of the data_table_in_context frame
+    for i in range(data_table_in_context.shape[0]):
+        for j in range(data_table_in_context.shape[-1]):
+            dataframe_table.cell(i+1,j).text = str(data_table_in_context.values[i,j])    
             if table_alignment != None:
               dataframe_table.cell(i+1,j).paragraphs[0].paragraph_format.alignment = map_table_alignment(table_alignment[j])
 
@@ -219,7 +222,7 @@ def include_table(data, shading=None, style=None, columns=None, table_alignment=
         
         ## If we want to change the columns then
         if columns != None:
-            data = data[columns]
+            data_table_in_context = data_table_in_context[columns]
             shading_df = shading_df[columns]
         
         ## We might have re-ordered the columns so remake the list
@@ -245,6 +248,10 @@ def generate_report(session_id
   """
   Generate the word report based on a merge and a replacement with Python scripting...
   """
+  
+  log.info("Report Manager")
+
+  
   stage_03_docx = "remove_me_once_working_properly"
   globals()["report_context"] = report_context
   locals().update(report_context)
@@ -312,7 +319,7 @@ def generate_report(session_id
             log.error(exc_type, exc_obj, exc_tb)
             include_error(str(response_error))
         else:
-          log.warn("Not a Command")            
+          log.debug("Skipping, no a Command")            
     
     ## Save the template and reference it for the merge to happen in the next part
     stage_02_template = "{}/{}_stage_02_template_{}".format(report_generation_folder, session_id, template_name)

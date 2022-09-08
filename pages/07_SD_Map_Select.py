@@ -21,7 +21,7 @@ db_conn = db_tools.get_db_conn(database_props)
 
 import uuid
 
-log = logging.getLogger(__name__)
+log = logging.getLogger("07_SD_Map_Select")
 
 
 session_id = str(uuid.uuid4())[:8]

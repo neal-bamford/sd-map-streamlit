@@ -15,7 +15,7 @@ import pyodbc
 import toml
 import urllib.request
 
-log = logging.getLogger(__name__)
+log = logging.getLogger("sd_search_validation")
 
 def validate_search(session_id
                   , search_term
@@ -23,6 +23,12 @@ def validate_search(session_id
                   , properties
                   , lib=mlib
                   , dao_fac=dao_fac):
+  
+  """
+  Validates the search terms for the creation of a report
+  """
+  
+  log.info("Search Validation")
   
   from lib import db_tools as db_tools
   from lib import general_tools as gen_tools

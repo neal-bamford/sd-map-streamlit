@@ -3,7 +3,7 @@ from . import data_dao as dat_dao
 
 import logging
 
-log = logging.getLogger(__name__)
+log = logging.getLogger("dao_facade_local")
 
 ### LOCATION DAO
 ###

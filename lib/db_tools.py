@@ -1,7 +1,7 @@
 import logging
 import pyodbc 
 
-log = logging.getLogger(__name__)
+log = logging.getLogger("db_tools")
 
 def get_db_conn(database_props):
     try:                      

@@ -8,7 +8,7 @@ import time
 from selenium import webdriver
 from lib import file_tools as ft
 
-log = logging.getLogger(__name__)
+log = logging.getLogger("sd_map_manager")
 
 def generate_map(file, **kwargs):
     """
@@ -16,6 +16,9 @@ def generate_map(file, **kwargs):
     html file, render it then take a snapshot of the page, save it as a .png then return its 
     location to the caller.
     """
+    
+    log.info("Map Manager")
+
     properties = kwargs["properties"]
     map_args   = kwargs["map_args"]
 

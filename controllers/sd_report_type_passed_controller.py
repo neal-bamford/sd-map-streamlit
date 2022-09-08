@@ -3,7 +3,7 @@ from lib import masters_data_analytics_lib as mlib
 import logging
 import uuid
 
-log = logging.getLogger(__name__)
+log = logging.getLogger("sd_report_type_passed_controller")
 
 ## Session ID - Fake here
 session_id = str(uuid.uuid4())[:8]
