@@ -608,12 +608,13 @@ def generate_report_section(session_id
       borough_yearly_rankings = all_borough_ranking_by_year_df[all_borough_ranking_by_year_df.index == borough]
       earnings_bump_chart_narrative_02 = generate_earnings_bump_chart_narrative(borough, borough_yearly_rankings)
       
-      if ("test_list_all_borough_narrative" in report_context) & (report_context["test_list_all_borough_narrative"]):
-        log.debug("-- All borough Earnings Ranking Narratives Start --")
-        for test_borough_yearly_rankings in all_borough_ranking_by_year_df.index.to_list():
-          log.debug(generate_earnings_bump_chart_narrative(test_borough_yearly_rankings, all_borough_ranking_by_year_df[all_borough_ranking_by_year_df.index == test_borough_yearly_rankings]))
-        
-        log.debug("-- All borough Earnings Ranking Narratives End --")
+      if ("test_list_all_borough_narrative" in report_context):
+        if (report_context["test_list_all_borough_narrative"]):
+          log.debug("-- All borough Earnings Ranking Narratives Start --")
+          for test_borough_yearly_rankings in all_borough_ranking_by_year_df.index.to_list():
+            log.debug(generate_earnings_bump_chart_narrative(test_borough_yearly_rankings, all_borough_ranking_by_year_df[all_borough_ranking_by_year_df.index == test_borough_yearly_rankings]))
+          
+          log.debug("-- All borough Earnings Ranking Narratives End --")
       
   report_context["earnings_bump_chart_narrative_02"] = earnings_bump_chart_narrative_02
   
