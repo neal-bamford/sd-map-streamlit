@@ -12,7 +12,9 @@ import streamlit as st
 st.markdown("# SD Test Import Page")
 st.sidebar.markdown("# SD Test Import Page")
 
-import pip #needed to use the pip functions
-for i in pip.get_installed_distributions(local_only=True):
-    print(i)
+import pkg_resources
+
+dists = [d for d in pkg_resources.working_set]
+
+st.write(dists)
 
