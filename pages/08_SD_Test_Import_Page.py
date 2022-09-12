@@ -6,9 +6,6 @@ import config_logging
 import logging
 import streamlit as st
 
-## This comes from Streamlit so fake here
-propertie
-
 st.markdown("# SD Test Import Page")
 st.sidebar.markdown("# SD Test Import Page")
 
