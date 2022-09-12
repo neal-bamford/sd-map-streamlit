@@ -7,8 +7,12 @@ import config_logging
 import logging
 import streamlit as st
 
-import pyodbc as pyodbc
+# import pyodbc as pyodbc
 
 st.markdown("# SD Test Import Page")
 st.sidebar.markdown("# SD Test Import Page")
+
+import pip #needed to use the pip functions
+for i in pip.get_installed_distributions(local_only=True):
+    print(i)
 
