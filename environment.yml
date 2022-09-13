@@ -2,6 +2,7 @@ name: sd_maps_reports
 channels:
   - conda-forge
 dependencies:
+  - python
   - python-chromedriver-binary
   - pip
   - pip:
