@@ -125,17 +125,18 @@ def generate_map(file, **kwargs):
     chrome_options = ChromiumOptions()
     chrome_options.headless = True
     
-    chrome_options.add_argument("--headless")
-    chrome_options.add_argument("-no-sandbox")
-    chrome_options.add_argument("--disable-dev-shm-usage")
-    chrome_options.add_argument('start-maximized') # 
-    chrome_options.add_argument('disable-infobars')
-    chrome_options.add_argument("--disable-extensions")
+    # chrome_options.add_argument("--headless")
+    # chrome_options.add_argument("-no-sandbox")
+    # chrome_options.add_argument("--disable-dev-shm-usage")
+    # chrome_options.add_argument('start-maximized') # 
+    # chrome_options.add_argument('disable-infobars')
+    # chrome_options.add_argument("--disable-extensions")
 
     chrome_service = ChromeService(executable_path = chrome_binary_location)
     browser = webdriver.Chrome(service=chrome_service,
-                               options = chrome_options,
-                               service_args=["--verbose", "--log-path=/home/appuser/venv/lib/python3.9/site-packages/chromedriver_binary/qc1.log"]
+                               options = chrome_options
+                               # ,
+                               # service_args=["--verbose", "--log-path=/home/appuser/venv/lib/python3.9/site-packages/chromedriver_binary/qc1.log"]
                                ) 
     
     html_file_abs =  "file:///" + os.path.abspath(html_file)
