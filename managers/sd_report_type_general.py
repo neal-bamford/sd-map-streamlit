@@ -52,57 +52,63 @@ def generate_report(session_id
     ##
     ### GENERATE POPULATION SECTION
     ##
-    report_section_populaton.generate_report_section(session_id     = session_id
-                                                   , search_term    = validated_search_term
-                                                   , report_context = report_context
-                                                   , properties     = properties 
-                                                   , dao_fac        = dao_fac)  
+    if 1==2:
+      report_section_populaton.generate_report_section(session_id     = session_id
+                                                     , search_term    = validated_search_term
+                                                     , report_context = report_context
+                                                     , properties     = properties 
+                                                     , dao_fac        = dao_fac)  
 
     ##
     ### GENERATE ETHNICITY SECTION
     ##
-    report_section_ethnicity.generate_report_section(session_id     = session_id
-                                                   , search_term    = validated_search_term
-                                                   , report_context = report_context
-                                                   , properties     = properties 
-                                                   , dao_fac        = dao_fac)  
+    if 1==2:
+      report_section_ethnicity.generate_report_section(session_id     = session_id
+                                                     , search_term    = validated_search_term
+                                                     , report_context = report_context
+                                                     , properties     = properties 
+                                                     , dao_fac        = dao_fac)  
     
     ##
     ### GENERATE HEALTH SECTION
     ##
-    report_section_health.generate_report_section(session_id     = session_id
-                                                , search_term    = validated_search_term
-                                                , report_context = report_context
-                                                , properties     = properties 
-                                                , dao_fac        = dao_fac)  
-
-    ##
-    ### GENERATE EDUCATION SECTION
-    ##
-    report_section_education.generate_report_section(session_id     = session_id
-                                                   , search_term    = validated_search_term
-                                                   , report_context = report_context
-                                                   , properties     = properties 
-                                                   , dao_fac        = dao_fac)  
-
-    ##
-    ### GENERATE EARNINGS SECTION
-    ##
-    report_section_earnings.generate_report_section(session_id     = session_id
+    if 1==2:
+      report_section_health.generate_report_section(session_id     = session_id
                                                   , search_term    = validated_search_term
                                                   , report_context = report_context
                                                   , properties     = properties 
                                                   , dao_fac        = dao_fac)  
 
+    ##
+    ### GENERATE EDUCATION SECTION
+    ##
+    if 1==2:
+      report_section_education.generate_report_section(session_id     = session_id
+                                                     , search_term    = validated_search_term
+                                                     , report_context = report_context
+                                                     , properties     = properties 
+                                                     , dao_fac        = dao_fac)  
+
+    ##
+    ### GENERATE EARNINGS SECTION
+    ##
+    if 1==2:
+      report_section_earnings.generate_report_section(session_id     = session_id
+                                                    , search_term    = validated_search_term
+                                                    , report_context = report_context
+                                                    , properties     = properties 
+                                                    , dao_fac        = dao_fac)  
+
 
     ##
     ### GENERATE CRIME SECTION
     ##
-    report_section_crime.generate_report_section(session_id     = session_id
-                                               , search_term    = validated_search_term
-                                               , report_context = report_context
-                                               , properties     = properties 
-                                               , dao_fac        = dao_fac)  
+    if 1==2:
+      report_section_crime.generate_report_section(session_id     = session_id
+                                                 , search_term    = validated_search_term
+                                                 , report_context = report_context
+                                                 , properties     = properties 
+                                                 , dao_fac        = dao_fac)  
 
     
     ##
