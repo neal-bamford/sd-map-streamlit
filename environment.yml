@@ -3,6 +3,7 @@ channels:
   - conda-forge
 dependencies:
   - python>=3.9
+  - streamlit>=1.10
   - python-chromedriver-binary>=1.5
   - pip
   - pip:
