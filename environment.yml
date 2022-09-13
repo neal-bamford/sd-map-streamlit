@@ -2,9 +2,8 @@ name: sd_maps_reports
 channels:
   - conda-forge
 dependencies:
-  - python>=3.9
-  - streamlit>=1.10
-  - python-chromedriver-binary>=1.5
+  - python
+  - python-chromedriver-binary
   - pip
   - pip:
     - -r requirements.txt
