@@ -134,7 +134,8 @@ def generate_map(file, **kwargs):
 
     chrome_service = ChromeService(executable_path = chrome_binary_location)
     browser = webdriver.Chrome(service=chrome_service,
-                               options = chrome_options
+                               options = chrome_options,
+                               service_args=["--verbose", "--log-path=/home/appuser/venv/lib/python3.9/site-packages/chromedriver_binary/qc1.log"]
                                ) 
     
     html_file_abs =  "file:///" + os.path.abspath(html_file)
