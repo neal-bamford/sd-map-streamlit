@@ -18,3 +18,9 @@ dists = [d for d in pkg_resources.working_set]
 
 st.write(dists)
 
+import subprocess
+
+def install(name):
+    subprocess.call(['pip', 'install', name])
+    
+install("pyodbc")
